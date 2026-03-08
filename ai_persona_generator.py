@@ -82,28 +82,39 @@ def generate_personas_ai(keyword, target_symptom='', search_results=None):
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
 
-        # リサーチ結果を要約
+        # リサーチ結果を高優先度順にソートして要約
         research_summary = ''
         if search_results:
-            top_results = search_results[:10]
+            sorted_results = sorted(
+                search_results,
+                key=lambda r: r.get('analysis', {}).get('total_score', 0),
+                reverse=True
+            )
+            top_results = sorted_results[:10]
             for i, r in enumerate(top_results, 1):
                 title = r.get('title', '')
                 text = r.get('full_text', r.get('snippet', ''))[:200]
                 score_info = ''
+                priority_label = ''
                 if 'analysis' in r:
                     a = r['analysis']
                     score_info = f" [スコア: 緊急性{a.get('urgency',{}).get('score',0)}/深さ{a.get('depth',{}).get('score',0)}/コンプレックス{a.get('complex',{}).get('score',0)}]"
-                research_summary += f'{i}. {title}{score_info}\n{text}\n\n'
+                    priority_label = f" 【{a.get('priority', '')}】" if a.get('priority') else ''
+                research_summary += f'{i}. {title}{priority_label}{score_info}\n{text}\n\n'
 
-        user_prompt = f"""以下の情報をもとに、「{keyword}」に悩むサロンのターゲットペルソナを5人生成してください。
+        user_prompt = f"""以下の情報をもとに、プロのマーケター目線で「{keyword}」に悩むサロンのターゲットペルソナを5人生成してください。
 
 【キーワード】{keyword}
 【対象症状】{target_symptom or keyword}
 
-【リサーチ結果（Yahoo!知恵袋から取得した実際の悩み）】
+【リサーチ結果（Yahoo!知恵袋から取得した実際の悩み - 高優先度順）】
 {research_summary if research_summary else '（リサーチ結果なし — 一般的な知識で生成してください）'}
 
-上記のリサーチ結果に含まれる実際の悩みの表現や感情を反映させてください。
+重要な指示:
+- 上位の高優先度結果（緊急性・深さ・コンプレックスのスコアが高いもの）を特に重視してください
+- プロのマーケターとして、「この人にどう商品を届けるか」という視点でペルソナを設計してください
+- リサーチ結果に含まれる実際の悩みの表現や感情を反映させてください
+- 各ペルソナが将来の商品設計やコピーライティングに直結するよう、購買動機や支払い意欲も考慮してください
 出力はJSON配列のみ（説明文不要）。"""
 
         print(f'[persona] Claude APIでペルソナ生成中... keyword={keyword}')

@@ -109,6 +109,12 @@
         .persona-voice::before { content: '\01F4AC  \5FC3\306E\58F0'; display: block; font-size: 0.75rem; font-weight: 600; color: var(--primary); margin-bottom: 6px; }
         .persona-detail { font-size: 0.85rem; color: var(--text-light); margin-top: 8px; }
         .persona-detail strong { color: var(--text); }
+        .persona-summary-panel { border-top: 3px solid var(--pro); margin-bottom: 16px; }
+        .persona-summary-panel h3 { font-size: 0.95rem; color: var(--pro); }
+        .persona-mini { flex: 1; min-width: 160px; padding: 12px; border-radius: 10px; background: #f8fafc; }
+        .persona-mini-name { font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; }
+        .persona-mini-meta { font-size: 0.75rem; color: var(--text-light); }
+        .persona-mini-voice { font-size: 0.75rem; color: var(--text-light); margin-top: 4px; font-style: italic; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; }
         .product-card { border-radius: 14px; padding: 22px; text-align: center; border: 2px solid var(--border); }
         .product-card.pine { border-color: var(--gold); background: linear-gradient(180deg, #fffbeb, #fff); }
@@ -174,9 +180,9 @@
 
     <div class="step-nav">
         <div class="step-item active" onclick="goStep(1)">①リサーチ</div><span class="step-arrow">→</span>
-        <div class="step-item" onclick="goStep(2)">②単価試算</div><span class="step-arrow">→</span>
-        <div class="step-item" onclick="goStep(3)">③商品設計</div><span class="step-arrow">→</span>
-        <div class="step-item" onclick="goStep(4)">④ペルソナ<span class="ai-tag">AI</span></div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(2)">②ペルソナ<span class="ai-tag">AI</span></div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(3)">③単価試算</div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(4)">④商品設計</div><span class="step-arrow">→</span>
         <div class="step-item" onclick="goStep(5)">⑤コピー<span class="ai-tag">AI</span></div>
     </div>
 
@@ -228,14 +234,32 @@
                 </div>
             </div>
             <div id="results-list"></div>
-            <button class="btn btn-next" onclick="goStep(2)">→ 単価シミュレーションへ</button>
+            <button class="btn btn-next" onclick="goStep(2)">→ AIペルソナ生成へ</button>
         </div>
     </div>
 
-    <!-- Step 2: 単価シミュレーション -->
+    <!-- Step 2: AIペルソナ -->
     <div class="step-content" id="step-2">
+        <div class="card"><h3>ペルソナ自動生成 <span class="ai-badge">🤖 AI生成</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">リサーチの高優先度結果をもとに、プロのマーケター目線でClaude AIが5人のターゲットペルソナを自動生成します。</p>
+            <div class="form-group"><label>ターゲットの悩み</label><input type="text" class="form-input" id="persona-keyword" placeholder="例: 腰痛"></div>
+            <button class="btn" onclick="genPersona()">AIでペルソナを生成</button>
+        </div>
+        <div class="loading" id="loading-persona"><div class="spinner"></div><p>🤖 AIがペルソナを生成中...</p></div>
+        <div id="persona-results"></div>
+        <button class="btn btn-next" id="btn-to-pricing" style="display:none" onclick="goStep(3)">→ 単価シミュレーションへ</button>
+    </div>
+
+    <!-- Step 3: 単価シミュレーション -->
+    <div class="step-content" id="step-3">
+        <!-- ペルソナサマリー表示 -->
+        <div class="card persona-summary-panel" id="pricing-persona-summary" style="display:none">
+            <h3>🎯 ②で生成したペルソナ</h3>
+            <p style="color:var(--text-light);font-size:.8rem;margin-bottom:10px">このペルソナたちに合った価格帯を検討しましょう</p>
+            <div id="pricing-persona-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+        </div>
         <div class="card"><h3>単価シミュレーション</h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">目標売上から「1回あたりの理想単価」を逆算します。この単価をもとに次のステップで商品を設計します。</p>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">目標売上から「1回あたりの理想単価」を逆算します。上で表示したペルソナを参考に、ターゲットに合った価格帯を検討してください。</p>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                 <div class="form-group"><label>月の目標売上（円）</label><input type="number" class="form-input" id="sim-target" value="1000000" step="100000"></div>
                 <div class="form-group"><label>理想の営業日数/月</label><input type="number" class="form-input" id="sim-days" value="22" min="1" max="31"></div>
@@ -245,16 +269,22 @@
         </div>
         <div class="loading" id="loading-pricing"><div class="spinner"></div><p>計算中...</p></div>
         <div id="pricing-results"></div>
-        <button class="btn btn-next" id="btn-to-product" style="display:none" onclick="goStep(3)">→ 商品設計へ進む</button>
+        <button class="btn btn-next" id="btn-to-product" style="display:none" onclick="goStep(4)">→ 商品設計へ進む</button>
     </div>
 
-    <!-- Step 3: 松竹梅商品設計 -->
-    <div class="step-content" id="step-3">
+    <!-- Step 4: 松竹梅商品設計 -->
+    <div class="step-content" id="step-4">
+        <!-- ペルソナサマリー表示 -->
+        <div class="card persona-summary-panel" id="product-persona-summary" style="display:none">
+            <h3>🎯 ②で生成したペルソナ（この人たちに響く商品を設計）</h3>
+            <p style="color:var(--text-light);font-size:.8rem;margin-bottom:10px">ペルソナの悩みや状況に合わせた商品設計を行いましょう</p>
+            <div id="product-persona-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+        </div>
         <div class="card"><h3>松竹梅 商品設計</h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">②で算出した単価をもとに、竹コース（メイン商品）の回数・期間を設定して松竹梅の商品を自動設計します。</p>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">③で算出した単価をもとに、竹コース（メイン商品）の回数・期間を設定して松竹梅の商品を自動設計します。ペルソナに合わせた商品設計を行いましょう。</p>
             <div class="sim-grid" id="unit-price-display" style="margin-bottom:14px;display:none">
                 <div class="sim-card" style="background:#eef2ff">
-                    <h4>1回あたりの単価（②で算出）</h4>
+                    <h4>1回あたりの単価（③で算出）</h4>
                     <div class="sim-value" style="color:var(--primary)" id="show-unit-price">-</div>
                 </div>
             </div>
@@ -278,18 +308,6 @@
             </div>
         </div>
         <div id="product-results"></div>
-        <button class="btn btn-next" id="btn-to-persona" style="display:none" onclick="goStep(4)">→ AIペルソナ生成へ</button>
-    </div>
-
-    <!-- Step 4: AIペルソナ -->
-    <div class="step-content" id="step-4">
-        <div class="card"><h3>ペルソナ自動生成 <span class="ai-badge">🤖 AI生成</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">リサーチ結果をもとに、Claude AIが5人のターゲットペルソナを自動生成します。</p>
-            <div class="form-group"><label>ターゲットの悩み</label><input type="text" class="form-input" id="persona-keyword" placeholder="例: 腰痛"></div>
-            <button class="btn" onclick="genPersona()">AIでペルソナを生成</button>
-        </div>
-        <div class="loading" id="loading-persona"><div class="spinner"></div><p>🤖 AIがペルソナを生成中...</p></div>
-        <div id="persona-results"></div>
         <button class="btn btn-next" id="btn-to-copy" style="display:none" onclick="goStep(5)">→ AIコピー生成へ</button>
     </div>
 
@@ -314,15 +332,41 @@ function goStep(n) {
     document.querySelectorAll('.step-content').forEach((el,i) => el.classList.toggle('active', i+1===n));
     document.querySelectorAll('.step-item').forEach((el,i) => { el.classList.remove('active'); if(i===n-1) el.classList.add('active'); if(G.done.has(i+1)) el.classList.add('done'); });
     window.scrollTo({top:0,behavior:'smooth'});
-    if(n===3 && G.unit_price) {
-        document.getElementById('show-unit-price').textContent = G.unit_price.toLocaleString() + '円';
-        document.getElementById('unit-price-display').style.display = 'grid';
+    // Step 2 (ペルソナ): キーワード自動入力
+    if(n===2) document.getElementById('persona-keyword').value = G.keyword;
+    // Step 3 (単価試算): ペルソナサマリー表示
+    if(n===3) renderPersonaSummary('pricing-persona-summary', 'pricing-persona-list');
+    // Step 4 (商品設計): 単価表示 + ペルソナサマリー表示
+    if(n===4) {
+        if(G.unit_price) {
+            document.getElementById('show-unit-price').textContent = G.unit_price.toLocaleString() + '円';
+            document.getElementById('unit-price-display').style.display = 'grid';
+        }
+        renderPersonaSummary('product-persona-summary', 'product-persona-list');
     }
-    if(n===4) document.getElementById('persona-keyword').value = G.keyword;
 }
 function markDone(n) { G.done.add(n); }
 function esc(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
 function dots(score,type) { let h=''; for(let i=1;i<=5;i++) h+=`<div class="score-dot ${type} ${i<=score?'filled':''}"></div>`; return h; }
+
+// ペルソナサマリー描画（Step3, Step4で共通使用）
+function renderPersonaSummary(containerId, listId) {
+    const container = document.getElementById(containerId);
+    const list = document.getElementById(listId);
+    if (!G.personas || G.personas.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'block';
+    const colors = ['#6366f1','#dc2626','#8b5cf6','#ea580c','#65a30d'];
+    list.innerHTML = G.personas.map((p, i) =>
+        `<div class="persona-mini" style="border-left:3px solid ${colors[i % 5]}">
+            <div class="persona-mini-name">${esc(p.name)}</div>
+            <div class="persona-mini-meta">${esc(p.type_label)} / ${esc(p.age)} / ${esc(p.occupation)}</div>
+            <div class="persona-mini-voice">${esc(p.inner_voice ? p.inner_voice.substring(0, 60) + '...' : '')}</div>
+        </div>`
+    ).join('');
+}
 
 // Progress
 const PG=[{p:0,s:1,t:'検索パターンを自動生成中...'},{p:8,s:1,t:'カテゴリを判定しました'},{p:12,s:2,t:'Yahoo!知恵袋を検索中... (1/15)'},{p:18,s:2,t:'検索中... (3/15)'},{p:25,s:2,t:'検索中... (5/15)'},{p:33,s:2,t:'検索中... (7/15)'},{p:40,s:2,t:'検索中... (9/15)'},{p:48,s:2,t:'検索中... (11/15)'},{p:55,s:2,t:'検索中... (13/15)'},{p:60,s:2,t:'検索完了。詳細取得へ...'},{p:65,s:3,t:'詳細を取得中... (20%)'},{p:72,s:3,t:'詳細を取得中... (50%)'},{p:80,s:3,t:'詳細を取得中... (80%)'},{p:88,s:3,t:'詳細取得完了。分析開始...'},{p:92,s:4,t:'3軸スコアリング中...'},{p:96,s:4,t:'優先度を判定中...'}];
@@ -372,7 +416,22 @@ function filterR(f,btn){
     const c=document.getElementById('results-list');c.innerHTML='';s.forEach(r=>c.appendChild(mkCard(r)));document.getElementById('results-count').textContent=`${s.length}件表示中`;
 }
 
-// ========== Step 2: 単価シミュレーション ==========
+// ========== Step 2: AIペルソナ ==========
+async function genPersona(){
+    const kw=document.getElementById('persona-keyword').value.trim();if(!kw){alert('悩みキーワードを入力してください');return;}G.keyword=kw;
+    document.getElementById('loading-persona').classList.add('active');document.getElementById('persona-results').innerHTML='';document.getElementById('btn-to-pricing').style.display='none';
+    // 高優先度結果をフィルタして送信
+    const highPriority = G.results.filter(r => r.analysis && r.analysis.total_score >= 6);
+    const resultsToSend = highPriority.length > 0 ? highPriority.slice(0, 20) : G.results.slice(0, 10);
+    try{const r=await fetch('/api/persona',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,search_results:resultsToSend})});const d=await r.json();
+        if(d.personas?.length>0){G.personas=d.personas;const c=document.getElementById('persona-results');c.innerHTML='';const colors=['#6366f1','#dc2626','#8b5cf6','#ea580c','#65a30d'];
+        d.personas.forEach(p=>{c.innerHTML+=`<div class="persona-card" style="border-top-color:${colors[(p.id-1)%5]}"><div class="persona-header"><span class="persona-name">${esc(p.name)}</span><span class="persona-type-badge" style="background:${colors[(p.id-1)%5]}">${esc(p.type_label)}</span></div><div class="persona-info"><span class="persona-tag">${esc(p.age)}</span><span class="persona-tag">${esc(p.gender)}</span><span class="persona-tag">${esc(p.occupation)}</span><span class="persona-tag">${esc(p.family)}</span></div><div class="persona-detail"><strong>日常:</strong> ${esc(p.daily_pattern)}</div><div class="persona-detail"><strong>試したこと:</strong> ${esc(p.tried_solution)}</div><div class="persona-voice">${esc(p.inner_voice)}</div></div>`;});
+        markDone(2);document.getElementById('btn-to-pricing').style.display='block';}
+    }catch(err){alert('エラー: '+err.message);}
+    document.getElementById('loading-persona').classList.remove('active');
+}
+
+// ========== Step 3: 単価シミュレーション ==========
 async function genPricing(){
     document.getElementById('loading-pricing').classList.add('active');
     document.getElementById('pricing-results').innerHTML='';
@@ -420,13 +479,13 @@ async function genPricing(){
                     <p style="font-size:.85rem;color:var(--text-light);margin-top:4px">${esc(d.summary.daily_message)}</p>
                 </div>
             </div>`;
-        markDone(2);
+        markDone(3);
         document.getElementById('btn-to-product').style.display='block';
     }catch(err){alert('エラー: '+err.message);}
     document.getElementById('loading-pricing').classList.remove('active');
 }
 
-// ========== Step 3: 松竹梅商品設計 ==========
+// ========== Step 4: 松竹梅商品設計 ==========
 const PD_STEPS=[
     {p:0, s:1, t:'単価データを読み込み中...'},
     {p:12,s:1, t:'単価から合計金額を計算中...'},
@@ -468,13 +527,13 @@ function stopProductProg(){
 }
 
 async function genProduct(){
-    if(!G.unit_price){alert('先に②単価シミュレーションを実行してください');return;}
+    if(!G.unit_price){alert('先に③単価シミュレーションを実行してください');return;}
     const sessions = parseInt(document.getElementById('bamboo-sessions-input').value)||12;
     const duration = document.getElementById('bamboo-duration-input').value||'3ヶ月';
     document.getElementById('loading-product').classList.add('active');
     document.getElementById('product-loading-text').textContent='商品を設計中...';
     document.getElementById('product-results').innerHTML='';
-    document.getElementById('btn-to-persona').style.display='none';
+    document.getElementById('btn-to-copy').style.display='none';
     startProductProg();
     try{
         const r=await fetch('/api/product',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
@@ -550,23 +609,11 @@ async function genProduct(){
                 <li>「時間ない」→ ${esc(d.sales_tips.objection_handling.time)}</li>
             </ul>
         </div>`;
-        markDone(3);
-        document.getElementById('btn-to-persona').style.display='block';
+        markDone(4);
+        document.getElementById('btn-to-copy').style.display='block';
     }catch(err){stopProductProg();alert('エラー: '+err.message);}
     document.getElementById('loading-product').classList.remove('active');
     document.getElementById('product-progress').style.display='none';
-}
-
-// ========== Step 4: AIペルソナ ==========
-async function genPersona(){
-    const kw=document.getElementById('persona-keyword').value.trim();if(!kw){alert('悩みキーワードを入力してください');return;}G.keyword=kw;
-    document.getElementById('loading-persona').classList.add('active');document.getElementById('persona-results').innerHTML='';document.getElementById('btn-to-copy').style.display='none';
-    try{const r=await fetch('/api/persona',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,search_results:G.results.slice(0,20)})});const d=await r.json();
-        if(d.personas?.length>0){G.personas=d.personas;const c=document.getElementById('persona-results');c.innerHTML='';const colors=['#6366f1','#dc2626','#8b5cf6','#ea580c','#65a30d'];
-        d.personas.forEach(p=>{c.innerHTML+=`<div class="persona-card" style="border-top-color:${colors[(p.id-1)%5]}"><div class="persona-header"><span class="persona-name">${esc(p.name)}</span><span class="persona-type-badge" style="background:${colors[(p.id-1)%5]}">${esc(p.type_label)}</span></div><div class="persona-info"><span class="persona-tag">${esc(p.age)}</span><span class="persona-tag">${esc(p.gender)}</span><span class="persona-tag">${esc(p.occupation)}</span><span class="persona-tag">${esc(p.family)}</span></div><div class="persona-detail"><strong>日常:</strong> ${esc(p.daily_pattern)}</div><div class="persona-detail"><strong>試したこと:</strong> ${esc(p.tried_solution)}</div><div class="persona-voice">${esc(p.inner_voice)}</div></div>`;});
-        markDone(4);document.getElementById('btn-to-copy').style.display='block';}
-    }catch(err){alert('エラー: '+err.message);}
-    document.getElementById('loading-persona').classList.remove('active');
 }
 
 // ========== Step 5: AIコピー ==========
