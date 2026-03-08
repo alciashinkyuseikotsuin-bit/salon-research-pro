@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品設計サポートツール｜Pro版</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --red: #dc2626;
+            --orange: #ea580c;
+            --yellow: #ca8a04;
+            --green: #65a30d;
+            --gray: #9ca3af;
+            --gold: #b8860b;
+            --purple: #8b5cf6;
+            --pro: #f59e0b;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+        .container { max-width: 960px; margin: 0 auto; padding: 16px; }
+        header { text-align: center; padding: 30px 16px 10px; }
+        header h1 { font-size: 1.5rem; font-weight: 700; color: var(--primary-dark); }
+        header .badge { display: inline-block; padding: 2px 12px; background: linear-gradient(135deg, var(--pro), #d97706); color: #fff; border-radius: 20px; font-size: 0.75rem; margin-top: 4px; font-weight: 700; }
+        .step-nav { display: flex; justify-content: center; gap: 4px; margin: 16px 0 20px; flex-wrap: wrap; }
+        .step-item { display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; color: var(--gray); background: #f1f5f9; cursor: pointer; transition: all .2s; border: 2px solid transparent; }
+        .step-item.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .step-item.done { background: #dcfce7; color: var(--green); border-color: #86efac; }
+        .step-item .ai-tag { font-size: 0.6rem; background: var(--pro); color: #fff; padding: 1px 5px; border-radius: 8px; margin-left: 2px; }
+        .step-item.active .ai-tag { background: #fff; color: var(--pro); }
+        .step-arrow { color: var(--gray); font-size: 0.7rem; }
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+        .card { background: var(--card-bg); border-radius: 14px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+        .card h3 { font-size: 1.1rem; margin-bottom: 12px; }
+        .ai-badge { display: inline-block; padding: 2px 8px; background: linear-gradient(135deg, var(--pro), #d97706); color: #fff; border-radius: 6px; font-size: 0.7rem; font-weight: 700; margin-left: 8px; vertical-align: middle; }
+        .btn { padding: 12px 28px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+        .btn:hover { background: var(--primary-dark); }
+        .btn:disabled { background: var(--gray); cursor: not-allowed; }
+        .btn-sm { padding: 8px 18px; font-size: 0.85rem; }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: #fff; }
+        .btn-next { display: block; margin: 24px auto 0; min-width: 240px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: var(--text-light); }
+        .form-input { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 1rem; outline: none; transition: border-color .2s; }
+        .form-input:focus { border-color: var(--primary); }
+        .search-form { display: flex; gap: 10px; flex-wrap: wrap; }
+        .search-form .form-input { flex: 1; min-width: 200px; }
+        .search-hints { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .hint-tag { padding: 5px 12px; background: #f1f5f9; border: 1px solid var(--border); border-radius: 20px; font-size: 0.8rem; color: var(--text-light); cursor: pointer; transition: all .2s; }
+        .hint-tag:hover { background: #e2e8f0; color: var(--text); }
+        .loading { display: none; text-align: center; padding: 50px 20px; }
+        .loading.active { display: block; }
+        .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading p { color: var(--text-light); font-size: 0.9rem; }
+        .progress-container { max-width: 340px; margin: 16px auto 0; }
+        .progress-bar { width: 100%; height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), #818cf8); border-radius: 4px; transition: width .5s ease; }
+        .progress-stages { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.7rem; color: var(--gray); }
+        .progress-stage.active { color: var(--primary); font-weight: 600; }
+        .progress-stage.done { color: var(--green); }
+        .progress-percent { text-align: center; margin-top: 6px; font-size: 0.8rem; color: var(--text-light); font-weight: 500; }
+        .error-msg { display: none; text-align: center; padding: 30px; color: var(--red); }
+        .error-msg.active { display: block; }
+        .result-card { background: var(--card-bg); border-radius: 12px; padding: 18px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border-left: 4px solid var(--gray); }
+        .result-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+        .result-card.priority-high { border-left-color: var(--red); }
+        .result-card.priority-medium-high { border-left-color: var(--orange); }
+        .result-card.priority-medium { border-left-color: var(--yellow); }
+        .result-card.priority-low { border-left-color: var(--green); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+        .card-title { font-size: 0.95rem; font-weight: 600; line-height: 1.5; flex: 1; }
+        .card-title a { color: var(--text); text-decoration: none; }
+        .card-title a:hover { color: var(--primary); text-decoration: underline; }
+        .priority-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; color: #fff; }
+        .card-text { color: var(--text-light); font-size: 0.85rem; margin-bottom: 12px; line-height: 1.6; }
+        .scores { display: flex; gap: 14px; flex-wrap: wrap; }
+        .score-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+        .score-label { color: var(--text-light); font-weight: 500; }
+        .score-bar-container { display: flex; gap: 2px; }
+        .score-dot { width: 11px; height: 11px; border-radius: 3px; background: #e2e8f0; }
+        .score-dot.filled { background: var(--primary); }
+        .score-dot.urgency.filled { background: var(--red); }
+        .score-dot.depth.filled { background: var(--orange); }
+        .score-dot.complex.filled { background: var(--purple); }
+        .score-text { font-weight: 600; font-size: 0.75rem; color: var(--text-light); }
+        .summary-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .stat-card { padding: 14px; background: #f8fafc; border-radius: 10px; text-align: center; }
+        .stat-number { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; }
+        .filter-buttons { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+        .filter-btn { padding: 5px 14px; border: 1px solid var(--border); border-radius: 20px; background: #fff; font-size: 0.8rem; cursor: pointer; }
+        .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .persona-card { background: var(--card-bg); border-radius: 14px; padding: 20px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-top: 4px solid var(--primary); }
+        .persona-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+        .persona-name { font-size: 1.05rem; font-weight: 700; }
+        .persona-type-badge { padding: 3px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; color: #fff; background: var(--primary); }
+        .persona-info { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .persona-tag { padding: 3px 10px; background: #f1f5f9; border-radius: 8px; font-size: 0.8rem; color: var(--text-light); }
+        .persona-voice { background: #f0f4ff; border-radius: 12px; padding: 14px 16px; margin-top: 10px; font-size: 0.9rem; color: var(--text); line-height: 1.7; }
+        .persona-voice::before { content: '\01F4AC  \5FC3\306E\58F0'; display: block; font-size: 0.75rem; font-weight: 600; color: var(--primary); margin-bottom: 6px; }
+        .persona-detail { font-size: 0.85rem; color: var(--text-light); margin-top: 8px; }
+        .persona-detail strong { color: var(--text); }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; }
+        .product-card { border-radius: 14px; padding: 22px; text-align: center; border: 2px solid var(--border); }
+        .product-card.pine { border-color: var(--gold); background: linear-gradient(180deg, #fffbeb, #fff); }
+        .product-card.bamboo { border-color: var(--primary); background: linear-gradient(180deg, #eef2ff, #fff); box-shadow: 0 4px 16px rgba(99,102,241,.15); }
+        .product-card.plum { border-color: var(--green); background: linear-gradient(180deg, #f0fdf4, #fff); }
+        .product-rank { font-size: 0.75rem; font-weight: 700; padding: 3px 14px; border-radius: 20px; display: inline-block; margin-bottom: 8px; color: #fff; }
+        .product-rank.pine { background: var(--gold); }
+        .product-rank.bamboo { background: var(--primary); }
+        .product-rank.plum { background: var(--green); }
+        .product-name { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+        .product-price { font-size: 1.6rem; font-weight: 800; margin: 8px 0; }
+        .product-price.pine { color: var(--gold); }
+        .product-price.bamboo { color: var(--primary); }
+        .product-price.plum { color: var(--green); }
+        .product-meta { font-size: 0.8rem; color: var(--text-light); margin-bottom: 12px; }
+        .product-features { text-align: left; list-style: none; padding: 0; }
+        .product-features li { font-size: 0.85rem; padding: 4px 0 4px 20px; position: relative; }
+        .product-features li::before { content: '\2713'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+        .product-guarantee { margin-top: 12px; padding: 10px; background: #fef9c3; border-radius: 8px; font-size: 0.8rem; }
+        .product-role { margin-top: 10px; font-size: 0.75rem; color: var(--text-light); font-style: italic; }
+        .product-suggestion { margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 8px; font-size: 0.8rem; }
+        .product-suggestion strong { color: var(--gold); }
+        .sim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .sim-card { padding: 16px; background: #f8fafc; border-radius: 10px; }
+        .sim-card h4 { font-size: 0.9rem; margin-bottom: 8px; color: var(--primary); }
+        .sim-value { font-size: 1.4rem; font-weight: 700; }
+        .sim-desc { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; }
+        .tips-box { background: #fef3c7; border-radius: 10px; padding: 16px; margin-top: 16px; }
+        .tips-box h4 { font-size: 0.9rem; color: var(--gold); margin-bottom: 8px; }
+        .copy-card { background: var(--card-bg); border-radius: 12px; padding: 18px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border-left: 4px solid var(--primary); }
+        .copy-text { font-size: 1.1rem; font-weight: 700; line-height: 1.6; margin-bottom: 10px; }
+        .copy-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+        .copy-tag { padding: 2px 10px; border-radius: 14px; font-size: 0.7rem; font-weight: 600; }
+        .copy-tag.type { background: #eef2ff; color: var(--primary); }
+        .copy-tag.brain { background: #fef3c7; color: var(--yellow); }
+        .copy-principle { font-size: 0.8rem; color: var(--text-light); margin-bottom: 6px; }
+        .copy-usage { font-size: 0.8rem; color: var(--green); }
+        .copy-btn { margin-top: 8px; padding: 5px 14px; background: #f1f5f9; border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+        .copy-btn:hover { background: var(--primary); color: #fff; }
+        .mode-switch { display: flex; gap: 0; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .mode-btn { flex: 1; padding: 8px; border: none; background: #fff; font-size: 0.85rem; cursor: pointer; }
+        .mode-btn.active { background: var(--primary); color: #fff; }
+        .paste-area { display: none; margin-top: 12px; }
+        .paste-area.active { display: block; }
+        .paste-textarea { width: 100%; min-height: 120px; padding: 12px; border: 2px solid var(--border); border-radius: 10px; font-size: 0.9rem; font-family: inherit; resize: vertical; outline: none; }
+        .paste-textarea:focus { border-color: var(--primary); }
+        @media (max-width: 640px) {
+            header h1 { font-size: 1.2rem; }
+            .search-form { flex-direction: column; }
+            .btn { width: 100%; }
+            .scores { flex-direction: column; gap: 6px; }
+            .product-grid { grid-template-columns: 1fr; }
+            .step-item { font-size: 0.7rem; padding: 4px 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>商品設計サポートツール</h1>
+        <span class="badge">✨ Pro版</span>
+    </header>
+
+    <div class="step-nav">
+        <div class="step-item active" onclick="goStep(1)">①リサーチ</div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(2)">②単価試算</div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(3)">③商品設計</div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(4)">④ペルソナ<span class="ai-tag">AI</span></div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(5)">⑤コピー<span class="ai-tag">AI</span></div>
+    </div>
+
+    <!-- Step 1: リサーチ -->
+    <div class="step-content active" id="step-1">
+        <div class="card">
+            <div class="mode-switch">
+                <button class="mode-btn active" data-mode="search" onclick="switchMode('search')">キーワード検索</button>
+                <button class="mode-btn" data-mode="paste" onclick="switchMode('paste')">テキスト貼り付け</button>
+            </div>
+            <div id="search-mode">
+                <form class="search-form" onsubmit="handleSearch(event)">
+                    <input type="text" class="form-input" id="keyword-input" placeholder="例: 腰痛、猫背、小顔">
+                    <button type="submit" class="btn" id="search-btn">リサーチ開始</button>
+                </form>
+                <div class="search-hints">
+                    <span class="hint-tag" onclick="setKW('腰痛')">腰痛</span>
+                    <span class="hint-tag" onclick="setKW('肩こり')">肩こり</span>
+                    <span class="hint-tag" onclick="setKW('骨盤 歪み')">骨盤の歪み</span>
+                    <span class="hint-tag" onclick="setKW('猫背')">猫背</span>
+                    <span class="hint-tag" onclick="setKW('小顔')">小顔</span>
+                    <span class="hint-tag" onclick="setKW('自律神経')">自律神経</span>
+                    <span class="hint-tag" onclick="setKW('産後 骨盤')">産後骨盤</span>
+                    <span class="hint-tag" onclick="setKW('頭痛')">頭痛</span>
+                </div>
+            </div>
+            <div class="paste-area" id="paste-mode">
+                <textarea class="paste-textarea" id="paste-input" placeholder="テキストを貼り付けてください。"></textarea>
+                <button class="btn" style="margin-top:10px" onclick="handlePaste()">分析する</button>
+            </div>
+        </div>
+        <div class="loading" id="loading"><div class="spinner"></div><p id="loading-text">リサーチ中...</p>
+            <div class="progress-container" id="progress-container" style="display:none">
+                <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+                <div class="progress-stages"><span class="progress-stage" id="stage-1">パターン生成</span><span class="progress-stage" id="stage-2">知恵袋検索</span><span class="progress-stage" id="stage-3">詳細取得</span><span class="progress-stage" id="stage-4">分析</span></div>
+                <div class="progress-percent" id="progress-percent">0%</div>
+            </div>
+        </div>
+        <div class="error-msg" id="error-msg"></div>
+        <div id="summary-section" style="display:none"><div class="card"><h3>分析サマリー</h3><div class="summary-stats" id="summary-stats"></div></div></div>
+        <div id="results-section" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+                <div><h3 style="font-size:1.1rem">リサーチ結果</h3><span style="color:var(--text-light);font-size:.85rem" id="results-count"></span></div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterR('all',this)">すべて</button>
+                    <button class="filter-btn" onclick="filterR('high',this)">高優先</button>
+                    <button class="filter-btn" onclick="filterR('urgency',this)">緊急性順</button>
+                    <button class="filter-btn" onclick="filterR('depth',this)">深さ順</button>
+                </div>
+            </div>
+            <div id="results-list"></div>
+            <button class="btn btn-next" onclick="goStep(2)">→ 単価シミュレーションへ</button>
+        </div>
+    </div>
+
+    <!-- Step 2: 単価シミュレーション -->
+    <div class="step-content" id="step-2">
+        <div class="card"><h3>単価シミュレーション</h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">目標売上から「1回あたりの理想単価」を逆算します。この単価をもとに次のステップで商品を設計します。</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+                <div class="form-group"><label>月の目標売上（円）</label><input type="number" class="form-input" id="sim-target" value="1000000" step="100000"></div>
+                <div class="form-group"><label>理想の営業日数/月</label><input type="number" class="form-input" id="sim-days" value="22" min="1" max="31"></div>
+                <div class="form-group"><label>理想の1日の予約枠数</label><input type="number" class="form-input" id="sim-slots" value="6" min="1" max="20"></div>
+            </div>
+            <button class="btn" style="margin-top:8px" onclick="genPricing()">単価を算出</button>
+        </div>
+        <div class="loading" id="loading-pricing"><div class="spinner"></div><p>計算中...</p></div>
+        <div id="pricing-results"></div>
+        <button class="btn btn-next" id="btn-to-product" style="display:none" onclick="goStep(3)">→ 商品設計へ進む</button>
+    </div>
+
+    <!-- Step 3: 松竹梅商品設計 -->
+    <div class="step-content" id="step-3">
+        <div class="card"><h3>松竹梅 商品設計</h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">②で算出した単価をもとに、竹コース（メイン商品）の回数・期間を設定して松竹梅の商品を自動設計します。</p>
+            <div class="sim-grid" id="unit-price-display" style="margin-bottom:14px;display:none">
+                <div class="sim-card" style="background:#eef2ff">
+                    <h4>1回あたりの単価（②で算出）</h4>
+                    <div class="sim-value" style="color:var(--primary)" id="show-unit-price">-</div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+                <div class="form-group"><label>竹コースの施術回数</label><input type="number" class="form-input" id="bamboo-sessions-input" value="12" min="1" max="48"></div>
+                <div class="form-group"><label>竹コースの期間</label><select class="form-input" id="bamboo-duration-input"><option value="1ヶ月">1ヶ月</option><option value="2ヶ月">2ヶ月</option><option value="3ヶ月" selected>3ヶ月</option><option value="4ヶ月">4ヶ月</option><option value="5ヶ月">5ヶ月</option><option value="6ヶ月">6ヶ月</option></select></div>
+            </div>
+            <button class="btn" style="margin-top:8px" onclick="genProduct()">商品を設計</button>
+        </div>
+        <div class="loading" id="loading-product"><div class="spinner"></div><p id="product-loading-text">商品を設計中...</p>
+            <div class="progress-container" id="product-progress" style="display:none">
+                <div class="progress-bar"><div class="progress-fill" id="product-progress-fill"></div></div>
+                <div class="progress-stages">
+                    <span class="progress-stage" id="pd-stage-1">単価計算</span>
+                    <span class="progress-stage" id="pd-stage-2">竹コース</span>
+                    <span class="progress-stage" id="pd-stage-3">松コース</span>
+                    <span class="progress-stage" id="pd-stage-4">梅コース</span>
+                    <span class="progress-stage" id="pd-stage-5">心理価格</span>
+                </div>
+                <div class="progress-percent" id="product-progress-percent">0%</div>
+            </div>
+        </div>
+        <div id="product-results"></div>
+        <button class="btn btn-next" id="btn-to-persona" style="display:none" onclick="goStep(4)">→ AIペルソナ生成へ</button>
+    </div>
+
+    <!-- Step 4: AIペルソナ -->
+    <div class="step-content" id="step-4">
+        <div class="card"><h3>ペルソナ自動生成 <span class="ai-badge">🤖 AI生成</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">リサーチ結果をもとに、Claude AIが5人のターゲットペルソナを自動生成します。</p>
+            <div class="form-group"><label>ターゲットの悩み</label><input type="text" class="form-input" id="persona-keyword" placeholder="例: 腰痛"></div>
+            <button class="btn" onclick="genPersona()">AIでペルソナを生成</button>
+        </div>
+        <div class="loading" id="loading-persona"><div class="spinner"></div><p>🤖 AIがペルソナを生成中...</p></div>
+        <div id="persona-results"></div>
+        <button class="btn btn-next" id="btn-to-copy" style="display:none" onclick="goStep(5)">→ AIコピー生成へ</button>
+    </div>
+
+    <!-- Step 5: AIコピー -->
+    <div class="step-content" id="step-5">
+        <div class="card"><h3>キャッチコピー自動生成 <span class="ai-badge">🤖 AI生成</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">ペルソナと商品情報をもとに、Claude AIが10種類の心理テクニックでコピーを自動生成します。</p>
+            <button class="btn" onclick="genCopy()">AIでコピーを生成</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genCopy()">再生成</button>
+        </div>
+        <div class="loading" id="loading-copy"><div class="spinner"></div><p>🤖 AIがコピーを生成中...</p></div>
+        <div id="copy-results"></div>
+    </div>
+</div>
+
+<script>
+let G = { keyword:'', results:[], personas:[], products:null, pricing:null, copies:[], unit_price:0, step:1, done:new Set() };
+let progressTimer = null;
+
+function goStep(n) {
+    G.step = n;
+    document.querySelectorAll('.step-content').forEach((el,i) => el.classList.toggle('active', i+1===n));
+    document.querySelectorAll('.step-item').forEach((el,i) => { el.classList.remove('active'); if(i===n-1) el.classList.add('active'); if(G.done.has(i+1)) el.classList.add('done'); });
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(n===3 && G.unit_price) {
+        document.getElementById('show-unit-price').textContent = G.unit_price.toLocaleString() + '円';
+        document.getElementById('unit-price-display').style.display = 'grid';
+    }
+    if(n===4) document.getElementById('persona-keyword').value = G.keyword;
+}
+function markDone(n) { G.done.add(n); }
+function esc(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+function dots(score,type) { let h=''; for(let i=1;i<=5;i++) h+=`<div class="score-dot ${type} ${i<=score?'filled':''}"></div>`; return h; }
+
+// Progress
+const PG=[{p:0,s:1,t:'検索パターンを自動生成中...'},{p:8,s:1,t:'カテゴリを判定しました'},{p:12,s:2,t:'Yahoo!知恵袋を検索中... (1/15)'},{p:18,s:2,t:'検索中... (3/15)'},{p:25,s:2,t:'検索中... (5/15)'},{p:33,s:2,t:'検索中... (7/15)'},{p:40,s:2,t:'検索中... (9/15)'},{p:48,s:2,t:'検索中... (11/15)'},{p:55,s:2,t:'検索中... (13/15)'},{p:60,s:2,t:'検索完了。詳細取得へ...'},{p:65,s:3,t:'詳細を取得中... (20%)'},{p:72,s:3,t:'詳細を取得中... (50%)'},{p:80,s:3,t:'詳細を取得中... (80%)'},{p:88,s:3,t:'詳細取得完了。分析開始...'},{p:92,s:4,t:'3軸スコアリング中...'},{p:96,s:4,t:'優先度を判定中...'}];
+function startProg(){const c=document.getElementById('progress-container'),f=document.getElementById('progress-fill'),p=document.getElementById('progress-percent');c.style.display='block';f.style.width='0%';p.textContent='0%';for(let i=1;i<=4;i++){document.getElementById('stage-'+i).classList.remove('active','done');}let idx=0;progressTimer=setInterval(()=>{if(idx>=PG.length){clearInterval(progressTimer);progressTimer=null;return;}const s=PG[idx];f.style.width=s.p+'%';p.textContent=s.p+'%';document.getElementById('loading-text').textContent=s.t;for(let i=1;i<=4;i++){const el=document.getElementById('stage-'+i);if(i<s.s){el.classList.remove('active');el.classList.add('done');}else if(i===s.s){el.classList.add('active');el.classList.remove('done');}else{el.classList.remove('active','done');}}idx++;},2000);}
+function stopProg(){if(progressTimer){clearInterval(progressTimer);progressTimer=null;}document.getElementById('progress-fill').style.width='100%';document.getElementById('progress-percent').textContent='100%';for(let i=1;i<=4;i++){const el=document.getElementById('stage-'+i);el.classList.remove('active');el.classList.add('done');}}
+
+function switchMode(m){document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));document.getElementById('search-mode').style.display=m==='search'?'block':'none';document.getElementById('paste-mode').classList.toggle('active',m==='paste');}
+function setKW(k){document.getElementById('keyword-input').value=k;handleSearch(new Event('submit'));}
+
+// ========== Step 1: リサーチ ==========
+async function handleSearch(e){
+    e.preventDefault();const kw=document.getElementById('keyword-input').value.trim();if(!kw)return;G.keyword=kw;
+    document.getElementById('loading').classList.add('active');document.getElementById('loading-text').textContent='検索パターンを自動生成中...';
+    document.getElementById('results-section').style.display='none';document.getElementById('summary-section').style.display='none';document.getElementById('error-msg').classList.remove('active');
+    startProg();
+    try{const r=await fetch(`/api/search?keyword=${encodeURIComponent(kw)}`);stopProg();if(!r.ok)throw new Error('検索失敗');const d=await r.json();
+        if(d.results?.length>0){G.results=d.results;renderRes(d.results);markDone(1);}else{showErr('結果が見つかりませんでした。');}
+    }catch(err){stopProg();showErr('エラー: '+err.message);}
+    document.getElementById('loading').classList.remove('active');document.getElementById('progress-container').style.display='none';
+}
+async function handlePaste(){
+    const t=document.getElementById('paste-input').value.trim();if(!t)return;
+    document.getElementById('loading').classList.add('active');document.getElementById('loading-text').textContent='分析中...';
+    try{const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})});const d=await r.json();
+        if(d.results?.length>0){G.results=d.results;renderRes(d.results);markDone(1);}else{showErr('分析できませんでした。');}
+    }catch(err){showErr('エラー: '+err.message);}
+    document.getElementById('loading').classList.remove('active');
+}
+function showErr(m){const el=document.getElementById('error-msg');el.textContent=m;el.classList.add('active');}
+function renderRes(results){
+    const hp=results.filter(r=>r.analysis.total_score>=9).length,mp=results.filter(r=>r.analysis.total_score>=6&&r.analysis.total_score<9).length;
+    document.getElementById('summary-stats').innerHTML=`<div class="stat-card"><div class="stat-number">${results.length}</div><div class="stat-label">検出された悩み</div></div><div class="stat-card"><div class="stat-number" style="color:var(--red)">${hp}</div><div class="stat-label">高優先ターゲット</div></div><div class="stat-card"><div class="stat-number" style="color:var(--orange)">${mp}</div><div class="stat-label">中優先ターゲット</div></div>`;
+    document.getElementById('summary-section').style.display='block';document.getElementById('results-count').textContent=`${results.length}件の悩みを検出`;
+    const c=document.getElementById('results-list');c.innerHTML='';results.forEach(r=>c.appendChild(mkCard(r)));document.getElementById('results-section').style.display='block';
+}
+function mkCard(r){
+    const a=r.analysis;let pc='';if(a.total_score>=12)pc='priority-high';else if(a.total_score>=9)pc='priority-medium-high';else if(a.total_score>=6)pc='priority-medium';else if(a.total_score>=3)pc='priority-low';
+    const card=document.createElement('div');card.className=`result-card ${pc}`;
+    const title=r.url?`<a href="${esc(r.url)}" target="_blank">${esc(r.title)}</a>`:esc(r.title);
+    const txt=r.full_text?r.full_text.substring(0,180)+(r.full_text.length>180?'...':''):'';
+    card.innerHTML=`<div class="card-header"><div class="card-title">${title}</div><span class="priority-badge" style="background:${a.priority_color}">${a.priority}</span></div>${txt?`<div class="card-text">${esc(txt)}</div>`:''}<div class="scores"><div class="score-item"><span class="score-label">緊急性</span><div class="score-bar-container">${dots(a.urgency.score,'urgency')}</div><span class="score-text">${a.urgency.label}</span></div><div class="score-item"><span class="score-label">深さ</span><div class="score-bar-container">${dots(a.depth.score,'depth')}</div><span class="score-text">${a.depth.label}</span></div><div class="score-item"><span class="score-label">コンプレックス</span><div class="score-bar-container">${dots(a.complex.score,'complex')}</div><span class="score-text">${a.complex.label}</span></div></div>`;
+    return card;
+}
+function filterR(f,btn){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
+    let s=[...G.results];if(f==='high')s=s.filter(r=>r.analysis.total_score>=6);else if(f==='urgency')s.sort((a,b)=>b.analysis.urgency.score-a.analysis.urgency.score);else if(f==='depth')s.sort((a,b)=>b.analysis.depth.score-a.analysis.depth.score);else s.sort((a,b)=>b.analysis.total_score-a.analysis.total_score);
+    const c=document.getElementById('results-list');c.innerHTML='';s.forEach(r=>c.appendChild(mkCard(r)));document.getElementById('results-count').textContent=`${s.length}件表示中`;
+}
+
+// ========== Step 2: 単価シミュレーション ==========
+async function genPricing(){
+    document.getElementById('loading-pricing').classList.add('active');
+    document.getElementById('pricing-results').innerHTML='';
+    document.getElementById('btn-to-product').style.display='none';
+    const body={
+        monthly_target: parseInt(document.getElementById('sim-target').value)||1000000,
+        working_days: parseInt(document.getElementById('sim-days').value)||22,
+        slots_per_day: parseInt(document.getElementById('sim-slots').value)||6
+    };
+    try{
+        const r=await fetch('/api/pricing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        const d=await r.json();
+        if(d.error){
+            document.getElementById('loading-pricing').classList.remove('active');
+            alert(d.error); return;
+        }
+        G.pricing=d;
+        G.unit_price=d.calculation.unit_price;
+
+        document.getElementById('pricing-results').innerHTML=`
+            <div class="card"><h3>算出結果</h3>
+                <div class="sim-grid">
+                    <div class="sim-card" style="background:#eef2ff;border:2px solid var(--primary);border-radius:10px">
+                        <h4 style="color:var(--primary)">1回あたりの理想単価</h4>
+                        <div class="sim-value" style="color:var(--primary);font-size:1.8rem">${esc(d.calculation.unit_price_display)}</div>
+                        <div class="sim-desc">100%稼働の場合</div>
+                    </div>
+                    <div class="sim-card">
+                        <h4>月の総予約枠</h4>
+                        <div class="sim-value">${d.calculation.total_monthly_slots}枠</div>
+                        <div class="sim-desc">${d.input.working_days}日 × ${d.input.slots_per_day}枠/日</div>
+                    </div>
+                    <div class="sim-card">
+                        <h4>1日の目標売上</h4>
+                        <div class="sim-value">${esc(d.calculation.daily_target_display)}</div>
+                        <div class="sim-desc">${esc(d.input.monthly_target_display)} ÷ ${d.input.working_days}日</div>
+                    </div>
+                </div>
+                <div style="margin-top:16px;padding:14px;background:#fef3c7;border-radius:10px">
+                    <h4 style="font-size:.9rem;color:var(--gold);margin-bottom:6px">📊 ${esc(d.realistic.label)}</h4>
+                    <p style="font-size:.9rem">${esc(d.realistic.description)}</p>
+                </div>
+                <div style="margin-top:12px;padding:14px;background:#f0f4ff;border-radius:10px">
+                    <p style="font-size:.95rem;font-weight:600;color:var(--primary)">${esc(d.summary.message)}</p>
+                    <p style="font-size:.85rem;color:var(--text-light);margin-top:4px">${esc(d.summary.daily_message)}</p>
+                </div>
+            </div>`;
+        markDone(2);
+        document.getElementById('btn-to-product').style.display='block';
+    }catch(err){alert('エラー: '+err.message);}
+    document.getElementById('loading-pricing').classList.remove('active');
+}
+
+// ========== Step 3: 松竹梅商品設計 ==========
+const PD_STEPS=[
+    {p:0, s:1, t:'単価データを読み込み中...'},
+    {p:12,s:1, t:'単価から合計金額を計算中...'},
+    {p:25,s:2, t:'竹コース（メイン商品）を設計中...'},
+    {p:38,s:2, t:'竹コースの特典を構成中...'},
+    {p:50,s:3, t:'松コース（プレミアム）を設計中...'},
+    {p:62,s:3, t:'松コースの特典を構成中...'},
+    {p:72,s:4, t:'梅コース（お試し）を設計中...'},
+    {p:82,s:5, t:'心理的価格を分析中...'},
+    {p:90,s:5, t:'おすすめ価格を算出中...'},
+    {p:96,s:5, t:'セールスTipsを生成中...'},
+];
+let pdTimer=null;
+function startProductProg(){
+    const c=document.getElementById('product-progress'),f=document.getElementById('product-progress-fill'),p=document.getElementById('product-progress-percent');
+    c.style.display='block';f.style.width='0%';p.textContent='0%';
+    for(let i=1;i<=5;i++){document.getElementById('pd-stage-'+i).classList.remove('active','done');}
+    let idx=0;
+    pdTimer=setInterval(()=>{
+        if(idx>=PD_STEPS.length){clearInterval(pdTimer);pdTimer=null;return;}
+        const s=PD_STEPS[idx];
+        f.style.width=s.p+'%';p.textContent=s.p+'%';
+        document.getElementById('product-loading-text').textContent=s.t;
+        for(let i=1;i<=5;i++){
+            const el=document.getElementById('pd-stage-'+i);
+            if(i<s.s){el.classList.remove('active');el.classList.add('done');}
+            else if(i===s.s){el.classList.add('active');el.classList.remove('done');}
+            else{el.classList.remove('active','done');}
+        }
+        idx++;
+    },400);
+}
+function stopProductProg(){
+    if(pdTimer){clearInterval(pdTimer);pdTimer=null;}
+    document.getElementById('product-progress-fill').style.width='100%';
+    document.getElementById('product-progress-percent').textContent='100%';
+    document.getElementById('product-loading-text').textContent='完了！';
+    for(let i=1;i<=5;i++){const el=document.getElementById('pd-stage-'+i);el.classList.remove('active');el.classList.add('done');}
+}
+
+async function genProduct(){
+    if(!G.unit_price){alert('先に②単価シミュレーションを実行してください');return;}
+    const sessions = parseInt(document.getElementById('bamboo-sessions-input').value)||12;
+    const duration = document.getElementById('bamboo-duration-input').value||'3ヶ月';
+    document.getElementById('loading-product').classList.add('active');
+    document.getElementById('product-loading-text').textContent='商品を設計中...';
+    document.getElementById('product-results').innerHTML='';
+    document.getElementById('btn-to-persona').style.display='none';
+    startProductProg();
+    try{
+        const r=await fetch('/api/product',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+            keyword: G.keyword,
+            target_symptom: G.keyword,
+            unit_price: G.unit_price,
+            bamboo_sessions: sessions,
+            bamboo_duration: duration,
+        })});
+        const d=await r.json();
+        stopProductProg();
+        if(d.error){
+            document.getElementById('loading-product').classList.remove('active');
+            document.getElementById('product-progress').style.display='none';
+            alert(d.error); return;
+        }
+        G.products=d;
+
+        function renderSug(suggestions){
+            if(!suggestions||suggestions.length===0) return '';
+            let html='<div class="product-suggestion">';
+            html+='<strong>💡 おすすめ価格:</strong><br>';
+            suggestions.forEach(s=>{
+                html+=`<span style="font-weight:700;font-size:.95rem">${esc(s.display)}</span> <span style="color:var(--text-light)">— ${esc(s.reason)}</span><br>`;
+            });
+            html+='</div>';
+            return html;
+        }
+
+        const c=document.getElementById('product-results');
+        c.innerHTML=`
+        <div class="product-grid">
+            <div class="product-card pine">
+                <span class="product-rank pine">松</span>
+                <div class="product-name">${esc(d.pine.name)}</div>
+                <div class="product-price pine">${esc(d.pine.raw_price_display)}</div>
+                <div class="product-meta">${esc(d.pine.sessions_display)} / ${esc(d.pine.duration)}</div>
+                <ul class="product-features">${d.pine.features.map(f=>'<li>'+esc(f)+'</li>').join('')}</ul>
+                <div class="product-guarantee">🛡 ${esc(d.pine.guarantee)}</div>
+                ${renderSug(d.pine.suggested_prices)}
+                <div class="product-role">${esc(d.pine.role)}</div>
+            </div>
+            <div class="product-card bamboo">
+                <span class="product-rank bamboo">竹 ⭐おすすめ</span>
+                <div class="product-name">${esc(d.bamboo.name)}</div>
+                <div class="product-price bamboo">${esc(d.bamboo.raw_price_display)}</div>
+                <div class="product-meta">${esc(d.bamboo.sessions_display)} / ${esc(d.bamboo.duration)}</div>
+                <ul class="product-features">${d.bamboo.features.map(f=>'<li>'+esc(f)+'</li>').join('')}</ul>
+                <div class="product-guarantee">🛡 ${esc(d.bamboo.guarantee)}</div>
+                <div style="margin-top:8px;font-size:.85rem;color:var(--primary);font-weight:600">
+                    1回 ${esc(d.bamboo.per_session)}${d.bamboo.per_day?' ／ 1日 '+esc(d.bamboo.per_day):''}
+                </div>
+                ${renderSug(d.bamboo.suggested_prices)}
+                <div class="product-role">${esc(d.bamboo.role)}</div>
+            </div>
+            <div class="product-card plum">
+                <span class="product-rank plum">梅 お試し</span>
+                <div class="product-name">${esc(d.plum.name)}</div>
+                <div class="product-price plum">${esc(d.plum.raw_price_display)}</div>
+                <div class="product-meta">${esc(d.plum.sessions_display)} / ${esc(d.plum.duration)}</div>
+                <ul class="product-features">${d.plum.features.map(f=>'<li>'+esc(f)+'</li>').join('')}</ul>
+                ${renderSug(d.plum.suggested_prices)}
+                <div class="product-role">${esc(d.plum.role)}</div>
+            </div>
+        </div>
+        <div class="tips-box"><h4>💡 セールスTips</h4>
+            <p><strong>提示順序:</strong> ${esc(d.sales_tips.presentation_order)}</p>
+            <p><strong>クロージング:</strong> ${esc(d.sales_tips.closing_phrase)}</p>
+            <p style="margin-top:8px"><strong>反論処理:</strong></p>
+            <ul style="list-style:none;padding:0;font-size:.85rem">
+                ${d.sales_tips.objection_handling.expensive?'<li>「高い」→ '+esc(d.sales_tips.objection_handling.expensive)+'</li>':''}
+                <li>「効果ある？」→ ${esc(d.sales_tips.objection_handling.uncertain)}</li>
+                <li>「時間ない」→ ${esc(d.sales_tips.objection_handling.time)}</li>
+            </ul>
+        </div>`;
+        markDone(3);
+        document.getElementById('btn-to-persona').style.display='block';
+    }catch(err){stopProductProg();alert('エラー: '+err.message);}
+    document.getElementById('loading-product').classList.remove('active');
+    document.getElementById('product-progress').style.display='none';
+}
+
+// ========== Step 4: AIペルソナ ==========
+async function genPersona(){
+    const kw=document.getElementById('persona-keyword').value.trim();if(!kw){alert('悩みキーワードを入力してください');return;}G.keyword=kw;
+    document.getElementById('loading-persona').classList.add('active');document.getElementById('persona-results').innerHTML='';document.getElementById('btn-to-copy').style.display='none';
+    try{const r=await fetch('/api/persona',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,search_results:G.results.slice(0,20)})});const d=await r.json();
+        if(d.personas?.length>0){G.personas=d.personas;const c=document.getElementById('persona-results');c.innerHTML='';const colors=['#6366f1','#dc2626','#8b5cf6','#ea580c','#65a30d'];
+        d.personas.forEach(p=>{c.innerHTML+=`<div class="persona-card" style="border-top-color:${colors[(p.id-1)%5]}"><div class="persona-header"><span class="persona-name">${esc(p.name)}</span><span class="persona-type-badge" style="background:${colors[(p.id-1)%5]}">${esc(p.type_label)}</span></div><div class="persona-info"><span class="persona-tag">${esc(p.age)}</span><span class="persona-tag">${esc(p.gender)}</span><span class="persona-tag">${esc(p.occupation)}</span><span class="persona-tag">${esc(p.family)}</span></div><div class="persona-detail"><strong>日常:</strong> ${esc(p.daily_pattern)}</div><div class="persona-detail"><strong>試したこと:</strong> ${esc(p.tried_solution)}</div><div class="persona-voice">${esc(p.inner_voice)}</div></div>`;});
+        markDone(4);document.getElementById('btn-to-copy').style.display='block';}
+    }catch(err){alert('エラー: '+err.message);}
+    document.getElementById('loading-persona').classList.remove('active');
+}
+
+// ========== Step 5: AIコピー ==========
+async function genCopy(){
+    document.getElementById('loading-copy').classList.add('active');document.getElementById('copy-results').innerHTML='';
+    try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:G.keyword,target_symptom:G.keyword,personas:G.personas,products:G.products})});const d=await r.json();
+        if(d.copies?.length>0){G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
+        d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span><span class="copy-tag brain">${esc(cp.brain_target)}</span></div><div class="copy-principle">💡 ${esc(cp.principle)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button></div>`;});
+        markDone(5);}
+    }catch(err){alert('エラー: '+err.message);}
+    document.getElementById('loading-copy').classList.remove('active');
+}
+function cpClip(btn){const t=btn.parentElement.querySelector('.copy-text').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 コピー';},2000);});}
+</script>
+</body>
+</html>
