@@ -292,17 +292,17 @@
                 <div class="form-group"><label>竹コースの施術回数</label><input type="number" class="form-input" id="bamboo-sessions-input" value="12" min="1" max="48"></div>
                 <div class="form-group"><label>竹コースの期間</label><select class="form-input" id="bamboo-duration-input"><option value="1ヶ月">1ヶ月</option><option value="2ヶ月">2ヶ月</option><option value="3ヶ月" selected>3ヶ月</option><option value="4ヶ月">4ヶ月</option><option value="5ヶ月">5ヶ月</option><option value="6ヶ月">6ヶ月</option></select></div>
             </div>
-            <button class="btn" style="margin-top:8px" onclick="genProduct()">商品を設計</button>
+            <button class="btn" style="margin-top:8px" onclick="genProduct()">AIで商品を設計</button>
         </div>
-        <div class="loading" id="loading-product"><div class="spinner"></div><p id="product-loading-text">商品を設計中...</p>
+        <div class="loading" id="loading-product"><div class="spinner"></div><p id="product-loading-text">🤖 AIが商品を設計中...</p>
             <div class="progress-container" id="product-progress" style="display:none">
                 <div class="progress-bar"><div class="progress-fill" id="product-progress-fill"></div></div>
                 <div class="progress-stages">
                     <span class="progress-stage" id="pd-stage-1">単価計算</span>
-                    <span class="progress-stage" id="pd-stage-2">竹コース</span>
-                    <span class="progress-stage" id="pd-stage-3">松コース</span>
-                    <span class="progress-stage" id="pd-stage-4">梅コース</span>
-                    <span class="progress-stage" id="pd-stage-5">心理価格</span>
+                    <span class="progress-stage" id="pd-stage-2">ペルソナ分析</span>
+                    <span class="progress-stage" id="pd-stage-3">竹コース設計</span>
+                    <span class="progress-stage" id="pd-stage-4">松・梅設計</span>
+                    <span class="progress-stage" id="pd-stage-5">セールスTips</span>
                 </div>
                 <div class="progress-percent" id="product-progress-percent">0%</div>
             </div>
@@ -511,16 +511,17 @@ async function genPricing(){
 
 // ========== Step 4: 松竹梅商品設計 ==========
 const PD_STEPS=[
-    {p:0, s:1, t:'単価データを読み込み中...'},
-    {p:12,s:1, t:'単価から合計金額を計算中...'},
-    {p:25,s:2, t:'竹コース（メイン商品）を設計中...'},
-    {p:38,s:2, t:'竹コースの特典を構成中...'},
-    {p:50,s:3, t:'松コース（プレミアム）を設計中...'},
-    {p:62,s:3, t:'松コースの特典を構成中...'},
-    {p:72,s:4, t:'梅コース（お試し）を設計中...'},
-    {p:82,s:5, t:'心理的価格を分析中...'},
-    {p:90,s:5, t:'おすすめ価格を算出中...'},
-    {p:96,s:5, t:'セールスTipsを生成中...'},
+    {p:0, s:1, t:'🤖 単価データを読み込み中...'},
+    {p:10,s:1, t:'🤖 価格情報を計算中...'},
+    {p:20,s:2, t:'🤖 ペルソナの悩みを分析中...'},
+    {p:30,s:2, t:'🤖 ペルソナに最適な商品を検討中...'},
+    {p:40,s:3, t:'🤖 竹コース（メイン商品）をAIが設計中...'},
+    {p:50,s:3, t:'🤖 竹コースの特徴・ベネフィットを生成中...'},
+    {p:60,s:4, t:'🤖 松コース（プレミアム）をAIが設計中...'},
+    {p:70,s:4, t:'🤖 梅コース（お試し）をAIが設計中...'},
+    {p:80,s:5, t:'🤖 セールストーク・反論処理を生成中...'},
+    {p:90,s:5, t:'🤖 心理的価格・当日特典を最適化中...'},
+    {p:96,s:5, t:'🤖 最終チェック中...'},
 ];
 let pdTimer=null;
 function startProductProg(){
@@ -555,7 +556,7 @@ async function genProduct(){
     const sessions = parseInt(document.getElementById('bamboo-sessions-input').value)||12;
     const duration = document.getElementById('bamboo-duration-input').value||'3ヶ月';
     document.getElementById('loading-product').classList.add('active');
-    document.getElementById('product-loading-text').textContent='商品を設計中...';
+    document.getElementById('product-loading-text').textContent='🤖 AIが商品を設計中...';
     document.getElementById('product-results').innerHTML='';
     document.getElementById('btn-to-copy').style.display='none';
     startProductProg();
@@ -566,6 +567,7 @@ async function genProduct(){
             unit_price: G.unit_price,
             bamboo_sessions: sessions,
             bamboo_duration: duration,
+            personas: G.personas || [],
         })});
         const d=await r.json();
         stopProductProg();
@@ -623,15 +625,16 @@ async function genProduct(){
                 <div class="product-role">${esc(d.plum.role)}</div>
             </div>
         </div>
-        <div class="tips-box"><h4>💡 セールスTips</h4>
+        <div class="tips-box"><h4>💡 AIセールスTips</h4>
             <p><strong>提示順序:</strong> ${esc(d.sales_tips.presentation_order)}</p>
             <p><strong>クロージング:</strong> ${esc(d.sales_tips.closing_phrase)}</p>
             <p style="margin-top:8px"><strong>反論処理:</strong></p>
             <ul style="list-style:none;padding:0;font-size:.85rem">
-                ${d.sales_tips.objection_handling.expensive?'<li>「高い」→ '+esc(d.sales_tips.objection_handling.expensive)+'</li>':''}
-                <li>「効果ある？」→ ${esc(d.sales_tips.objection_handling.uncertain)}</li>
-                <li>「時間ない」→ ${esc(d.sales_tips.objection_handling.time)}</li>
+                ${d.sales_tips.objection_handling.expensive?'<li>💬「高い」→ '+esc(d.sales_tips.objection_handling.expensive)+'</li>':''}
+                <li>💬「効果ある？」→ ${esc(d.sales_tips.objection_handling.uncertain)}</li>
+                <li>💬「時間ない」→ ${esc(d.sales_tips.objection_handling.time)}</li>
             </ul>
+            ${d.sales_tips.today_bonus?'<p style="margin-top:10px;padding:10px;background:#fef3c7;border-radius:8px"><strong>🎁 当日特典:</strong> '+esc(d.sales_tips.today_bonus)+'</p>':''}
         </div>`;
         markDone(4);
         document.getElementById('btn-to-copy').style.display='block';

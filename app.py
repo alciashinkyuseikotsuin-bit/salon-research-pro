@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from scraper import search_and_fetch
 from analyzer import analyze_results, analyze_concern
 from product_designer import design_products
+from ai_product_designer import generate_products_ai
 from price_calculator import calculate_pricing
 from ai_persona_generator import generate_personas_ai
 from ai_copywriter import generate_catchcopy_ai
@@ -149,7 +150,7 @@ def api_pricing():
 
 @app.route('/api/product', methods=['POST'])
 def api_product():
-    """単価ベースの松竹梅商品設計API"""
+    """AI松竹梅商品設計API（Claude API連携）"""
     try:
         data = request.get_json()
         keyword = data.get('keyword', '').strip() if data else ''
@@ -157,18 +158,20 @@ def api_product():
         unit_price = data.get('unit_price', 0) if data else 0
         bamboo_sessions = data.get('bamboo_sessions', 12) if data else 12
         bamboo_duration = data.get('bamboo_duration', '3ヶ月') if data else '3ヶ月'
+        personas = data.get('personas', []) if data else []
 
         if not keyword:
             return jsonify({'error': 'キーワードを入力してください'}), 400
 
-        print(f"[product] キーワード: {keyword}, 単価: {unit_price}, 回数: {bamboo_sessions}, 期間: {bamboo_duration}")
+        print(f"[product] キーワード: {keyword}, 単価: {unit_price}, 回数: {bamboo_sessions}, 期間: {bamboo_duration}, ペルソナ: {len(personas)}人")
 
-        products = design_products(
+        products = generate_products_ai(
             keyword=keyword,
             target_symptom=target_symptom,
             unit_price=unit_price,
             bamboo_sessions=bamboo_sessions,
             bamboo_duration=bamboo_duration,
+            personas=personas,
         )
 
         print(f"[product] 商品設計完了 - 竹: {products['bamboo']['raw_price_display']}")
