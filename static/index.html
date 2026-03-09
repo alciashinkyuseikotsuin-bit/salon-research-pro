@@ -149,8 +149,8 @@
         .copy-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
         .copy-tag { padding: 2px 10px; border-radius: 14px; font-size: 0.7rem; font-weight: 600; }
         .copy-tag.type { background: #eef2ff; color: var(--primary); }
-        .copy-tag.brain { background: #fef3c7; color: var(--yellow); }
-        .copy-principle { font-size: 0.8rem; color: var(--text-light); margin-bottom: 6px; }
+        .copy-tag.effect { background: #fef3c7; color: var(--yellow); }
+        .copy-effect { font-size: 0.8rem; color: var(--text-light); margin-bottom: 6px; }
         .copy-usage { font-size: 0.8rem; color: var(--green); }
         .copy-btn { margin-top: 8px; padding: 5px 14px; background: #f1f5f9; border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
         .copy-btn:hover { background: var(--primary); color: #fff; }
@@ -648,7 +648,7 @@ async function genCopy(){
     document.getElementById('loading-copy').classList.add('active');document.getElementById('copy-results').innerHTML='';
     try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:G.keyword,target_symptom:G.keyword,personas:G.personas,products:G.products})});const d=await r.json();
         if(d.copies?.length>0){G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
-        d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span><span class="copy-tag brain">${esc(cp.brain_target)}</span></div><div class="copy-principle">💡 ${esc(cp.principle)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button></div>`;});
+        d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span></div><div class="copy-effect">✨ ${esc(cp.effect)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button></div>`;});
         markDone(5);}
     }catch(err){alert('エラー: '+err.message);}
     document.getElementById('loading-copy').classList.remove('active');
