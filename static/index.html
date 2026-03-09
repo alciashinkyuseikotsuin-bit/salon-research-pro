@@ -245,7 +245,18 @@
             <div class="form-group"><label>ターゲットの悩み</label><input type="text" class="form-input" id="persona-keyword" placeholder="例: 腰痛"></div>
             <button class="btn" onclick="genPersona()">AIでペルソナを生成</button>
         </div>
-        <div class="loading" id="loading-persona"><div class="spinner"></div><p>🤖 AIがペルソナを生成中...</p></div>
+        <div class="loading" id="loading-persona"><div class="spinner"></div><p id="persona-loading-text">🤖 AIがペルソナを生成中...</p>
+            <div class="progress-container" id="persona-progress" style="display:none">
+                <div class="progress-bar"><div class="progress-fill" id="persona-progress-fill"></div></div>
+                <div class="progress-stages">
+                    <span class="progress-stage" id="ps-stage-1">リサーチ分析</span>
+                    <span class="progress-stage" id="ps-stage-2">ペルソナ設計</span>
+                    <span class="progress-stage" id="ps-stage-3">心理分析</span>
+                    <span class="progress-stage" id="ps-stage-4">最終生成</span>
+                </div>
+                <div class="progress-percent" id="persona-progress-percent">0%</div>
+            </div>
+        </div>
         <div id="persona-results"></div>
         <button class="btn btn-next" id="btn-to-pricing" style="display:none" onclick="goStep(3)">→ 単価シミュレーションへ</button>
     </div>
@@ -267,7 +278,17 @@
             </div>
             <button class="btn" style="margin-top:8px" onclick="genPricing()">単価を算出</button>
         </div>
-        <div class="loading" id="loading-pricing"><div class="spinner"></div><p>計算中...</p></div>
+        <div class="loading" id="loading-pricing"><div class="spinner"></div><p id="pricing-loading-text">計算中...</p>
+            <div class="progress-container" id="pricing-progress" style="display:none">
+                <div class="progress-bar"><div class="progress-fill" id="pricing-progress-fill"></div></div>
+                <div class="progress-stages">
+                    <span class="progress-stage" id="pr-stage-1">入力確認</span>
+                    <span class="progress-stage" id="pr-stage-2">単価計算</span>
+                    <span class="progress-stage" id="pr-stage-3">分析</span>
+                </div>
+                <div class="progress-percent" id="pricing-progress-percent">0%</div>
+            </div>
+        </div>
         <div id="pricing-results"></div>
         <button class="btn btn-next" id="btn-to-product" style="display:none" onclick="goStep(4)">→ 商品設計へ進む</button>
     </div>
@@ -318,7 +339,18 @@
             <button class="btn" onclick="genCopy()">AIでコピーを生成</button>
             <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genCopy()">再生成</button>
         </div>
-        <div class="loading" id="loading-copy"><div class="spinner"></div><p>🤖 AIがコピーを生成中...</p></div>
+        <div class="loading" id="loading-copy"><div class="spinner"></div><p id="copy-loading-text">🤖 AIがコピーを生成中...</p>
+            <div class="progress-container" id="copy-progress" style="display:none">
+                <div class="progress-bar"><div class="progress-fill" id="copy-progress-fill"></div></div>
+                <div class="progress-stages">
+                    <span class="progress-stage" id="cp-stage-1">情報分析</span>
+                    <span class="progress-stage" id="cp-stage-2">コピー設計</span>
+                    <span class="progress-stage" id="cp-stage-3">心理テク適用</span>
+                    <span class="progress-stage" id="cp-stage-4">最終生成</span>
+                </div>
+                <div class="progress-percent" id="copy-progress-percent">0%</div>
+            </div>
+        </div>
         <div id="copy-results"></div>
     </div>
 </div>
@@ -441,25 +473,147 @@ function filterR(f,btn){
 }
 
 // ========== Step 2: AIペルソナ ==========
+const PS_STEPS=[
+    {p:0, s:1, t:'🤖 リサーチ結果を分析中...'},
+    {p:10,s:1, t:'🤖 高優先度の悩みを抽出中...'},
+    {p:20,s:2, t:'🤖 ペルソナの基本像を設計中...'},
+    {p:35,s:2, t:'🤖 年齢・職業・家族構成を決定中...'},
+    {p:50,s:3, t:'🤖 心理プロファイルを作成中...'},
+    {p:65,s:3, t:'🤖 日常パターンと試した解決策を生成中...'},
+    {p:80,s:4, t:'🤖 心の声（インナーボイス）を生成中...'},
+    {p:90,s:4, t:'🤖 5人のペルソナを最終調整中...'},
+    {p:96,s:4, t:'🤖 完了処理中...'},
+];
+let psTimer=null;
+function startPersonaProg(){
+    const c=document.getElementById('persona-progress'),f=document.getElementById('persona-progress-fill'),p=document.getElementById('persona-progress-percent');
+    c.style.display='block';f.style.width='0%';p.textContent='0%';
+    for(let i=1;i<=4;i++){document.getElementById('ps-stage-'+i).classList.remove('active','done');}
+    let idx=0;
+    psTimer=setInterval(()=>{
+        if(idx>=PS_STEPS.length){clearInterval(psTimer);psTimer=null;return;}
+        const s=PS_STEPS[idx];
+        f.style.width=s.p+'%';p.textContent=s.p+'%';
+        document.getElementById('persona-loading-text').textContent=s.t;
+        for(let i=1;i<=4;i++){
+            const el=document.getElementById('ps-stage-'+i);
+            if(i<s.s){el.classList.remove('active');el.classList.add('done');}
+            else if(i===s.s){el.classList.add('active');el.classList.remove('done');}
+            else{el.classList.remove('active','done');}
+        }
+        idx++;
+    },2000);
+}
+function stopPersonaProg(){
+    if(psTimer){clearInterval(psTimer);psTimer=null;}
+    document.getElementById('persona-progress-fill').style.width='100%';
+    document.getElementById('persona-progress-percent').textContent='100%';
+    document.getElementById('persona-loading-text').textContent='完了！';
+    for(let i=1;i<=4;i++){const el=document.getElementById('ps-stage-'+i);el.classList.remove('active');el.classList.add('done');}
+}
+
+// ---- 単価シミュレーション プログレス ----
+const PR_STEPS=[
+    {p:0, s:1, t:'入力データを確認中...'},
+    {p:25,s:1, t:'目標売上を分析中...'},
+    {p:50,s:2, t:'理想単価を計算中...'},
+    {p:70,s:2, t:'稼働率シミュレーション中...'},
+    {p:85,s:3, t:'結果を分析中...'},
+    {p:95,s:3, t:'レポート生成中...'},
+];
+let prTimer=null;
+function startPricingProg(){
+    const c=document.getElementById('pricing-progress'),f=document.getElementById('pricing-progress-fill'),p=document.getElementById('pricing-progress-percent');
+    c.style.display='block';f.style.width='0%';p.textContent='0%';
+    for(let i=1;i<=3;i++){document.getElementById('pr-stage-'+i).classList.remove('active','done');}
+    let idx=0;
+    prTimer=setInterval(()=>{
+        if(idx>=PR_STEPS.length){clearInterval(prTimer);prTimer=null;return;}
+        const s=PR_STEPS[idx];
+        f.style.width=s.p+'%';p.textContent=s.p+'%';
+        document.getElementById('pricing-loading-text').textContent=s.t;
+        for(let i=1;i<=3;i++){
+            const el=document.getElementById('pr-stage-'+i);
+            if(i<s.s){el.classList.remove('active');el.classList.add('done');}
+            else if(i===s.s){el.classList.add('active');el.classList.remove('done');}
+            else{el.classList.remove('active','done');}
+        }
+        idx++;
+    },250);
+}
+function stopPricingProg(){
+    if(prTimer){clearInterval(prTimer);prTimer=null;}
+    document.getElementById('pricing-progress-fill').style.width='100%';
+    document.getElementById('pricing-progress-percent').textContent='100%';
+    document.getElementById('pricing-loading-text').textContent='完了！';
+    for(let i=1;i<=3;i++){const el=document.getElementById('pr-stage-'+i);el.classList.remove('active');el.classList.add('done');}
+}
+
+// ---- コピー生成 プログレス ----
+const CP_STEPS=[
+    {p:0, s:1, t:'🤖 ペルソナ・商品情報を分析中...'},
+    {p:12,s:1, t:'🤖 ターゲットの心理を解析中...'},
+    {p:25,s:2, t:'🤖 結論先出し型を設計中...'},
+    {p:35,s:2, t:'🤖 痛み直撃型・権威証明型を設計中...'},
+    {p:45,s:2, t:'🤖 数字インパクト型・ストーリー型を設計中...'},
+    {p:55,s:3, t:'🤖 心理テクニックを各コピーに適用中...'},
+    {p:65,s:3, t:'🤖 緊急性・疑問提起・逆説パターンを生成中...'},
+    {p:78,s:3, t:'🤖 ビフォーアフター型を調整中...'},
+    {p:88,s:4, t:'🤖 10種のコピーを最終チェック中...'},
+    {p:96,s:4, t:'🤖 出力フォーマットを整形中...'},
+];
+let cpTimer=null;
+function startCopyProg(){
+    const c=document.getElementById('copy-progress'),f=document.getElementById('copy-progress-fill'),p=document.getElementById('copy-progress-percent');
+    c.style.display='block';f.style.width='0%';p.textContent='0%';
+    for(let i=1;i<=4;i++){document.getElementById('cp-stage-'+i).classList.remove('active','done');}
+    let idx=0;
+    cpTimer=setInterval(()=>{
+        if(idx>=CP_STEPS.length){clearInterval(cpTimer);cpTimer=null;return;}
+        const s=CP_STEPS[idx];
+        f.style.width=s.p+'%';p.textContent=s.p+'%';
+        document.getElementById('copy-loading-text').textContent=s.t;
+        for(let i=1;i<=4;i++){
+            const el=document.getElementById('cp-stage-'+i);
+            if(i<s.s){el.classList.remove('active');el.classList.add('done');}
+            else if(i===s.s){el.classList.add('active');el.classList.remove('done');}
+            else{el.classList.remove('active','done');}
+        }
+        idx++;
+    },1800);
+}
+function stopCopyProg(){
+    if(cpTimer){clearInterval(cpTimer);cpTimer=null;}
+    document.getElementById('copy-progress-fill').style.width='100%';
+    document.getElementById('copy-progress-percent').textContent='100%';
+    document.getElementById('copy-loading-text').textContent='完了！';
+    for(let i=1;i<=4;i++){const el=document.getElementById('cp-stage-'+i);el.classList.remove('active');el.classList.add('done');}
+}
+
 async function genPersona(){
     const kw=document.getElementById('persona-keyword').value.trim();if(!kw){alert('悩みキーワードを入力してください');return;}G.keyword=kw;
-    document.getElementById('loading-persona').classList.add('active');document.getElementById('persona-results').innerHTML='';document.getElementById('btn-to-pricing').style.display='none';
+    document.getElementById('loading-persona').classList.add('active');document.getElementById('persona-loading-text').textContent='🤖 AIがペルソナを生成中...';document.getElementById('persona-results').innerHTML='';document.getElementById('btn-to-pricing').style.display='none';
+    startPersonaProg();
     // 高優先度結果をフィルタして送信
     const highPriority = G.results.filter(r => r.analysis && r.analysis.total_score >= 6);
     const resultsToSend = highPriority.length > 0 ? highPriority.slice(0, 20) : G.results.slice(0, 10);
     try{const r=await fetch('/api/persona',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,search_results:resultsToSend})});const d=await r.json();
         if(d.personas?.length>0){G.personas=d.personas;const c=document.getElementById('persona-results');c.innerHTML='';const colors=['#6366f1','#dc2626','#8b5cf6','#ea580c','#65a30d'];
         d.personas.forEach(p=>{c.innerHTML+=`<div class="persona-card" style="border-top-color:${colors[(p.id-1)%5]}"><div class="persona-header"><span class="persona-name">${esc(p.name)}</span><span class="persona-type-badge" style="background:${colors[(p.id-1)%5]}">${esc(p.type_label)}</span></div><div class="persona-info"><span class="persona-tag">${esc(p.age)}</span><span class="persona-tag">${esc(p.gender)}</span><span class="persona-tag">${esc(p.occupation)}</span><span class="persona-tag">${esc(p.family)}</span></div><div class="persona-detail"><strong>日常:</strong> ${esc(p.daily_pattern)}</div><div class="persona-detail"><strong>試したこと:</strong> ${esc(p.tried_solution)}</div><div class="persona-voice">${esc(p.inner_voice)}</div></div>`;});
+        stopPersonaProg();
         markDone(2);document.getElementById('btn-to-pricing').style.display='block';}
-    }catch(err){alert('エラー: '+err.message);}
+    }catch(err){stopPersonaProg();alert('エラー: '+err.message);}
     document.getElementById('loading-persona').classList.remove('active');
+    document.getElementById('persona-progress').style.display='none';
 }
 
 // ========== Step 3: 単価シミュレーション ==========
 async function genPricing(){
     document.getElementById('loading-pricing').classList.add('active');
+    document.getElementById('pricing-loading-text').textContent='計算中...';
     document.getElementById('pricing-results').innerHTML='';
     document.getElementById('btn-to-product').style.display='none';
+    startPricingProg();
     const body={
         monthly_target: parseInt(document.getElementById('sim-target').value)||1000000,
         working_days: parseInt(document.getElementById('sim-days').value)||22,
@@ -469,9 +623,12 @@ async function genPricing(){
         const r=await fetch('/api/pricing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
         const d=await r.json();
         if(d.error){
+            stopPricingProg();
             document.getElementById('loading-pricing').classList.remove('active');
+            document.getElementById('pricing-progress').style.display='none';
             alert(d.error); return;
         }
+        stopPricingProg();
         G.pricing=d;
         G.unit_price=d.calculation.unit_price;
 
@@ -505,8 +662,9 @@ async function genPricing(){
             </div>`;
         markDone(3);
         document.getElementById('btn-to-product').style.display='block';
-    }catch(err){alert('エラー: '+err.message);}
+    }catch(err){stopPricingProg();alert('エラー: '+err.message);}
     document.getElementById('loading-pricing').classList.remove('active');
+    document.getElementById('pricing-progress').style.display='none';
 }
 
 // ========== Step 4: 松竹梅商品設計 ==========
@@ -645,13 +803,15 @@ async function genProduct(){
 
 // ========== Step 5: AIコピー ==========
 async function genCopy(){
-    document.getElementById('loading-copy').classList.add('active');document.getElementById('copy-results').innerHTML='';
+    document.getElementById('loading-copy').classList.add('active');document.getElementById('copy-loading-text').textContent='🤖 AIがコピーを生成中...';document.getElementById('copy-results').innerHTML='';
+    startCopyProg();
     try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:G.keyword,target_symptom:G.keyword,personas:G.personas,products:G.products})});const d=await r.json();
-        if(d.copies?.length>0){G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
+        if(d.copies?.length>0){stopCopyProg();G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
         d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span></div><div class="copy-effect">✨ ${esc(cp.effect)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button></div>`;});
         markDone(5);}
-    }catch(err){alert('エラー: '+err.message);}
+    }catch(err){stopCopyProg();alert('エラー: '+err.message);}
     document.getElementById('loading-copy').classList.remove('active');
+    document.getElementById('copy-progress').style.display='none';
 }
 function cpClip(btn){const t=btn.parentElement.querySelector('.copy-text').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 コピー';},2000);});}
 </script>
