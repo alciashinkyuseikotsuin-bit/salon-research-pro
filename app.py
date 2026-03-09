@@ -58,7 +58,7 @@ def api_search():
         start = _time.time()
         print(f"[search] キーワード: {keyword}")
 
-        raw_results = search_and_fetch(keyword, max_details=100)
+        raw_results = search_and_fetch(keyword, max_details=50)
         elapsed = _time.time() - start
         print(f"[search] {len(raw_results)}件の投稿を取得 ({elapsed:.1f}秒)")
 

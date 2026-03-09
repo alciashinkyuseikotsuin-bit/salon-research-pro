@@ -400,7 +400,21 @@ function renderRes(results){
     const hp=results.filter(r=>r.analysis.total_score>=9).length,mp=results.filter(r=>r.analysis.total_score>=6&&r.analysis.total_score<9).length;
     document.getElementById('summary-stats').innerHTML=`<div class="stat-card"><div class="stat-number">${results.length}</div><div class="stat-label">検出された悩み</div></div><div class="stat-card"><div class="stat-number" style="color:var(--red)">${hp}</div><div class="stat-label">高優先ターゲット</div></div><div class="stat-card"><div class="stat-number" style="color:var(--orange)">${mp}</div><div class="stat-label">中優先ターゲット</div></div>`;
     document.getElementById('summary-section').style.display='block';document.getElementById('results-count').textContent=`${results.length}件の悩みを検出`;
-    const c=document.getElementById('results-list');c.innerHTML='';results.forEach(r=>c.appendChild(mkCard(r)));document.getElementById('results-section').style.display='block';
+    // ランク順にソートして上位10件のみ表示、残りは「もっと見る」で展開
+    const sorted=[...results].sort((a,b)=>b.analysis.total_score-a.analysis.total_score);
+    const top10=sorted.slice(0,10),rest=sorted.slice(10);
+    const c=document.getElementById('results-list');c.innerHTML='';
+    top10.forEach(r=>c.appendChild(mkCard(r)));
+    if(rest.length>0){
+        const moreBtn=document.createElement('button');moreBtn.className='btn btn-outline';moreBtn.id='btn-show-more';
+        moreBtn.style.cssText='width:100%;margin-top:16px;padding:12px;font-size:15px;';
+        moreBtn.textContent=`もっと見る（残り${rest.length}件）`;
+        moreBtn.onclick=function(){rest.forEach(r=>c.appendChild(mkCard(r)));moreBtn.remove();
+            document.getElementById('results-count').textContent=`${sorted.length}件表示中`;};
+        c.appendChild(moreBtn);
+        document.getElementById('results-count').textContent=`上位10件を表示中（全${sorted.length}件）`;
+    }
+    document.getElementById('results-section').style.display='block';
 }
 function mkCard(r){
     const a=r.analysis;let pc='';if(a.total_score>=12)pc='priority-high';else if(a.total_score>=9)pc='priority-medium-high';else if(a.total_score>=6)pc='priority-medium';else if(a.total_score>=3)pc='priority-low';
@@ -413,7 +427,17 @@ function mkCard(r){
 function filterR(f,btn){
     document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
     let s=[...G.results];if(f==='high')s=s.filter(r=>r.analysis.total_score>=6);else if(f==='urgency')s.sort((a,b)=>b.analysis.urgency.score-a.analysis.urgency.score);else if(f==='depth')s.sort((a,b)=>b.analysis.depth.score-a.analysis.depth.score);else s.sort((a,b)=>b.analysis.total_score-a.analysis.total_score);
-    const c=document.getElementById('results-list');c.innerHTML='';s.forEach(r=>c.appendChild(mkCard(r)));document.getElementById('results-count').textContent=`${s.length}件表示中`;
+    const top10=s.slice(0,10),rest=s.slice(10);
+    const c=document.getElementById('results-list');c.innerHTML='';top10.forEach(r=>c.appendChild(mkCard(r)));
+    if(rest.length>0){
+        const moreBtn=document.createElement('button');moreBtn.className='btn btn-outline';moreBtn.id='btn-show-more-filter';
+        moreBtn.style.cssText='width:100%;margin-top:16px;padding:12px;font-size:15px;';
+        moreBtn.textContent=`もっと見る（残り${rest.length}件）`;
+        moreBtn.onclick=function(){rest.forEach(r=>c.appendChild(mkCard(r)));moreBtn.remove();
+            document.getElementById('results-count').textContent=`${s.length}件表示中`;};
+        c.appendChild(moreBtn);
+        document.getElementById('results-count').textContent=`上位10件を表示中（全${s.length}件）`;
+    }else{document.getElementById('results-count').textContent=`${s.length}件表示中`;}
 }
 
 // ========== Step 2: AIペルソナ ==========
