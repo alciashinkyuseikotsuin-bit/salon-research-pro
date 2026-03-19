@@ -438,15 +438,6 @@ function renderVolume(v){
             </div>`;
     }
 
-    let rankingTable='';
-    if(v.ranking_data&&v.ranking_data.length>0){
-        rankingTable=`<details style="margin-top:12px"><summary style="cursor:pointer;font-size:.85rem;color:var(--primary);font-weight:600">📊 順位別アクセス予測を見る</summary>
-        <div style="margin-top:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem">
-        <tr style="background:#f1f5f9"><th style="padding:6px;text-align:center">順位</th><th style="padding:6px;text-align:right">Google</th><th style="padding:6px;text-align:right">Yahoo</th></tr>
-        ${v.ranking_data.map(r=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:5px;text-align:center;font-weight:600">${r.rank}位</td><td style="padding:5px;text-align:right">${r.google.toLocaleString()}</td><td style="padding:5px;text-align:right">${r.yahoo.toLocaleString()}</td></tr>`).join('')}
-        </table></div></details>`;
-    }
-
     let actionButtons='';
     if(v.rank==='S'||v.rank==='A'){
         actionButtons=`<div style="margin-top:14px;text-align:center">
@@ -481,7 +472,6 @@ function renderVolume(v){
         <div style="padding:12px 16px;background:${rb};border-radius:10px;margin-top:8px">
             <p style="font-size:.9rem;color:${rc};font-weight:600">${esc(v.rank_message)}</p>
         </div>
-        ${rankingTable}
         ${actionButtons}
     </div>`;
     vr.style.display='block';
