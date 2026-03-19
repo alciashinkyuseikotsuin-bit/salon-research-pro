@@ -26,6 +26,7 @@ from price_calculator import calculate_pricing
 from ai_persona_generator import generate_personas_ai
 from ai_copywriter import generate_catchcopy_ai
 from ai_search_patterns import generate_search_patterns_ai
+from aramakijake_scraper import fetch_search_volume
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, static_folder=os.path.join(BASE_DIR, 'static'))
@@ -43,6 +44,25 @@ def index():
 @app.route('/<path:filename>')
 def static_files(filename):
     return send_from_directory(app.static_folder, filename)
+
+
+# ========== API: キーワード検索ボリューム ==========
+
+@app.route('/api/volume')
+def api_volume():
+    """aramakijake.jpからキーワードの月間検索ボリュームを取得しランク評価"""
+    keyword = request.args.get('keyword', '').strip()
+
+    if not keyword:
+        return jsonify({'error': 'キーワードを入力してください'}), 400
+
+    try:
+        result = fetch_search_volume(keyword)
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"[volume] エラー: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 # ========== API: リサーチ ==========

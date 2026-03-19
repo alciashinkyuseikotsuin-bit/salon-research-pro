@@ -214,6 +214,9 @@
                 <button class="btn" style="margin-top:10px" onclick="handlePaste()">分析する</button>
             </div>
         </div>
+        <!-- ボリューム診断結果 -->
+        <div id="volume-result" style="display:none"></div>
+
         <div class="loading" id="loading"><div class="spinner"></div><p id="loading-text">リサーチ中...</p>
             <div class="progress-container" id="progress-container" style="display:none">
                 <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
@@ -408,14 +411,122 @@ function stopProg(){if(progressTimer){clearInterval(progressTimer);progressTimer
 function switchMode(m){document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));document.getElementById('search-mode').style.display=m==='search'?'block':'none';document.getElementById('paste-mode').classList.toggle('active',m==='paste');}
 function setKW(k){document.getElementById('keyword-input').value=k;handleSearch(new Event('submit'));}
 
-// ========== Step 1: リサーチ ==========
+// ========== Step 1: キーワード診断 → リサーチ ==========
+function renderVolume(v){
+    const vr=document.getElementById('volume-result');
+    const rankColors={S:'#dc2626',A:'#ea580c',B:'#ca8a04',C:'#6b7280','?':'#9ca3af'};
+    const rankBg={S:'#fef2f2',A:'#fff7ed',B:'#fefce8',C:'#f9fafb','?':'#f9fafb'};
+    const rc=rankColors[v.rank]||'#6b7280';
+    const rb=rankBg[v.rank]||'#f9fafb';
+
+    let volumeDisplay='';
+    if(v.has_data){
+        volumeDisplay=`
+            <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">
+                <div style="text-align:center;padding:12px 20px;background:#f8fafc;border-radius:10px;min-width:140px">
+                    <div style="font-size:.75rem;color:var(--text-light)">Yahoo! JAPAN</div>
+                    <div style="font-size:1.4rem;font-weight:800;color:#dc2626">${v.yahoo_volume?v.yahoo_volume.toLocaleString():'N/A'}</div>
+                </div>
+                <div style="text-align:center;padding:12px 20px;background:#f8fafc;border-radius:10px;min-width:140px">
+                    <div style="font-size:.75rem;color:var(--text-light)">Google</div>
+                    <div style="font-size:1.4rem;font-weight:800;color:#4285f4">${v.google_volume?v.google_volume.toLocaleString():'N/A'}</div>
+                </div>
+                <div style="text-align:center;padding:12px 20px;background:${rb};border-radius:10px;border:2px solid ${rc};min-width:140px">
+                    <div style="font-size:.75rem;color:var(--text-light)">合計 月間検索数</div>
+                    <div style="font-size:1.6rem;font-weight:800;color:${rc}">${v.total_volume.toLocaleString()}</div>
+                </div>
+            </div>`;
+    }
+
+    let rankingTable='';
+    if(v.ranking_data&&v.ranking_data.length>0){
+        rankingTable=`<details style="margin-top:12px"><summary style="cursor:pointer;font-size:.85rem;color:var(--primary);font-weight:600">📊 順位別アクセス予測を見る</summary>
+        <div style="margin-top:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem">
+        <tr style="background:#f1f5f9"><th style="padding:6px;text-align:center">順位</th><th style="padding:6px;text-align:right">Google</th><th style="padding:6px;text-align:right">Yahoo</th></tr>
+        ${v.ranking_data.map(r=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:5px;text-align:center;font-weight:600">${r.rank}位</td><td style="padding:5px;text-align:right">${r.google.toLocaleString()}</td><td style="padding:5px;text-align:right">${r.yahoo.toLocaleString()}</td></tr>`).join('')}
+        </table></div></details>`;
+    }
+
+    let actionButtons='';
+    if(v.rank==='S'||v.rank==='A'){
+        actionButtons=`<div style="margin-top:14px;text-align:center">
+            <button class="btn" onclick="proceedToSearch()" style="font-size:1rem;padding:10px 24px">→ このキーワードでリサーチ開始</button>
+        </div>`;
+    }else if(v.rank==='B'){
+        actionButtons=`<div style="margin-top:14px;text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn" onclick="proceedToSearch()" style="background:var(--yellow)">このまま続ける（非推奨）</button>
+            <button class="btn btn-outline" onclick="document.getElementById('keyword-input').focus();document.getElementById('volume-result').style.display='none'">キーワードを変更</button>
+        </div>`;
+    }else if(v.rank==='C'){
+        actionButtons=`<div style="margin-top:14px;text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-outline" onclick="document.getElementById('keyword-input').focus();document.getElementById('volume-result').style.display='none'" style="font-size:1rem;padding:10px 24px">キーワードを変更して再診断</button>
+            <button class="btn" onclick="proceedToSearch()" style="background:var(--gray);font-size:.85rem;padding:8px 16px">それでもリサーチする</button>
+        </div>`;
+    }else{
+        actionButtons=`<div style="margin-top:14px;text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn" onclick="proceedToSearch()">このキーワードでリサーチする</button>
+            <button class="btn btn-outline" onclick="document.getElementById('keyword-input').focus();document.getElementById('volume-result').style.display='none'">キーワードを変更</button>
+        </div>`;
+    }
+
+    vr.innerHTML=`<div class="card" style="border-top:4px solid ${rc}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span style="font-size:1.8rem;font-weight:900;color:${rc};background:${rb};padding:4px 14px;border-radius:10px">Rank ${v.rank}</span>
+            <div>
+                <div style="font-size:1rem;font-weight:700;color:${rc}">${esc(v.rank_label)}</div>
+                <div style="font-size:.8rem;color:var(--text-light)">${esc(v.rank_detail||'')}</div>
+            </div>
+        </div>
+        ${volumeDisplay}
+        <div style="padding:12px 16px;background:${rb};border-radius:10px;margin-top:8px">
+            <p style="font-size:.9rem;color:${rc};font-weight:600">${esc(v.rank_message)}</p>
+        </div>
+        ${rankingTable}
+        ${actionButtons}
+    </div>`;
+    vr.style.display='block';
+}
+
 async function handleSearch(e){
     e.preventDefault();const kw=document.getElementById('keyword-input').value.trim();if(!kw)return;G.keyword=kw;
+    // まず検索ボリュームを診断
+    document.getElementById('volume-result').style.display='none';
+    document.getElementById('results-section').style.display='none';document.getElementById('summary-section').style.display='none';document.getElementById('error-msg').classList.remove('active');
+    document.getElementById('loading').classList.add('active');document.getElementById('loading-text').textContent='📊 キーワードの検索ボリュームを診断中...';
+    try{
+        const vr=await fetch(`/api/volume?keyword=${encodeURIComponent(kw)}`);
+        if(!vr.ok)throw new Error('ボリューム取得失敗');
+        const vol=await vr.json();
+        G.volume=vol;
+        document.getElementById('loading').classList.remove('active');
+        renderVolume(vol);
+    }catch(err){
+        document.getElementById('loading').classList.remove('active');
+        // ボリューム取得失敗時はそのままリサーチへ進む
+        console.warn('Volume check failed, proceeding to search:', err);
+        proceedToSearch();
+    }
+}
+
+async function proceedToSearch(){
+    const kw=G.keyword;if(!kw)return;
+    document.getElementById('volume-result').style.display='none';
     document.getElementById('loading').classList.add('active');document.getElementById('loading-text').textContent='🤖 AIが検索パターンを自動生成中...';
     document.getElementById('results-section').style.display='none';document.getElementById('summary-section').style.display='none';document.getElementById('error-msg').classList.remove('active');
     startProg();
     try{const r=await fetch(`/api/search?keyword=${encodeURIComponent(kw)}`);stopProg();if(!r.ok)throw new Error('検索失敗');const d=await r.json();
-        if(d.results?.length>0){G.results=d.results;renderRes(d.results);markDone(1);}else{showErr('結果が見つかりませんでした。');}
+        if(d.results?.length>0){G.results=d.results;renderRes(d.results);markDone(1);
+            // ボリューム情報があれば結果セクションの上に小さく再表示
+            if(G.volume&&G.volume.has_data){
+                const vs=document.getElementById('volume-result');
+                const rc=G.volume.rank==='S'?'#dc2626':G.volume.rank==='A'?'#ea580c':G.volume.rank==='B'?'#ca8a04':'#6b7280';
+                vs.innerHTML=`<div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:#f8fafc;border-radius:10px;margin-bottom:12px;border-left:4px solid ${rc}">
+                    <span style="font-weight:800;color:${rc}">Rank ${esc(G.volume.rank)}</span>
+                    <span style="font-size:.85rem;color:var(--text-light)">「${esc(kw)}」月間検索数: ${G.volume.total_volume.toLocaleString()} (Yahoo ${(G.volume.yahoo_volume||0).toLocaleString()} / Google ${(G.volume.google_volume||0).toLocaleString()})</span>
+                </div>`;
+                vs.style.display='block';
+            }
+        }else{showErr('結果が見つかりませんでした。');}
     }catch(err){stopProg();showErr('エラー: '+err.message);}
     document.getElementById('loading').classList.remove('active');document.getElementById('progress-container').style.display='none';
 }
