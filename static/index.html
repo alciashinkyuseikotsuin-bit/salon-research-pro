@@ -420,23 +420,35 @@ function renderVolume(v){
     const rb=rankBg[v.rank]||'#f9fafb';
 
     let volumeDisplay='';
-    const sourceNote = v.source==='estimated' ? '<div style="font-size:.7rem;color:var(--text-light);text-align:center;margin-top:4px">※ aramakijakeにデータがないため推定値です</div>' : '';
     if(v.has_data){
-        volumeDisplay=`
-            <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">
-                <div style="text-align:center;padding:12px 20px;background:#f8fafc;border-radius:10px;min-width:140px">
-                    <div style="font-size:.75rem;color:var(--text-light)">Yahoo! JAPAN</div>
-                    <div style="font-size:1.4rem;font-weight:800;color:#dc2626">${v.yahoo_volume?v.yahoo_volume.toLocaleString():'N/A'}</div>
+        if(v.source==='google_kp_range' && v.range_low && v.range_high){
+            // Google Keyword Plannerレンジ表示
+            volumeDisplay=`
+                <div style="text-align:center;margin:12px 0">
+                    <div style="padding:16px 24px;background:${rb};border-radius:12px;border:2px solid ${rc};display:inline-block;min-width:240px">
+                        <div style="font-size:.75rem;color:var(--text-light);margin-bottom:4px">月間検索ボリューム（Google Keyword Planner）</div>
+                        <div style="font-size:1.6rem;font-weight:800;color:${rc}">${v.range_low.toLocaleString()} 〜 ${v.range_high.toLocaleString()}</div>
+                    </div>
                 </div>
-                <div style="text-align:center;padding:12px 20px;background:#f8fafc;border-radius:10px;min-width:140px">
-                    <div style="font-size:.75rem;color:var(--text-light)">Google</div>
-                    <div style="font-size:1.4rem;font-weight:800;color:#4285f4">${v.google_volume?v.google_volume.toLocaleString():'N/A'}</div>
-                </div>
-                <div style="text-align:center;padding:12px 20px;background:${rb};border-radius:10px;border:2px solid ${rc};min-width:140px">
-                    <div style="font-size:.75rem;color:var(--text-light)">合計 月間検索数</div>
-                    <div style="font-size:1.6rem;font-weight:800;color:${rc}">${v.total_volume.toLocaleString()}</div>
-                </div>
-            </div>${sourceNote}`;
+                <div style="font-size:.7rem;color:var(--text-light);text-align:center;margin-top:4px">※ aramakijake.jpにデータがないため、Google Keyword Plannerのレンジデータに基づく推定です</div>`;
+        } else {
+            // aramakijake実データ表示
+            volumeDisplay=`
+                <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">
+                    <div style="text-align:center;padding:12px 20px;background:#f8fafc;border-radius:10px;min-width:140px">
+                        <div style="font-size:.75rem;color:var(--text-light)">Yahoo! JAPAN</div>
+                        <div style="font-size:1.4rem;font-weight:800;color:#dc2626">${v.yahoo_volume?v.yahoo_volume.toLocaleString():'N/A'}</div>
+                    </div>
+                    <div style="text-align:center;padding:12px 20px;background:#f8fafc;border-radius:10px;min-width:140px">
+                        <div style="font-size:.75rem;color:var(--text-light)">Google</div>
+                        <div style="font-size:1.4rem;font-weight:800;color:#4285f4">${v.google_volume?v.google_volume.toLocaleString():'N/A'}</div>
+                    </div>
+                    <div style="text-align:center;padding:12px 20px;background:${rb};border-radius:10px;border:2px solid ${rc};min-width:140px">
+                        <div style="font-size:.75rem;color:var(--text-light)">合計 月間検索数</div>
+                        <div style="font-size:1.6rem;font-weight:800;color:${rc}">${v.total_volume.toLocaleString()}</div>
+                    </div>
+                </div>`;
+        }
     }
 
     let actionButtons='';
