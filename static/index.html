@@ -420,6 +420,7 @@ function renderVolume(v){
     const rb=rankBg[v.rank]||'#f9fafb';
 
     let volumeDisplay='';
+    const sourceNote = v.source==='estimated' ? '<div style="font-size:.7rem;color:var(--text-light);text-align:center;margin-top:4px">※ aramakijakeにデータがないため推定値です</div>' : '';
     if(v.has_data){
         volumeDisplay=`
             <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">
@@ -435,7 +436,7 @@ function renderVolume(v){
                     <div style="font-size:.75rem;color:var(--text-light)">合計 月間検索数</div>
                     <div style="font-size:1.6rem;font-weight:800;color:${rc}">${v.total_volume.toLocaleString()}</div>
                 </div>
-            </div>`;
+            </div>${sourceNote}`;
     }
 
     let actionButtons='';
