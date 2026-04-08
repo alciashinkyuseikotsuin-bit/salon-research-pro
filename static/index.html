@@ -220,7 +220,7 @@
         <div class="loading" id="loading"><div class="spinner"></div><p id="loading-text">リサーチ中...</p>
             <div class="progress-container" id="progress-container" style="display:none">
                 <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-                <div class="progress-stages"><span class="progress-stage" id="stage-1">🤖 AIパターン</span><span class="progress-stage" id="stage-2">知恵袋検索</span><span class="progress-stage" id="stage-3">詳細取得</span><span class="progress-stage" id="stage-4">分析</span></div>
+                <div class="progress-stages"><span class="progress-stage" id="stage-1">🤖 AIパターン</span><span class="progress-stage" id="stage-2">知恵袋+小町</span><span class="progress-stage" id="stage-3">詳細取得</span><span class="progress-stage" id="stage-4">分析</span></div>
                 <div class="progress-percent" id="progress-percent">0%</div>
             </div>
         </div>
@@ -404,7 +404,7 @@ function renderPersonaSummary(containerId, listId) {
 }
 
 // Progress
-const PG=[{p:0,s:1,t:'🤖 AIが検索パターンを自動生成中...'},{p:4,s:1,t:'🤖 擬音・体感表現を分析中...'},{p:7,s:1,t:'🤖 二次的損失パターンを生成中...'},{p:10,s:1,t:'🤖 失敗体験・真の願望パターンを生成中...'},{p:14,s:2,t:'Yahoo!知恵袋を検索中... (1/17)'},{p:20,s:2,t:'検索中... (3/17)'},{p:26,s:2,t:'検索中... (5/17) 擬音・体感系'},{p:33,s:2,t:'検索中... (7/17) 二次的損失系'},{p:40,s:2,t:'検索中... (9/17) 失敗体験系'},{p:48,s:2,t:'検索中... (11/17) 真の願望系'},{p:55,s:2,t:'検索中... (14/17)'},{p:60,s:2,t:'検索完了。詳細取得へ...'},{p:65,s:3,t:'詳細を取得中... (20%)'},{p:72,s:3,t:'詳細を取得中... (50%)'},{p:80,s:3,t:'詳細を取得中... (80%)'},{p:88,s:3,t:'詳細取得完了。分析開始...'},{p:92,s:4,t:'3軸スコアリング中...'},{p:96,s:4,t:'優先度を判定中...'}];
+const PG=[{p:0,s:1,t:'🤖 AIが検索パターンを自動生成中...'},{p:4,s:1,t:'🤖 擬音・体感表現を分析中...'},{p:7,s:1,t:'🤖 二次的損失パターンを生成中...'},{p:10,s:1,t:'🤖 失敗体験・真の願望パターンを生成中...'},{p:14,s:2,t:'Yahoo!知恵袋を検索中...'},{p:20,s:2,t:'知恵袋検索中... + 発言小町を並列検索中...'},{p:28,s:2,t:'知恵袋: 擬音・体感系で検索中...'},{p:35,s:2,t:'知恵袋: 二次的損失系で検索中...'},{p:42,s:2,t:'知恵袋: 失敗体験系 / 発言小町: 本文取得中...'},{p:50,s:2,t:'知恵袋: 真の願望系で検索中...'},{p:58,s:2,t:'検索完了。詳細取得へ...'},{p:65,s:3,t:'知恵袋の詳細を取得中... (20%)'},{p:72,s:3,t:'詳細を取得中... (50%)'},{p:80,s:3,t:'詳細を取得中... (80%)'},{p:88,s:3,t:'詳細取得完了。分析開始...'},{p:92,s:4,t:'3軸スコアリング中（知恵袋+発言小町）...'},{p:96,s:4,t:'優先度を判定中...'}];
 function startProg(){const c=document.getElementById('progress-container'),f=document.getElementById('progress-fill'),p=document.getElementById('progress-percent');c.style.display='block';f.style.width='0%';p.textContent='0%';for(let i=1;i<=4;i++){document.getElementById('stage-'+i).classList.remove('active','done');}let idx=0;progressTimer=setInterval(()=>{if(idx>=PG.length){clearInterval(progressTimer);progressTimer=null;return;}const s=PG[idx];f.style.width=s.p+'%';p.textContent=s.p+'%';document.getElementById('loading-text').textContent=s.t;for(let i=1;i<=4;i++){const el=document.getElementById('stage-'+i);if(i<s.s){el.classList.remove('active');el.classList.add('done');}else if(i===s.s){el.classList.add('active');el.classList.remove('done');}else{el.classList.remove('active','done');}}idx++;},2000);}
 function stopProg(){if(progressTimer){clearInterval(progressTimer);progressTimer=null;}document.getElementById('progress-fill').style.width='100%';document.getElementById('progress-percent').textContent='100%';for(let i=1;i<=4;i++){const el=document.getElementById('stage-'+i);el.classList.remove('active');el.classList.add('done');}}
 
@@ -544,8 +544,10 @@ async function handlePaste(){
 function showErr(m){const el=document.getElementById('error-msg');el.textContent=m;el.classList.add('active');}
 function renderRes(results){
     const hp=results.filter(r=>r.analysis.total_score>=9).length,mp=results.filter(r=>r.analysis.total_score>=6&&r.analysis.total_score<9).length;
+    const chieCnt=results.filter(r=>r.source!=='komachi').length,komachiCnt=results.filter(r=>r.source==='komachi').length;
     document.getElementById('summary-stats').innerHTML=`<div class="stat-card"><div class="stat-number">${results.length}</div><div class="stat-label">検出された悩み</div></div><div class="stat-card"><div class="stat-number" style="color:var(--red)">${hp}</div><div class="stat-label">高優先ターゲット</div></div><div class="stat-card"><div class="stat-number" style="color:var(--orange)">${mp}</div><div class="stat-label">中優先ターゲット</div></div>`;
-    document.getElementById('summary-section').style.display='block';document.getElementById('results-count').textContent=`${results.length}件の悩みを検出`;
+    const srcText = komachiCnt > 0 ? `（知恵袋${chieCnt}件＋発言小町${komachiCnt}件）` : '';
+    document.getElementById('summary-section').style.display='block';document.getElementById('results-count').textContent=`${results.length}件の悩みを検出${srcText}`;
     // ランク順にソートして上位10件のみ表示、残りは「もっと見る」で展開
     const sorted=[...results].sort((a,b)=>b.analysis.total_score-a.analysis.total_score);
     const top10=sorted.slice(0,10),rest=sorted.slice(10);
@@ -567,7 +569,8 @@ function mkCard(r){
     const card=document.createElement('div');card.className=`result-card ${pc}`;
     const title=r.url?`<a href="${esc(r.url)}" target="_blank">${esc(r.title)}</a>`:esc(r.title);
     const txt=r.full_text?r.full_text.substring(0,180)+(r.full_text.length>180?'...':''):'';
-    card.innerHTML=`<div class="card-header"><div class="card-title">${title}</div><span class="priority-badge" style="background:${a.priority_color}">${a.priority}</span></div>${txt?`<div class="card-text">${esc(txt)}</div>`:''}<div class="scores"><div class="score-item"><span class="score-label">緊急性</span><div class="score-bar-container">${dots(a.urgency.score,'urgency')}</div><span class="score-text">${a.urgency.label}</span></div><div class="score-item"><span class="score-label">深さ</span><div class="score-bar-container">${dots(a.depth.score,'depth')}</div><span class="score-text">${a.depth.label}</span></div><div class="score-item"><span class="score-label">コンプレックス</span><div class="score-bar-container">${dots(a.complex.score,'complex')}</div><span class="score-text">${a.complex.label}</span></div></div>`;
+    const srcBadge = r.source==='komachi' ? '<span style="display:inline-block;padding:1px 8px;border-radius:10px;font-size:.65rem;font-weight:600;background:#fef3c7;color:#92400e;margin-left:6px">発言小町</span>' : '<span style="display:inline-block;padding:1px 8px;border-radius:10px;font-size:.65rem;font-weight:600;background:#dbeafe;color:#1e40af;margin-left:6px">知恵袋</span>';
+    card.innerHTML=`<div class="card-header"><div class="card-title">${title}${srcBadge}</div><span class="priority-badge" style="background:${a.priority_color}">${a.priority}</span></div>${txt?`<div class="card-text">${esc(txt)}</div>`:''}<div class="scores"><div class="score-item"><span class="score-label">緊急性</span><div class="score-bar-container">${dots(a.urgency.score,'urgency')}</div><span class="score-text">${a.urgency.label}</span></div><div class="score-item"><span class="score-label">深さ</span><div class="score-bar-container">${dots(a.depth.score,'depth')}</div><span class="score-text">${a.depth.label}</span></div><div class="score-item"><span class="score-label">コンプレックス</span><div class="score-bar-container">${dots(a.complex.score,'complex')}</div><span class="score-text">${a.complex.label}</span></div></div>`;
     return card;
 }
 function filterR(f,btn){
