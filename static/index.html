@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商品設計サポートツール｜Pro版</title>
+    <title>売上100万講座 AIスタッフルーム｜受講生専用</title>
     <style>
         :root {
             --primary: #6366f1;
@@ -169,13 +169,45 @@
             .product-grid { grid-template-columns: 1fr; }
             .step-item { font-size: 0.7rem; padding: 4px 8px; }
         }
+        /* ===== ⑤カウンセリング台本 ===== */
+        .cs-step-card { background: var(--card-bg); border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+        .cs-step-num { display: inline-block; background: var(--primary); color: #fff; border-radius: 50%; width: 26px; height: 26px; text-align: center; line-height: 26px; font-weight: 700; font-size: .85rem; margin-right: 8px; }
+        .cs-script { background: #f0f4ff; border-radius: 8px; padding: 12px; margin: 8px 0; font-size: .95rem; white-space: pre-wrap; }
+        .cs-point { font-size: .85rem; color: var(--green); margin-top: 4px; }
+        .cs-ng { font-size: .85rem; color: var(--red); margin-top: 2px; }
+        .cs-objection { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+
+        /* ===== ⑥ロープレ道場 ===== */
+        .rp-chat { background: #eef1f7; border-radius: 12px; padding: 14px; height: 380px; overflow-y: auto; margin: 12px 0; }
+        .rp-msg { max-width: 78%; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px; font-size: .92rem; white-space: pre-wrap; }
+        .rp-msg.owner { background: var(--primary); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
+        .rp-msg.customer { background: #fff; border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        .rp-inner { max-width: 78%; font-size: .78rem; color: var(--purple); background: #f5f3ff; border: 1px dashed #c4b5fd; border-radius: 8px; padding: 6px 10px; margin: -4px 0 10px 0; }
+        .rp-input-row { display: flex; gap: 8px; }
+        .rp-input-row textarea { flex: 1; padding: 10px 12px; border: 2px solid var(--border); border-radius: 10px; font-size: .95rem; font-family: inherit; resize: none; height: 64px; }
+        .rp-trust-bar { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; flex: 1; }
+        .rp-trust-fill { height: 100%; background: linear-gradient(90deg, #f87171, #fbbf24, #34d399); width: 30%; transition: width .5s; }
+        .rp-status { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: .85rem; color: var(--text-light); }
+        .fb-step { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: .9rem; }
+        .fb-badge { flex-shrink: 0; padding: 2px 10px; border-radius: 10px; font-size: .75rem; font-weight: 700; }
+        .fb-badge.done { background: #dcfce7; color: var(--green); }
+        .fb-badge.partial { background: #fef3c7; color: var(--gold); }
+        .fb-badge.missed { background: #fee2e2; color: var(--red); }
+        .fb-score-circle { text-align: center; padding: 14px; }
+        .fb-score-circle .num { font-size: 2.6rem; font-weight: 800; color: var(--primary); }
+
+        /* ===== ⑦LINE配信 ===== */
+        .line-msg-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+        .line-msg-head { background: #06c755; color: #fff; padding: 8px 14px; font-size: .85rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
+        .line-msg-body { padding: 14px; background: #f7fdf9; font-size: .92rem; white-space: pre-wrap; }
+        .line-msg-aim { padding: 8px 14px; font-size: .8rem; color: var(--text-light); border-top: 1px dashed var(--border); }
     </style>
 </head>
 <body>
 <div class="container">
     <header>
-        <h1>商品設計サポートツール</h1>
-        <span class="badge">✨ Pro版</span>
+        <h1>売上100万講座 AIスタッフルーム</h1>
+        <span class="badge">🎓 受講生専用</span>
     </header>
 
     <div class="step-nav">
@@ -183,7 +215,10 @@
         <div class="step-item" onclick="goStep(2)">②ペルソナ<span class="ai-tag">AI</span></div><span class="step-arrow">→</span>
         <div class="step-item" onclick="goStep(3)">③単価試算</div><span class="step-arrow">→</span>
         <div class="step-item" onclick="goStep(4)">④商品設計</div><span class="step-arrow">→</span>
-        <div class="step-item" onclick="goStep(5)">⑤コピー<span class="ai-tag">AI</span></div>
+        <div class="step-item" onclick="goStep(5)">⑤カウンセリング台本<span class="ai-tag">AI</span></div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(6)">⑥ロープレ道場<span class="ai-tag">AI</span></div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(7)">⑦LINE配信<span class="ai-tag">AI</span></div><span class="step-arrow">→</span>
+        <div class="step-item" onclick="goStep(8)">⑧コピー<span class="ai-tag">AI</span></div>
     </div>
 
     <!-- Step 1: リサーチ -->
@@ -332,11 +367,67 @@
             </div>
         </div>
         <div id="product-results"></div>
-        <button class="btn btn-next" id="btn-to-copy" style="display:none" onclick="goStep(5)">→ AIコピー生成へ</button>
+        <button class="btn btn-next" id="btn-to-counseling" style="display:none" onclick="goStep(5)">→ カウンセリング台本へ</button>
     </div>
 
-    <!-- Step 5: AIコピー -->
+    <!-- Step 5: カウンセリング台本 -->
     <div class="step-content" id="step-5">
+        <div class="card"><h3>カウンセリング9ステップ台本 <span class="ai-badge">🤖 AI生成</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">②のペルソナと④の松竹梅メニューをもとに、講座メソッド「売れるカウンセリング9ステップ」に沿ったあなた専用の台本を生成します。ただ読み上げるだけで、口下手でも堂々と提案できる状態を作ります。</p>
+            <button class="btn" onclick="genCounseling()">AIで台本を作成</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genCounseling()">再生成</button>
+        </div>
+        <div class="loading" id="loading-counseling"><div class="spinner"></div><p id="counseling-loading-text">🤖 AIが9ステップ台本を作成中...（30秒ほどかかります）</p></div>
+        <div id="counseling-results"></div>
+        <button class="btn btn-next" id="btn-to-roleplay" style="display:none" onclick="goStep(6)">→ ロープレ道場で特訓する</button>
+    </div>
+
+    <!-- Step 6: ロープレ道場 -->
+    <div class="step-content" id="step-6">
+        <div class="card"><h3>反論処理・ロープレ道場 <span class="ai-badge">🤖 対話AI</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">②で生成したペルソナをAIが「新規のお客様」として演じます。⑤の台本を見ながら、カウンセリング9ステップを24時間いつでも特訓。最後に「採点する」で講師AIのフィードバックがもらえます。</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+                <div class="form-group" style="flex:1;min-width:220px;margin-bottom:0"><label>練習相手のお客様（ペルソナ）</label><select class="form-input" id="rp-persona-select"></select></div>
+                <button class="btn" onclick="rpStart()">この方で練習開始</button>
+            </div>
+        </div>
+        <div id="rp-arena" style="display:none">
+            <div class="card">
+                <div class="rp-status">
+                    <span>お客様の信頼度</span>
+                    <div class="rp-trust-bar"><div class="rp-trust-fill" id="rp-trust-fill"></div></div>
+                    <span id="rp-trust-num">30</span>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="rp-show-inner" checked> 心の声を表示</label>
+                </div>
+                <div class="rp-chat" id="rp-chat"></div>
+                <div class="rp-input-row">
+                    <textarea id="rp-input" placeholder="お客様への声かけを入力...（例: 今日はどのようなお悩みでいらっしゃいましたか？）"></textarea>
+                    <button class="btn" id="rp-send-btn" onclick="rpSend()">送信</button>
+                </div>
+                <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="btn btn-outline btn-sm" onclick="rpFeedback()">📝 採点する（講師AIのフィードバック）</button>
+                    <button class="btn btn-outline btn-sm" onclick="rpStart()">🔄 最初からやり直す</button>
+                </div>
+            </div>
+            <div class="loading" id="loading-feedback"><div class="spinner"></div><p>🤖 講師AIが採点中...</p></div>
+            <div id="rp-feedback"></div>
+        </div>
+    </div>
+
+    <!-- Step 7: LINEステップ配信 -->
+    <div class="step-content" id="step-7">
+        <div class="card"><h3>公式LINE 5日間シナリオ <span class="ai-badge">🤖 AI生成</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">教育6ステップ×カウンセリング9ステップの心理を組み込んだ、登録直後〜5日目までのステップ配信（計6通）を一括生成。出力された文章はそのままLINE公式アカウントの管理画面にコピペできます。</p>
+            <button class="btn" onclick="genLine()">AIで5日間シナリオを生成</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genLine()">再生成</button>
+        </div>
+        <div class="loading" id="loading-line"><div class="spinner"></div><p id="line-loading-text">🤖 AIが6通のシナリオを執筆中...（40秒ほどかかります）</p></div>
+        <div id="line-results"></div>
+        <button class="btn btn-next" id="btn-to-copy" style="display:none" onclick="goStep(8)">→ AIコピー生成へ</button>
+    </div>
+
+    <!-- Step 8: AIコピー -->
+    <div class="step-content" id="step-8">
         <div class="card"><h3>キャッチコピー自動生成 <span class="ai-badge">🤖 AI生成</span></h3>
             <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">ペルソナと商品情報をもとに、Claude AIが10種類の心理テクニックでコピーを自動生成します。</p>
             <button class="btn" onclick="genCopy()">AIでコピーを生成</button>
@@ -379,6 +470,8 @@ function goStep(n) {
         }
         renderPersonaSummary('product-persona-summary', 'product-persona-list');
     }
+    // Step 6 (ロープレ道場): ペルソナ選択肢を更新
+    if(n===6) rpPopulatePersonas();
 }
 function markDone(n) { G.done.add(n); }
 function esc(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
@@ -753,9 +846,9 @@ async function genPricing(){
             <div class="card"><h3>算出結果</h3>
                 <div class="sim-grid">
                     <div class="sim-card" style="background:#eef2ff;border:2px solid var(--primary);border-radius:10px">
-                        <h4 style="color:var(--primary)">1回あたりの理想単価</h4>
+                        <h4 style="color:var(--primary)">1回あたりの最低ライン</h4>
                         <div class="sim-value" style="color:var(--primary);font-size:1.8rem">${esc(d.calculation.unit_price_display)}</div>
-                        <div class="sim-desc">100%稼働の場合</div>
+                        <div class="sim-desc">講座式: ${esc(d.calculation.formula||'×0.7の余白ルール')}</div>
                     </div>
                     <div class="sim-card">
                         <h4>月の総予約枠</h4>
@@ -833,7 +926,7 @@ async function genProduct(){
     document.getElementById('loading-product').classList.add('active');
     document.getElementById('product-loading-text').textContent='🤖 AIが商品を設計中...';
     document.getElementById('product-results').innerHTML='';
-    document.getElementById('btn-to-copy').style.display='none';
+    document.getElementById('btn-to-counseling').style.display='none';
     startProductProg();
     try{
         const r=await fetch('/api/product',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
@@ -896,10 +989,18 @@ async function genProduct(){
                 <div class="product-price plum">${esc(d.plum.raw_price_display)}</div>
                 <div class="product-meta">${esc(d.plum.sessions_display)} / ${esc(d.plum.duration)}</div>
                 <ul class="product-features">${d.plum.features.map(f=>'<li>'+esc(f)+'</li>').join('')}</ul>
+                ${d.plum.per_session?'<div style="margin-top:8px;font-size:.85rem;color:var(--red);font-weight:600">1回 '+esc(d.plum.per_session)+'（竹より割高＝料金逆転）</div>':''}
                 ${renderSug(d.plum.suggested_prices)}
                 <div class="product-role">${esc(d.plum.role)}</div>
             </div>
         </div>
+        ${d.pricing_presentation?`<div class="tips-box" style="border-color:#fbbf24"><h4>💰 ${esc(d.pricing_presentation.label)}</h4>
+            <p style="font-size:1.05rem;font-weight:700;margin:6px 0">${esc(d.pricing_presentation.script)}</p>
+            <p style="font-size:.8rem;color:var(--text-light)">「本来の価値 → 通常 → 本日限定」の3段階で見せることで、お得感を最大化します</p>
+        </div>`:''}
+        ${d.checklist?`<div class="card"><h3>✅ 商品設計 最終チェックリスト（講座基準）</h3>
+            ${d.checklist.map(c=>`<div class="fb-step"><span class="fb-badge ${c.ok?'done':'partial'}">${c.ok?'合格':'あなた次第'}</span><div><strong>${esc(c.item)}</strong> — ${esc(c.note)}</div></div>`).join('')}
+        </div>`:''}
         <div class="tips-box"><h4>💡 AIセールスTips</h4>
             <p><strong>提示順序:</strong> ${esc(d.sales_tips.presentation_order)}</p>
             <p><strong>クロージング:</strong> ${esc(d.sales_tips.closing_phrase)}</p>
@@ -912,7 +1013,7 @@ async function genProduct(){
             ${d.sales_tips.today_bonus?'<p style="margin-top:10px;padding:10px;background:#fef3c7;border-radius:8px"><strong>🎁 当日特典:</strong> '+esc(d.sales_tips.today_bonus)+'</p>':''}
         </div>`;
         markDone(4);
-        document.getElementById('btn-to-copy').style.display='block';
+        document.getElementById('btn-to-counseling').style.display='block';
     }catch(err){stopProductProg();alert('エラー: '+err.message);}
     document.getElementById('loading-product').classList.remove('active');
     document.getElementById('product-progress').style.display='none';
@@ -925,12 +1026,166 @@ async function genCopy(){
     try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:G.keyword,target_symptom:G.keyword,personas:G.personas,products:G.products})});const d=await r.json();
         if(d.copies?.length>0){stopCopyProg();G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
         d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span></div><div class="copy-effect">✨ ${esc(cp.effect)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button></div>`;});
-        markDone(5);}
+        markDone(8);}
     }catch(err){stopCopyProg();alert('エラー: '+err.message);}
     document.getElementById('loading-copy').classList.remove('active');
     document.getElementById('copy-progress').style.display='none';
 }
 function cpClip(btn){const t=btn.parentElement.querySelector('.copy-text').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 コピー';},2000);});}
+
+// ========== Step 5: カウンセリング台本 ==========
+async function genCounseling(){
+    if(!G.keyword){alert('先に①リサーチでキーワードを入力してください');return;}
+    document.getElementById('loading-counseling').classList.add('active');
+    document.getElementById('counseling-results').innerHTML='';
+    document.getElementById('btn-to-roleplay').style.display='none';
+    try{
+        const r=await fetch('/api/counseling',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:G.keyword,target_symptom:G.keyword,personas:G.personas,products:G.products})});
+        const d=await r.json();
+        if(d.error){alert(d.error);}
+        else{
+            G.counseling=d;
+            const c=document.getElementById('counseling-results');
+            let html='';
+            if(d.preparation) html+=`<div class="card"><h3>🪑 ${esc(d.preparation.title||'施術前の準備')}</h3><ul class="product-features">${(d.preparation.actions||[]).map(a=>'<li>'+esc(a)+'</li>').join('')}</ul></div>`;
+            if(d.mind_flow) html+=`<div class="card"><h3>🧠 3段階の心の動き</h3>${d.mind_flow.map(m=>`<div class="fb-step"><span class="fb-badge done">${m.order}. ${esc(m.state)}</span><div>${esc(m.description)}</div></div>`).join('')}</div>`;
+            html+=(d.steps||[]).map(s=>`<div class="cs-step-card">
+                <div><span class="cs-step-num">${s.step}</span><strong>${esc(s.name)}</strong> <span style="font-size:.8rem;color:var(--text-light)">— ${esc(s.goal||'')}</span></div>
+                <div class="cs-script">${esc(s.script||'')}</div>
+                <div class="cs-point">✔ ${esc(s.point||'')}</div>
+                <div class="cs-ng">✖ NG: ${esc(s.ng||'')}</div>
+                <button class="copy-btn" style="margin-top:6px" onclick="csClip(this)">📋 セリフをコピー</button>
+            </div>`).join('');
+            if(d.objections) html+=`<div class="card"><h3>🛡 断り文句への「魔法の質問」</h3>${d.objections.map(o=>`<div class="cs-objection">
+                <strong>💬「${esc(o.trigger)}」</strong>
+                <div style="font-size:.9rem;margin-top:6px"><strong>受け止め:</strong> ${esc(o.receive||'')}</div>
+                <div style="font-size:.95rem;margin-top:4px;color:var(--primary);font-weight:700">魔法の質問: ${esc(o.magic_question||'')}</div>
+                <div style="font-size:.9rem;margin-top:4px"><strong>その後:</strong> ${esc(o.follow||'')}</div>
+            </div>`).join('')}</div>`;
+            if(d.silence_rule||d.mindset) html+=`<div class="tips-box"><h4>🤫 沈黙の鉄則 と 心構え</h4><p>${esc(d.silence_rule||'')}</p><p style="margin-top:6px">${esc(d.mindset||'')}</p></div>`;
+            c.innerHTML=html;
+            markDone(5);
+            document.getElementById('btn-to-roleplay').style.display='block';
+        }
+    }catch(err){alert('エラー: '+err.message);}
+    document.getElementById('loading-counseling').classList.remove('active');
+}
+function csClip(btn){const t=btn.parentElement.querySelector('.cs-script').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 セリフをコピー';},2000);});}
+
+// ========== Step 6: ロープレ道場 ==========
+let RP={persona:null,history:[],trust:30,busy:false};
+function rpPopulatePersonas(){
+    const sel=document.getElementById('rp-persona-select');
+    if(!G.personas||G.personas.length===0){sel.innerHTML='<option value="">②でペルソナを生成してください</option>';return;}
+    sel.innerHTML=G.personas.map((p,i)=>`<option value="${i}">${esc(p.name)}（${esc(p.type_label)} / ${esc(p.age)}）</option>`).join('');
+}
+function rpStart(){
+    if(!G.personas||G.personas.length===0){alert('先に②でペルソナを生成してください');return;}
+    const idx=parseInt(document.getElementById('rp-persona-select').value)||0;
+    RP={persona:G.personas[idx],history:[],trust:30,busy:false};
+    document.getElementById('rp-arena').style.display='block';
+    document.getElementById('rp-feedback').innerHTML='';
+    document.getElementById('rp-chat').innerHTML='';
+    rpSetTrust(30);
+    rpAppend('customer',`（${RP.persona.name}さんが来店し、カウンセリングシートを書き終えて席に着きました。メニュー表をチラッと見ていたようです）`,'');
+}
+function rpSetTrust(t){RP.trust=t;document.getElementById('rp-trust-fill').style.width=t+'%';document.getElementById('rp-trust-num').textContent=t;}
+function rpAppend(role,text,inner){
+    const chat=document.getElementById('rp-chat');
+    const div=document.createElement('div');
+    div.className='rp-msg '+role;
+    div.textContent=text;
+    chat.appendChild(div);
+    if(role==='customer'&&inner&&document.getElementById('rp-show-inner').checked){
+        const iv=document.createElement('div');
+        iv.className='rp-inner';
+        iv.textContent='💭 心の声: '+inner;
+        chat.appendChild(iv);
+    }
+    chat.scrollTop=chat.scrollHeight;
+}
+async function rpSend(){
+    if(RP.busy)return;
+    const input=document.getElementById('rp-input');
+    const msg=input.value.trim();
+    if(!msg)return;
+    if(!RP.persona){alert('「この方で練習開始」を押してください');return;}
+    RP.busy=true;
+    document.getElementById('rp-send-btn').textContent='...';
+    rpAppend('owner',msg,'');
+    input.value='';
+    try{
+        const r=await fetch('/api/roleplay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({persona:RP.persona,products:G.products,history:RP.history,owner_message:msg})});
+        const d=await r.json();
+        if(d.error){alert(d.error);}
+        else{
+            RP.history.push({role:'owner',text:msg});
+            RP.history.push({role:'customer',text:d.reply,trust:d.trust});
+            rpAppend('customer',d.reply,d.inner_voice);
+            rpSetTrust(d.trust);
+        }
+    }catch(err){alert('エラー: '+err.message);}
+    RP.busy=false;
+    document.getElementById('rp-send-btn').textContent='送信';
+}
+document.addEventListener('keydown',e=>{
+    if(e.target&&e.target.id==='rp-input'&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();rpSend();}
+});
+async function rpFeedback(){
+    if(!RP.history||RP.history.length===0){alert('まずはお客様と会話してみましょう');return;}
+    document.getElementById('loading-feedback').classList.add('active');
+    document.getElementById('rp-feedback').innerHTML='';
+    try{
+        const r=await fetch('/api/roleplay/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({persona:RP.persona,products:G.products,history:RP.history})});
+        const d=await r.json();
+        if(d.error){alert(d.error);}
+        else{
+            const stMap={done:'できた',partial:'惜しい',missed:'未達'};
+            if(Array.isArray(d.advice))d.advice=d.advice.join('\n');
+            document.getElementById('rp-feedback').innerHTML=`<div class="card">
+                <div class="fb-score-circle"><div class="num">${d.total_score}<span style="font-size:1rem;color:var(--text-light)">点</span></div><div style="font-weight:700;color:var(--gold)">評価: ${esc(d.grade||'')}</div></div>
+                <h3>9ステップ採点</h3>
+                ${(d.step_scores||[]).map(s=>`<div class="fb-step"><span class="fb-badge ${s.status}">${s.step}. ${stMap[s.status]||s.status}</span><div><strong>${esc(s.name)}</strong> — ${esc(s.comment)}</div></div>`).join('')}
+                <div style="margin-top:14px;padding:12px;background:#f0fdf4;border-radius:10px"><strong>🌟 一番良かった場面:</strong><br>${esc(d.best_moment||'')}</div>
+                <div style="margin-top:10px;padding:12px;background:#fef2f2;border-radius:10px"><strong>🛡 反論処理の講評:</strong><br>${esc(d.objection_review||'')}</div>
+                <div style="margin-top:10px;padding:12px;background:#f0f4ff;border-radius:10px"><strong>📝 次はこう言う:</strong><br>${esc(d.advice||'')}</div>
+                <div style="margin-top:10px;font-size:.9rem;color:var(--text-light)"><strong>次の練習テーマ:</strong> ${esc(d.next_practice||'')}</div>
+            </div>`;
+            markDone(6);
+        }
+    }catch(err){alert('エラー: '+err.message);}
+    document.getElementById('loading-feedback').classList.remove('active');
+}
+
+// ========== Step 7: LINE 5日間シナリオ ==========
+async function genLine(){
+    if(!G.keyword){alert('先に①リサーチでキーワードを入力してください');return;}
+    document.getElementById('loading-line').classList.add('active');
+    document.getElementById('line-results').innerHTML='';
+    document.getElementById('btn-to-copy').style.display='none';
+    try{
+        const r=await fetch('/api/line-scenario',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:G.keyword,target_symptom:G.keyword,personas:G.personas,products:G.products})});
+        const d=await r.json();
+        if(d.error){alert(d.error);}
+        else{
+            G.lineScenario=d;
+            const c=document.getElementById('line-results');
+            let html='';
+            if(d.strategy) html+=`<div class="tips-box"><h4>🗺 5日間の戦略</h4><p>${esc(d.strategy)}</p></div>`;
+            html+=(d.messages||[]).map(m=>`<div class="line-msg-card">
+                <div class="line-msg-head"><span>📅 ${esc(m.day)}（${esc(m.timing||'')}）｜${esc(m.title||'')}</span><span style="background:rgba(255,255,255,.25);padding:1px 8px;border-radius:8px;font-size:.72rem">${esc(m.education_step||'')}</span></div>
+                <div class="line-msg-body">${esc(m.body||'')}</div>
+                <div class="line-msg-aim">🎯 ねらい: ${esc(m.aim||'')} <button class="copy-btn" style="float:right" onclick="lnClip(this)">📋 本文をコピー</button></div>
+            </div>`).join('');
+            if(d.operation_tips) html+=`<div class="card"><h3>⚙️ 運用のコツ</h3><ul class="product-features">${d.operation_tips.map(t=>'<li>'+esc(t)+'</li>').join('')}</ul></div>`;
+            c.innerHTML=html;
+            markDone(7);
+            document.getElementById('btn-to-copy').style.display='block';
+        }
+    }catch(err){alert('エラー: '+err.message);}
+    document.getElementById('loading-line').classList.remove('active');
+}
+function lnClip(btn){const t=btn.closest('.line-msg-card').querySelector('.line-msg-body').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 本文をコピー';},2000);});}
 </script>
 </body>
 </html>

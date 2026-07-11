@@ -7,6 +7,7 @@ AIドリブンのキャッチコピーを生成する。
 """
 
 import json
+from config import MODEL_ID, THINKING_OFF, extract_text
 import os
 import re
 
@@ -125,14 +126,15 @@ def generate_catchcopy_ai(keyword, target_symptom='', personas=None, products=No
         print(f'[copy] Claude APIでコピー生成中... keyword={keyword}')
 
         message = client.messages.create(
-            model='claude-sonnet-4-20250514',
+            model=MODEL_ID,
+        thinking=THINKING_OFF,
             max_tokens=4000,
             timeout=50.0,
             system=COPYWRITING_KNOWLEDGE,
             messages=[{'role': 'user', 'content': user_prompt}],
         )
 
-        response_text = message.content[0].text.strip()
+        response_text = extract_text(message).strip()
         print(f'[copy] Claude API応答取得 ({len(response_text)}文字)')
 
         # JSONを抽出

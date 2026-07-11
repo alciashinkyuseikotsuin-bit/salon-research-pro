@@ -28,6 +28,9 @@ from ai_copywriter import generate_catchcopy_ai
 from ai_search_patterns import generate_search_patterns_ai
 from komachi_scraper import search_komachi
 from aramakijake_scraper import fetch_search_volume
+from counseling_script import generate_counseling_script
+from line_scenario import generate_line_scenario
+from roleplay import generate_customer_reply, generate_feedback
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, static_folder=os.path.join(BASE_DIR, 'static'))
@@ -62,8 +65,9 @@ def api_volume():
         return jsonify(result)
 
     except Exception as e:
-        print(f"[volume] エラー: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': '検索ボリュームの取得に失敗しました'}), 500
 
 
 # ========== API: リサーチ ==========
@@ -142,8 +146,9 @@ def api_search():
         })
 
     except Exception as e:
-        print(f"[search] エラー: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'リサーチに失敗しました。時間をおいてお試しください'}), 500
 
 
 @app.route('/api/analyze', methods=['POST'])
@@ -181,8 +186,9 @@ def api_analyze():
         })
 
     except Exception as e:
-        print(f"[analyze] エラー: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'テキスト分析に失敗しました'}), 500
 
 
 # ========== API: 単価シミュレーション ==========
@@ -210,8 +216,9 @@ def api_pricing():
         return jsonify(result)
 
     except Exception as e:
-        print(f"[pricing] エラー: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': '単価計算に失敗しました'}), 500
 
 
 # ========== API: 松竹梅商品設計 ==========
@@ -247,8 +254,9 @@ def api_product():
         return jsonify(products)
 
     except Exception as e:
-        print(f"[product] エラー: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': '商品設計に失敗しました。もう一度お試しください'}), 500
 
 
 # ========== API: AIペルソナ生成 ==========
@@ -282,8 +290,9 @@ def api_persona():
         })
 
     except Exception as e:
-        print(f"[persona] エラー: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'ペルソナ生成に失敗しました。もう一度お試しください'}), 500
 
 
 # ========== API: AIキャッチコピー生成 ==========
@@ -319,8 +328,129 @@ def api_copywrite():
         })
 
     except Exception as e:
-        print(f"[copy] エラー: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'コピー生成に失敗しました。もう一度お試しください'}), 500
+
+
+# ========== API: カウンセリング台本生成 ==========
+
+@app.route('/api/counseling', methods=['POST'])
+def api_counseling():
+    """カウンセリング9ステップ台本生成API（Claude API連携）"""
+    try:
+        data = request.get_json()
+        keyword = data.get('keyword', '').strip() if data else ''
+        target_symptom = data.get('target_symptom', '').strip() if data else ''
+        personas = data.get('personas', []) if data else []
+        products = data.get('products', None) if data else None
+
+        if not keyword:
+            return jsonify({'error': 'キーワードを入力してください'}), 400
+
+        print(f"[counseling] キーワード: {keyword}, ペルソナ: {len(personas)}人")
+
+        script = generate_counseling_script(
+            keyword=keyword,
+            target_symptom=target_symptom,
+            personas=personas,
+            products=products,
+        )
+
+        return jsonify(script)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': '台本の生成に失敗しました。もう一度お試しください'}), 500
+
+
+# ========== API: LINE 5日間シナリオ生成 ==========
+
+@app.route('/api/line-scenario', methods=['POST'])
+def api_line_scenario():
+    """公式LINEステップ配信シナリオ生成API（Claude API連携）"""
+    try:
+        data = request.get_json()
+        keyword = data.get('keyword', '').strip() if data else ''
+        target_symptom = data.get('target_symptom', '').strip() if data else ''
+        personas = data.get('personas', []) if data else []
+        products = data.get('products', None) if data else None
+
+        if not keyword:
+            return jsonify({'error': 'キーワードを入力してください'}), 400
+
+        print(f"[line] キーワード: {keyword}, ペルソナ: {len(personas)}人")
+
+        scenario = generate_line_scenario(
+            keyword=keyword,
+            target_symptom=target_symptom,
+            personas=personas,
+            products=products,
+        )
+
+        return jsonify(scenario)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'シナリオの生成に失敗しました。もう一度お試しください'}), 500
+
+
+# ========== API: ロープレ道場 ==========
+
+@app.route('/api/roleplay', methods=['POST'])
+def api_roleplay():
+    """お客様AIとのロールプレイAPI（Claude API連携）"""
+    try:
+        data = request.get_json() or {}
+        persona = data.get('persona', {})
+        products = data.get('products', None)
+        history = data.get('history', [])
+        owner_message = (data.get('owner_message') or '').strip()
+
+        if not owner_message:
+            return jsonify({'error': 'メッセージを入力してください'}), 400
+
+        result = generate_customer_reply(
+            persona=persona,
+            products=products,
+            history=history,
+            owner_message=owner_message,
+        )
+
+        return jsonify(result)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'お客様AIの応答に失敗しました。もう一度お試しください'}), 500
+
+
+@app.route('/api/roleplay/feedback', methods=['POST'])
+def api_roleplay_feedback():
+    """ロープレの採点・フィードバックAPI（Claude API連携）"""
+    try:
+        data = request.get_json() or {}
+        persona = data.get('persona', {})
+        products = data.get('products', None)
+        history = data.get('history', [])
+
+        if not history:
+            return jsonify({'error': 'ロープレの会話がまだありません'}), 400
+
+        result = generate_feedback(
+            persona=persona,
+            products=products,
+            history=history,
+        )
+
+        return jsonify(result)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': '採点に失敗しました。もう一度お試しください'}), 500
 
 
 # ========== 起動 ==========

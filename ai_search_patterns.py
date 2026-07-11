@@ -8,6 +8,7 @@ Claude APIを使用して、キーワードに関連する
 """
 
 import json
+from config import MODEL_ID, THINKING_OFF, extract_text
 import os
 import re
 
@@ -76,14 +77,15 @@ JSON形式のみ出力。説明文不要。"""
         print(f'[patterns] Claude APIで検索パターン生成中... keyword={keyword}')
 
         message = client.messages.create(
-            model='claude-sonnet-4-20250514',
+            model=MODEL_ID,
+        thinking=THINKING_OFF,
             max_tokens=800,
             timeout=15.0,
             system=system_prompt,
             messages=[{'role': 'user', 'content': user_prompt}],
         )
 
-        response_text = message.content[0].text.strip()
+        response_text = extract_text(message).strip()
         print(f'[patterns] Claude API応答取得 ({len(response_text)}文字)')
 
         # JSONを抽出

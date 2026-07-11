@@ -3,10 +3,16 @@
     {
       "src": "app.py",
       "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb", "maxDuration": 60 }
+      "config": {
+        "maxLambdaSize": "15mb",
+        "maxDuration": 300
+      }
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "app.py" }
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
   ]
 }
