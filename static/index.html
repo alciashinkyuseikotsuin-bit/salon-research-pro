@@ -1134,6 +1134,7 @@ async function genCopy(){
     try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products})});const d=await r.json();
         if(d.copies?.length>0){stopCopyProg();G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
         d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span>${cp.score?'<span class="copy-tag" style="background:#fef3c7;color:var(--gold);font-weight:700">🏆 '+cp.score+'点</span>':''}${cp.lf8?'<span class="copy-tag" style="background:#f5f3ff;color:var(--purple)">🎯 '+esc(cp.lf8)+'</span>':''}</div><div class="copy-effect">✨ ${esc(cp.effect)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button></div>`;});
+        c.innerHTML+='<button class="btn btn-outline" style="margin-top:4px" onclick="cpAll()">📋 10本まとめてコピー</button>';
         markDone(8);}
     }catch(err){stopCopyProg();alert('エラー: '+err.message);}
     document.getElementById('loading-copy').classList.remove('active');
@@ -1174,6 +1175,7 @@ async function genCounseling(){
                 <div style="font-size:.9rem;margin-top:4px"><strong>その後:</strong> ${esc(o.follow||'')}</div>
             </div>`).join('')}</div>`;
             if(d.silence_rule||d.mindset) html+=`<div class="tips-box"><h4>🤫 沈黙の鉄則 と 心構え</h4><p>${esc(d.silence_rule||'')}</p><p style="margin-top:6px">${esc(d.mindset||'')}</p></div>`;
+            html+='<button class="btn btn-outline" style="margin-top:4px" onclick="printResults(\'counseling-results\',\'カウンセリング台本\')">🖨 印刷・PDFで保存（カウンセリングシートの横に）</button>';
             c.innerHTML=html;
             markDone(5);
             document.getElementById('btn-to-roleplay').style.display='block';
@@ -1309,6 +1311,7 @@ async function genLine(){
                 <div class="line-msg-aim">🎯 ねらい: ${esc(m.aim||'')} <button class="copy-btn" style="float:right" onclick="lnClip(this)">📋 本文をコピー</button></div>
             </div>`).join('');
             if(d.operation_tips) html+=`<div class="card"><h3>⚙️ 運用のコツ</h3><ul class="product-features">${d.operation_tips.map(t=>'<li>'+esc(t)+'</li>').join('')}</ul></div>`;
+            html+='<button class="btn btn-outline" style="margin-top:4px" onclick="printResults(\'line-results\',\'LINE 5日間ステップ配信\')">🖨 印刷・PDFで保存</button>';
             c.innerHTML=html;
             markDone(7);
             document.getElementById('btn-to-copy').style.display='block';
@@ -1317,6 +1320,20 @@ async function genLine(){
     document.getElementById('loading-line').classList.remove('active');
 }
 function lnClip(btn){const t=btn.closest('.line-msg-card').querySelector('.line-msg-body').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 本文をコピー';},2000);});}
+
+// ========== 印刷・一括コピー ==========
+function printResults(containerId, title){
+    const el=document.getElementById(containerId);
+    if(!el||!el.innerHTML.trim()){alert('先に生成してください');return;}
+    const w=window.open('','_blank');
+    w.document.write('<html><head><title>'+title+'</title><style>body{font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;line-height:1.8;padding:28px;color:#1e293b}h3,h4{margin:16px 0 6px}button{display:none}div{page-break-inside:avoid}</style></head><body><h2>'+title+'</h2>'+el.innerHTML+'</body></html>');
+    w.document.close();setTimeout(()=>w.print(),300);
+}
+function cpAll(){
+    if(!G.copies||!G.copies.length){alert('先に生成してください');return;}
+    const t=G.copies.map((c,i)=>(i+1)+'. '+c.copy).join('\n');
+    navigator.clipboard.writeText(t).then(()=>alert(G.copies.length+'本まとめてコピーしました'));
+}
 
 // ========== 自動保存・復元（閉じても続きから再開できる） ==========
 const SAVE_KEY='ai_staffroom_save_v1';
