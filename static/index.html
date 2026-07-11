@@ -1435,7 +1435,12 @@ const _origMarkDone=markDone;
 markDone=function(n){_origMarkDone(n);saveState();};
 window.addEventListener('beforeunload',saveState);
 setInterval(saveState,30000);
-restoreState();
+if(!restoreState()){
+    const b=document.getElementById('restore-banner');
+    b.style.display='block';
+    b.style.background='#f0f4ff';b.style.borderColor='#c7d2fe';
+    b.innerHTML='👋 <strong>はじめまして！</strong> まずは上の紫のバナーから「一気通貫」で試すのがおすすめです。キーワード（例: 肩こり）を入れるだけで、リサーチからコピーまで全部体験できます。<br><span style="font-size:.78rem;color:var(--text-light)">🏪 先に自店プロフィールを入れておくと、生成物があなたの店専用になります。入力や結果は自動保存されるので、途中で閉じても大丈夫です。</span>';
+}
 goHome();
 </script>
 </body>
