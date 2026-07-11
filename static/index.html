@@ -218,6 +218,35 @@
         .line-msg-head { background: #06c755; color: #fff; padding: 8px 14px; font-size: .85rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
         .line-msg-body { padding: 14px; background: #f7fdf9; font-size: .92rem; white-space: pre-wrap; }
         .line-msg-aim { padding: 8px 14px; font-size: .8rem; color: var(--text-light); border-top: 1px dashed var(--border); }
+
+        /* ===== ビジュアルリフレッシュ（サロン調・スマホ前提） ===== */
+        :root {
+            --primary: #b0566d;
+            --primary-dark: #94425a;
+            --purple: #7d5a9e;
+            --bg: #faf6f3;
+            --pro: #c98a2d;
+        }
+        body { background: var(--bg); }
+        header { background: linear-gradient(135deg, #b0566d, #7d5a9e); border-radius: 0 0 22px 22px; padding: 30px 16px 20px; margin: 0 -16px 4px; color: #fff; }
+        header h1 { color: #fff; letter-spacing: .02em; }
+        header .badge { background: rgba(255,255,255,.22); backdrop-filter: blur(4px); }
+        .card { border-radius: 16px; box-shadow: 0 2px 12px rgba(120,70,80,.06); border-color: #f0e6e2; }
+        .btn { border-radius: 12px; padding: 12px 22px; font-size: .95rem; }
+        .step-item { padding: 8px 14px; }
+        .tool-card { border-color: #f0e6e2; }
+        .tool-card:hover { border-color: var(--primary); box-shadow: 0 8px 20px rgba(176,86,109,.14); }
+        .home-flow-banner { background: linear-gradient(135deg, #b0566d, #7d5a9e); }
+        .home-flow-banner:hover { box-shadow: 0 8px 24px rgba(176,86,109,.35); }
+        .rp-msg.owner { background: var(--primary); }
+        @media (max-width: 640px) {
+            .home-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .tool-card { padding: 12px; }
+            .tool-card .tc-name { font-size: .88rem; }
+            .tool-card .tc-desc { font-size: .72rem; }
+            .btn { width: 100%; margin-top: 6px; }
+            .btn.btn-sm, .copy-btn { width: auto; }
+        }
     </style>
 </head>
 <body>
@@ -228,38 +257,42 @@
     </header>
 
     <div class="step-nav" id="step-nav" style="display:none">
-        <div class="home-btn-nav" onclick="goHome()">🏠 スタッフルーム</div>
-        <div class="step-item" onclick="goStep(1)">🔍 リサーチ</div>
-        <div class="step-item" onclick="goStep(2)">👥 ペルソナ<span class="ai-tag">AI</span></div>
-        <div class="step-item" onclick="goStep(3)">🧮 単価計算</div>
-        <div class="step-item" onclick="goStep(4)">📦 商品設計</div>
-        <div class="step-item" onclick="goStep(5)">📜 台本<span class="ai-tag">AI</span></div>
-        <div class="step-item" onclick="goStep(6)">🥊 ロープレ<span class="ai-tag">AI</span></div>
-        <div class="step-item" onclick="goStep(7)">💬 LINE<span class="ai-tag">AI</span></div>
-        <div class="step-item" onclick="goStep(8)">✒️ コピー<span class="ai-tag">AI</span></div>
+        <div class="home-btn-nav" onclick="goHome()">🏠 ホーム</div>
+        <div class="step-item" onclick="goStep(1)">🔍 悩みリサーチ</div>
+        <div class="step-item" onclick="goStep(2)">👥 お客様像<span class="ai-tag">AI</span></div>
+        <div class="step-item" onclick="goStep(3)">💰 単価計算</div>
+        <div class="step-item" onclick="goStep(4)">📦 メニュー設計</div>
+        <div class="step-item" onclick="goStep(5)">📜 台本づくり<span class="ai-tag">AI</span></div>
+        <div class="step-item" onclick="goStep(6)">🥊 接客練習<span class="ai-tag">AI</span></div>
+        <div class="step-item" onclick="goStep(7)">💬 LINE配信文<span class="ai-tag">AI</span></div>
+        <div class="step-item" onclick="goStep(8)">✒️ キャッチコピー<span class="ai-tag">AI</span></div>
     </div>
 
     <!-- ホーム: AIスタッフルーム -->
     <div id="home-screen">
-        <p style="text-align:center;color:var(--text-light);font-size:.9rem;margin:4px 0 18px">8人のAIスタッフが、あなたのサロンのために24時間働きます。<br>使いたいスタッフを選んでください。<strong>どれも単体で使えます。</strong></p>
+        <p style="text-align:center;color:var(--text-light);font-size:.9rem;margin:4px 0 14px">やりたいことを選んでください。<strong>どれも単体で使えます。</strong></p>
+        <div id="restore-banner" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.85rem;display:none">
+            💾 前回のデータを復元しました（<span id="restore-info"></span>）
+            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="resetState()">🗑 全部消して最初から</button>
+        </div>
 
         <div class="home-flow-banner" onclick="goStep(1)">
             <h3>🚀 はじめての方はこちら：ゼロから一気通貫で作る</h3>
-            <p>リサーチ → ペルソナ → 単価 → 商品 → 台本 → ロープレ → LINE → コピーの順に進むと、前の結果を次のスタッフが自動で引き継ぎます。講座の第1章〜第6章と同じ流れです。</p>
+            <p>悩みリサーチ → お客様像 → 単価 → メニュー → 台本 → 接客練習 → LINE → コピーの順に進むと、前の結果を次の作業が自動で引き継ぎます。講座の第1章〜第6章と同じ流れです。</p>
         </div>
 
-        <div class="home-section-label">🧰 使いたいスタッフだけ呼ぶ（単体利用）</div>
+        <div class="home-section-label">🧰 やりたい作業だけやる（単体利用OK）</div>
         <div class="home-grid">
-            <div class="tool-card" data-step="1" onclick="goStep(1)"><div class="tc-emoji">🔍</div><div class="tc-name">リサーチ担当</div><div class="tc-desc">Yahoo!知恵袋・発言小町からお客様の「本音の悩み」を大量収集</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="2" onclick="goStep(2)"><span class="tc-badge">単体OK</span><div class="tc-emoji">👥</div><div class="tc-name">ペルソナ設計士</div><div class="tc-desc">悩みキーワードから「刺すべきお客様像」を5人自動生成</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="3" onclick="goStep(3)"><span class="tc-badge">単体OK</span><div class="tc-emoji">🧮</div><div class="tc-name">価格参謀</div><div class="tc-desc">目標月商から講座式（×0.7）で「最低ライン単価」を逆算</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="4" onclick="goStep(4)"><div class="tc-emoji">📦</div><div class="tc-name">商品設計士</div><div class="tc-desc">松竹梅メニューを講座ルール（梅の料金逆転・3段階見せ）で設計</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="5" onclick="goStep(5)"><span class="tc-badge">単体OK</span><div class="tc-emoji">📜</div><div class="tc-name">台本ライター</div><div class="tc-desc">売れるカウンセリング9ステップの「あなた専用台本」を執筆</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="6" onclick="goStep(6)"><span class="tc-badge">単体OK</span><div class="tc-emoji">🥊</div><div class="tc-name">ロープレコーチ</div><div class="tc-desc">AIがお客様を演じて特訓。断り文句への切り返しを24時間練習</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="7" onclick="goStep(7)"><span class="tc-badge">単体OK</span><div class="tc-emoji">💬</div><div class="tc-name">LINEライター</div><div class="tc-desc">教育6ステップ入りの5日間ステップ配信をコピペ完成形で納品</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="8" onclick="goStep(8)"><span class="tc-badge">単体OK</span><div class="tc-emoji">✒️</div><div class="tc-name">コピーライター</div><div class="tc-desc">刺さる言葉メソッドで15本生成→鬼審査員が採点した上位10本</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="1" onclick="goStep(1)"><div class="tc-emoji">🔍</div><div class="tc-name">お客様の悩みを調べる</div><div class="tc-desc">Yahoo!知恵袋・発言小町から「本音の悩み」を自動で大量収集</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="2" onclick="goStep(2)"><span class="tc-badge">単体OK</span><div class="tc-emoji">👥</div><div class="tc-name">お客様像をつくる</div><div class="tc-desc">悩みキーワードを入れると「狙うべきお客様像」を5人自動生成</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="3" onclick="goStep(3)"><span class="tc-badge">単体OK</span><div class="tc-emoji">💰</div><div class="tc-name">いくらにすべきか計算する</div><div class="tc-desc">目標月商を入れると「1回あたりの最低ライン料金」を講座式で逆算</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="4" onclick="goStep(4)"><div class="tc-emoji">📦</div><div class="tc-name">コースメニューをつくる</div><div class="tc-desc">松竹梅の3段メニューを講座ルール（梅の料金逆転など）で自動設計</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="5" onclick="goStep(5)"><span class="tc-badge">単体OK</span><div class="tc-emoji">📜</div><div class="tc-name">カウンセリング台本をつくる</div><div class="tc-desc">読み上げるだけで提案できる「9ステップのセリフ台本」を作成</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="6" onclick="goStep(6)"><span class="tc-badge">単体OK</span><div class="tc-emoji">🥊</div><div class="tc-name">接客の練習をする</div><div class="tc-desc">AIがお客様役になってロープレ。断り文句の切り返しを何度でも練習</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="7" onclick="goStep(7)"><span class="tc-badge">単体OK</span><div class="tc-emoji">💬</div><div class="tc-name">LINEの配信文をつくる</div><div class="tc-desc">登録直後〜5日目までのステップ配信をコピペできる完成形で作成</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="8" onclick="goStep(8)"><span class="tc-badge">単体OK</span><div class="tc-emoji">✒️</div><div class="tc-name">キャッチコピーをつくる</div><div class="tc-desc">15本作って審査員AIが採点、90点以上の上位10本だけをお届け</div><div class="tc-done">✓ 実行済み</div></div>
         </div>
-        <p style="font-size:.75rem;color:var(--text-light);margin-top:14px">💡 バッジのないスタッフ（リサーチ・商品設計）も単体で動きますが、商品設計は先に🧮価格参謀で単価を出しておくとスムーズです。</p>
+        <p style="font-size:.75rem;color:var(--text-light);margin-top:14px">💡 「コースメニューをつくる」は、先に💰単価計算をしておくとスムーズです。入力や生成結果は自動でこのブラウザに保存されます（閉じても消えません）。</p>
     </div>
 
     <!-- Step 1: リサーチ -->
@@ -1284,6 +1317,51 @@ async function genLine(){
     document.getElementById('loading-line').classList.remove('active');
 }
 function lnClip(btn){const t=btn.closest('.line-msg-card').querySelector('.line-msg-body').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 本文をコピー';},2000);});}
+
+// ========== 自動保存・復元（閉じても続きから再開できる） ==========
+const SAVE_KEY='ai_staffroom_save_v1';
+function saveState(){
+    try{
+        const fields={};
+        document.querySelectorAll('input[id],textarea[id],select[id]').forEach(el=>{if(el.type==='checkbox')return;if(el.value)fields[el.id]=el.value;});
+        const steps={};
+        for(let i=1;i<=8;i++){const el=document.getElementById('step-'+i);if(el)steps[i]=el.innerHTML;}
+        localStorage.setItem(SAVE_KEY,JSON.stringify({g:{...G,done:[...G.done]},fields,steps,at:Date.now()}));
+    }catch(e){console.warn('[save] 保存失敗',e);}
+}
+function restoreState(){
+    try{
+        const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;
+        const s=JSON.parse(raw);
+        if(s.steps)for(const[i,html]of Object.entries(s.steps)){const el=document.getElementById('step-'+i);if(el)el.innerHTML=html;}
+        if(s.g)G={...G,...s.g,done:new Set(s.g.done||[])};
+        if(s.fields)for(const[id,v]of Object.entries(s.fields)){const el=document.getElementById(id);if(el)el.value=v;}
+        // 読み込み中表示が残っていたら消す
+        document.querySelectorAll('.loading.active').forEach(el=>el.classList.remove('active'));
+        const info=[];
+        if(G.keyword)info.push('キーワード「'+G.keyword+'」');
+        if(G.personas&&G.personas.length)info.push('お客様像'+G.personas.length+'人');
+        if(G.products)info.push('メニュー設計済み');
+        if(G.copies&&G.copies.length)info.push('コピー'+G.copies.length+'本');
+        const b=document.getElementById('restore-banner');
+        b.style.display='block';
+        document.getElementById('restore-info').textContent=info.join(' / ')||'前回の入力内容';
+        return true;
+    }catch(e){console.warn('[save] 復元失敗',e);return false;}
+}
+function resetState(){
+    if(confirm('保存されたデータをすべて消して、最初からやり直しますか？')){
+        localStorage.removeItem(SAVE_KEY);
+        location.reload();
+    }
+}
+// 生成完了のたび・画面を閉じる時・30秒ごとに自動保存
+const _origMarkDone=markDone;
+markDone=function(n){_origMarkDone(n);saveState();};
+window.addEventListener('beforeunload',saveState);
+setInterval(saveState,30000);
+restoreState();
+goHome();
 </script>
 </body>
 </html>
