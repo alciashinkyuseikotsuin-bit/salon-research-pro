@@ -38,6 +38,7 @@ def generate_counseling_script(
     target_symptom='',
     personas=None,
     products=None,
+    menu_note='',
 ):
     """
     9ステップのカウンセリング台本を生成する。
@@ -81,6 +82,8 @@ def generate_counseling_script(
         tips = products.get('sales_tips', {})
         if tips.get('closing_phrase'):
             product_summary += f"- クロージング推奨フレーズ: {tips['closing_phrase']}\n"
+    if menu_note:
+        product_summary += f"- メニュー情報（オーナー入力）: {menu_note}\n"
 
     user_prompt = f"""以下の情報をもとに、「{symptom}」に悩むお客様への新規カウンセリング台本を9ステップで作成してください。
 

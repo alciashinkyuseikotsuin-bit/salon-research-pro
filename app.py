@@ -344,6 +344,7 @@ def api_counseling():
         target_symptom = data.get('target_symptom', '').strip() if data else ''
         personas = data.get('personas', []) if data else []
         products = data.get('products', None) if data else None
+        menu_note = (data.get('menu_note') or '').strip() if data else ''
 
         if not keyword:
             return jsonify({'error': 'キーワードを入力してください'}), 400
@@ -355,6 +356,7 @@ def api_counseling():
             target_symptom=target_symptom,
             personas=personas,
             products=products,
+            menu_note=menu_note,
         )
 
         return jsonify(script)
@@ -376,6 +378,7 @@ def api_line_scenario():
         target_symptom = data.get('target_symptom', '').strip() if data else ''
         personas = data.get('personas', []) if data else []
         products = data.get('products', None) if data else None
+        menu_note = (data.get('menu_note') or '').strip() if data else ''
 
         if not keyword:
             return jsonify({'error': 'キーワードを入力してください'}), 400
@@ -387,6 +390,7 @@ def api_line_scenario():
             target_symptom=target_symptom,
             personas=personas,
             products=products,
+            menu_note=menu_note,
         )
 
         return jsonify(scenario)

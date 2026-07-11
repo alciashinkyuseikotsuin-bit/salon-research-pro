@@ -373,7 +373,12 @@
     <!-- Step 5: カウンセリング台本 -->
     <div class="step-content" id="step-5">
         <div class="card"><h3>カウンセリング9ステップ台本 <span class="ai-badge">🤖 AI生成</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">②のペルソナと④の松竹梅メニューをもとに、講座メソッド「売れるカウンセリング9ステップ」に沿ったあなた専用の台本を生成します。ただ読み上げるだけで、口下手でも堂々と提案できる状態を作ります。</p>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">講座メソッド「売れるカウンセリング9ステップ」に沿ったあなた専用の台本を生成します。①〜④を通していればその情報を自動で使います。<strong>このステップだけ単体で使ってもOK</strong>——下に直接入力してください。</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:10px">
+                <div class="form-group" style="margin-bottom:0"><label>お客様の悩みキーワード（必須）</label><input type="text" class="form-input" id="cs-keyword" placeholder="例: 頭痛、小顔、抜け毛"></div>
+                <div class="form-group" style="margin-bottom:0"><label>メニュー情報（任意・自由記述）</label><input type="text" class="form-input" id="cs-menu" placeholder="例: 12回コース156,000円、お試し3回46,800円"></div>
+            </div>
+            <p style="font-size:.75rem;color:var(--text-light);margin-bottom:10px">※ ④で商品設計済みならメニュー欄は空欄でOK（設計内容を自動で使います）</p>
             <button class="btn" onclick="genCounseling()">AIで台本を作成</button>
             <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genCounseling()">再生成</button>
         </div>
@@ -385,10 +390,16 @@
     <!-- Step 6: ロープレ道場 -->
     <div class="step-content" id="step-6">
         <div class="card"><h3>反論処理・ロープレ道場 <span class="ai-badge">🤖 対話AI</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">②で生成したペルソナをAIが「新規のお客様」として演じます。⑤の台本を見ながら、カウンセリング9ステップを24時間いつでも特訓。最後に「採点する」で講師AIのフィードバックがもらえます。</p>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">ペルソナをAIが「新規のお客様」として演じます。カウンセリング9ステップを24時間いつでも特訓。最後に「採点する」で講師AIのフィードバックがもらえます。<strong>単体で使う場合</strong>はキーワードを入れて「ペルソナを作って開始」を押すだけ。</p>
             <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
                 <div class="form-group" style="flex:1;min-width:220px;margin-bottom:0"><label>練習相手のお客様（ペルソナ）</label><select class="form-input" id="rp-persona-select"></select></div>
                 <button class="btn" onclick="rpStart()">この方で練習開始</button>
+            </div>
+            <div id="rp-quick" style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+                    <div class="form-group" style="flex:1;min-width:220px;margin-bottom:0"><label>ペルソナがまだない方：悩みキーワードから自動生成</label><input type="text" class="form-input" id="rp-keyword" placeholder="例: 頭痛、小顔、抜け毛"></div>
+                    <button class="btn btn-outline" id="rp-quick-btn" onclick="rpQuickStart()">🤖 ペルソナを作って開始</button>
+                </div>
             </div>
         </div>
         <div id="rp-arena" style="display:none">
@@ -417,7 +428,11 @@
     <!-- Step 7: LINEステップ配信 -->
     <div class="step-content" id="step-7">
         <div class="card"><h3>公式LINE 5日間シナリオ <span class="ai-badge">🤖 AI生成</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">教育6ステップ×カウンセリング9ステップの心理を組み込んだ、登録直後〜5日目までのステップ配信（計6通）を一括生成。出力された文章はそのままLINE公式アカウントの管理画面にコピペできます。</p>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">教育6ステップ×カウンセリング9ステップの心理を組み込んだ、登録直後〜5日目までのステップ配信（計6通）を一括生成。そのままLINE管理画面にコピペできます。<strong>このステップだけ単体で使ってもOK</strong>です。</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:10px">
+                <div class="form-group" style="margin-bottom:0"><label>お客様の悩みキーワード（必須）</label><input type="text" class="form-input" id="ln-keyword" placeholder="例: 頭痛、小顔、抜け毛"></div>
+                <div class="form-group" style="margin-bottom:0"><label>オファーするメニュー（任意・自由記述）</label><input type="text" class="form-input" id="ln-menu" placeholder="例: 初回体験3,980円、12回コース156,000円"></div>
+            </div>
             <button class="btn" onclick="genLine()">AIで5日間シナリオを生成</button>
             <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genLine()">再生成</button>
         </div>
@@ -429,7 +444,8 @@
     <!-- Step 8: AIコピー -->
     <div class="step-content" id="step-8">
         <div class="card"><h3>キャッチコピー自動生成 <span class="ai-badge">🤖 AI生成</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">ペルソナと商品情報をもとに、Claude AIが10種類の心理テクニックでコピーを自動生成します。</p>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">ペルソナと商品情報をもとに、10種類の心理テクニックでコピーを自動生成します。<strong>単体で使う場合</strong>はキーワードだけ入れてください。</p>
+            <div class="form-group" style="max-width:360px"><label>お客様の悩みキーワード（必須）</label><input type="text" class="form-input" id="cp-keyword" placeholder="例: 頭痛、小顔、抜け毛"></div>
             <button class="btn" onclick="genCopy()">AIでコピーを生成</button>
             <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genCopy()">再生成</button>
         </div>
@@ -472,6 +488,9 @@ function goStep(n) {
     }
     // Step 6 (ロープレ道場): ペルソナ選択肢を更新
     if(n===6) rpPopulatePersonas();
+    // Step 5〜8: クイック入力欄にキーワードをプリセット
+    const kwFields={5:'cs-keyword',6:'rp-keyword',7:'ln-keyword',8:'cp-keyword'};
+    if(kwFields[n]&&G.keyword){const el=document.getElementById(kwFields[n]);if(el&&!el.value)el.value=G.keyword;}
 }
 function markDone(n) { G.done.add(n); }
 function esc(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
@@ -1021,9 +1040,12 @@ async function genProduct(){
 
 // ========== Step 5: AIコピー ==========
 async function genCopy(){
+    const kw=(document.getElementById('cp-keyword').value||'').trim()||G.keyword;
+    if(!kw){alert('お客様の悩みキーワードを入力してください');return;}
+    G.keyword=kw;
     document.getElementById('loading-copy').classList.add('active');document.getElementById('copy-loading-text').textContent='🤖 AIがコピーを生成中...';document.getElementById('copy-results').innerHTML='';
     startCopyProg();
-    try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:G.keyword,target_symptom:G.keyword,personas:G.personas,products:G.products})});const d=await r.json();
+    try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products})});const d=await r.json();
         if(d.copies?.length>0){stopCopyProg();G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
         d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span></div><div class="copy-effect">✨ ${esc(cp.effect)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button></div>`;});
         markDone(8);}
@@ -1035,12 +1057,15 @@ function cpClip(btn){const t=btn.parentElement.querySelector('.copy-text').textC
 
 // ========== Step 5: カウンセリング台本 ==========
 async function genCounseling(){
-    if(!G.keyword){alert('先に①リサーチでキーワードを入力してください');return;}
+    const kw=(document.getElementById('cs-keyword').value||'').trim()||G.keyword;
+    if(!kw){alert('お客様の悩みキーワードを入力してください');return;}
+    G.keyword=kw;
+    const menuNote=(document.getElementById('cs-menu').value||'').trim();
     document.getElementById('loading-counseling').classList.add('active');
     document.getElementById('counseling-results').innerHTML='';
     document.getElementById('btn-to-roleplay').style.display='none';
     try{
-        const r=await fetch('/api/counseling',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:G.keyword,target_symptom:G.keyword,personas:G.personas,products:G.products})});
+        const r=await fetch('/api/counseling',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,menu_note:menuNote})});
         const d=await r.json();
         if(d.error){alert(d.error);}
         else{
@@ -1079,8 +1104,25 @@ function rpPopulatePersonas(){
     if(!G.personas||G.personas.length===0){sel.innerHTML='<option value="">②でペルソナを生成してください</option>';return;}
     sel.innerHTML=G.personas.map((p,i)=>`<option value="${i}">${esc(p.name)}（${esc(p.type_label)} / ${esc(p.age)}）</option>`).join('');
 }
+async function rpQuickStart(){
+    const kw=(document.getElementById('rp-keyword').value||'').trim();
+    if(!kw){alert('悩みキーワードを入力してください');return;}
+    G.keyword=G.keyword||kw;
+    const btn=document.getElementById('rp-quick-btn');
+    btn.disabled=true;btn.textContent='🤖 ペルソナ生成中...（20秒ほど）';
+    try{
+        const r=await fetch('/api/persona',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,search_results:[]})});
+        const d=await r.json();
+        if(d.personas?.length>0){
+            G.personas=d.personas;
+            rpPopulatePersonas();
+            rpStart();
+        }else{alert(d.error||'ペルソナ生成に失敗しました');}
+    }catch(err){alert('エラー: '+err.message);}
+    btn.disabled=false;btn.textContent='🤖 ペルソナを作って開始';
+}
 function rpStart(){
-    if(!G.personas||G.personas.length===0){alert('先に②でペルソナを生成してください');return;}
+    if(!G.personas||G.personas.length===0){alert('ペルソナがありません。下の「ペルソナを作って開始」を使うか、②で生成してください');return;}
     const idx=parseInt(document.getElementById('rp-persona-select').value)||0;
     RP={persona:G.personas[idx],history:[],trust:30,busy:false};
     document.getElementById('rp-arena').style.display='block';
@@ -1159,12 +1201,15 @@ async function rpFeedback(){
 
 // ========== Step 7: LINE 5日間シナリオ ==========
 async function genLine(){
-    if(!G.keyword){alert('先に①リサーチでキーワードを入力してください');return;}
+    const kw=(document.getElementById('ln-keyword').value||'').trim()||G.keyword;
+    if(!kw){alert('お客様の悩みキーワードを入力してください');return;}
+    G.keyword=kw;
+    const menuNote=(document.getElementById('ln-menu').value||'').trim();
     document.getElementById('loading-line').classList.add('active');
     document.getElementById('line-results').innerHTML='';
     document.getElementById('btn-to-copy').style.display='none';
     try{
-        const r=await fetch('/api/line-scenario',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:G.keyword,target_symptom:G.keyword,personas:G.personas,products:G.products})});
+        const r=await fetch('/api/line-scenario',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,menu_note:menuNote})});
         const d=await r.json();
         if(d.error){alert(d.error);}
         else{

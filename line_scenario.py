@@ -44,6 +44,7 @@ def generate_line_scenario(
     target_symptom='',
     personas=None,
     products=None,
+    menu_note='',
 ):
     """
     5日間のLINEステップ配信シナリオ（登録直後+5日=6通）を生成する。
@@ -82,6 +83,8 @@ def generate_line_scenario(
             product_summary += f"- お試し（梅）: {plum.get('name', '')} {plum.get('raw_price_display', '')} / {plum.get('sessions_display', '')}\n"
         if bamboo:
             product_summary += f"- メイン（竹）: {bamboo.get('name', '')} {bamboo.get('raw_price_display', '')} / {bamboo.get('sessions_display', '')}\n"
+    if menu_note:
+        product_summary += f"- メニュー情報（オーナー入力）: {menu_note}\n"
 
     user_prompt = f"""以下の情報をもとに、「{symptom}」に悩む方が登録する公式LINEの
 5日間ステップ配信シナリオ（登録直後の挨拶 + 1日目〜5日目 = 計6通）を作成してください。
