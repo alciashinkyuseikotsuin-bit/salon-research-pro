@@ -7,7 +7,7 @@ AIドリブンのキャッチコピーを生成する。
 """
 
 import json
-from config import MODEL_ID, THINKING_OFF, extract_text
+from config import MODEL_ID, SASARU_KOTOBA, THINKING_OFF, YAKKIHOU_GUARD, extract_text
 import os
 import re
 
@@ -107,7 +107,8 @@ def generate_catchcopy_ai(keyword, target_symptom='', personas=None, products=No
                     prod = products[tier]
                     product_summary += f"- {prod.get('rank',tier)}: {prod.get('name','')} / {prod.get('raw_price_display','')} / {prod.get('sessions_display','')} / {prod.get('duration','')}\n"
 
-        user_prompt = f"""以下の情報をもとに、「{keyword}」専門サロンの集客用キャッチコピーを10個生成してください。
+        # ========== パス1: 刺さる言葉メソッドで15本生成 ==========
+        user_prompt = f"""以下の情報をもとに、「{keyword}」専門サロンの集客用キャッチコピーを15本生成してください。
 
 【キーワード】{keyword}
 【対象症状】{target_symptom or keyword}
@@ -118,41 +119,82 @@ def generate_catchcopy_ai(keyword, target_symptom='', personas=None, products=No
 【商品情報】
 {product_summary if product_summary else '（商品情報なし）'}
 
-リサーチで得られた実際の悩みの表現やペルソナの心の声を反映させ、
-各コピーは10タイプすべてを1つずつ網羅してください。
-商品情報がある場合は、価格・回数・期間を具体的に含めてください。
-出力はJSON配列のみ（説明文不要）。"""
+生成ルール:
+- 必ず「事実 × 視点ずらし」で作る。LF8のどの欲求に向けるかを1本ごとに変え、3つの切り口（文脈の変更・物語の付加・解決策の提示）を使い分ける
+- 最初の20〜30文字で目を止める。うち5本は22文字以内の超短文で切れ味勝負
+- ペルソナの心の声・日常シーン（写真・鏡・抱っこ・同窓会など）に変換して自分ごと化する
+- 数字と固有名詞で具体化。専門用語は翻訳。嘘・煽り・誇張・医療効果の断定は絶対にしない
+- 商品情報がある場合は「価格」ではなく「得られる結果」の見せ方で活かす
 
-        print(f'[copy] Claude APIでコピー生成中... keyword={keyword}')
+出力はJSON配列のみ（説明文不要）:
+[{{"copy": "コピー本文", "label": "型の名前（例: 視点転換型）", "lf8": "狙った欲求", "technique": "使った切り口", "effect": "狙える効果", "usage": "最適な使い所（媒体）"}}, ...]"""
+
+        print(f'[copy] パス1: 15本生成中... keyword={keyword}')
 
         message = client.messages.create(
             model=MODEL_ID,
-        thinking=THINKING_OFF,
-            max_tokens=4000,
-            timeout=50.0,
-            system=COPYWRITING_KNOWLEDGE,
+            thinking=THINKING_OFF,
+            max_tokens=5000,
+            timeout=110.0,
+            system=COPYWRITING_KNOWLEDGE + SASARU_KOTOBA + YAKKIHOU_GUARD,
             messages=[{'role': 'user', 'content': user_prompt}],
         )
 
         response_text = extract_text(message).strip()
-        print(f'[copy] Claude API応答取得 ({len(response_text)}文字)')
-
-        # JSONを抽出
         json_match = re.search(r'\[[\s\S]*\]', response_text)
         if not json_match:
             raise ValueError('JSON配列が見つかりません')
+        candidates = json.loads(json_match.group())
+        if not isinstance(candidates, list) or len(candidates) < 5:
+            raise ValueError(f'コピーが{len(candidates)}個しかありません')
 
-        copies = json.loads(json_match.group())
+        print(f'[copy] パス1完了: {len(candidates)}本 → パス2: 鬼審査員が採点・改稿中...')
 
-        # バリデーション
-        if not isinstance(copies, list) or len(copies) < 5:
-            raise ValueError(f'コピーが{len(copies)}個しかありません')
+        # ========== パス2: 鬼審査員が採点し、弱いものは書き直して上位10本 ==========
+        judge_prompt = f"""あなたは月間3億PVメディアの編集長を務めた、日本一厳しいコピー審査員です。
+以下の15本のキャッチコピー候補を審査してください。対象:「{keyword}」に悩むお客様。
+
+【ペルソナ】
+{persona_summary if persona_summary else '（一般的なサロン顧客）'}
+
+【候補】
+{json.dumps(candidates, ensure_ascii=False)}
+
+審査ルール:
+1. 各コピーを5軸で採点: 自分ごと化(そのお客様の日常シーンが浮かぶか) / 具体性(数字・固有名詞) / 意外性(視点ずらしの効き) / 切れ味(最初の20文字で目が止まるか) / 安全性(薬機法・誇張なし)
+2. 合計90点未満のコピーは、事実を変えずにあなたが書き直して90点以上にする（視点ずらし・数字の具体化・語感の強化を使う）
+3. 似たコピーは1本に統合し、最終的に上位10本だけを score の高い順に返す
+4. ありきたりな「〜しませんか？」「〜をあなたへ」の羅列は減点。プロの一撃だけを残す
+
+出力はJSON配列のみ:
+[{{"copy": "最終コピー", "label": "型の名前", "effect": "狙える効果", "usage": "最適な使い所", "score": 95, "lf8": "狙った欲求"}}, ...]"""
+
+        message2 = client.messages.create(
+            model=MODEL_ID,
+            thinking=THINKING_OFF,
+            max_tokens=4000,
+            timeout=110.0,
+            system=SASARU_KOTOBA + YAKKIHOU_GUARD,
+            messages=[{'role': 'user', 'content': judge_prompt}],
+        )
+
+        response_text2 = extract_text(message2).strip()
+        json_match2 = re.search(r'\[[\s\S]*\]', response_text2)
+        if json_match2:
+            judged = json.loads(json_match2.group())
+            if isinstance(judged, list) and len(judged) >= 5:
+                copies = judged
+            else:
+                copies = candidates[:10]
+        else:
+            # 審査に失敗してもパス1の結果は返す
+            copies = candidates[:10]
 
         # IDを振り直す
         for i, c in enumerate(copies):
             c['id'] = i + 1
 
-        print(f'[copy] AI生成完了: {len(copies)}個のキャッチコピー')
+        print(f'[copy] 2段ループ完了: {len(copies)}本のキャッチコピー')
         return copies
 
     except Exception as e:
