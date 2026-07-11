@@ -1129,7 +1129,7 @@ async function genCopy(){
     const kw=(document.getElementById('cp-keyword').value||'').trim()||G.keyword;
     if(!kw){alert('お客様の悩みキーワードを入力してください');return;}
     G.keyword=kw;
-    document.getElementById('loading-copy').classList.add('active');document.getElementById('copy-loading-text').textContent='🤖 AIがコピーを生成中...';document.getElementById('copy-results').innerHTML='';
+    document.getElementById('loading-copy').classList.add('active');startWait('copy-loading-text','15本生成→審査員が採点中です',150);document.getElementById('copy-results').innerHTML='';
     startCopyProg();
     try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products})});const d=await r.json();
         if(d.copies?.length>0){stopCopyProg();G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
@@ -1137,6 +1137,7 @@ async function genCopy(){
         c.innerHTML+='<button class="btn btn-outline" style="margin-top:4px" onclick="cpAll()">📋 10本まとめてコピー</button>';
         markDone(8);}
     }catch(err){stopCopyProg();alert('エラー: '+err.message);}
+    stopWait('copy-loading-text');
     document.getElementById('loading-copy').classList.remove('active');
     document.getElementById('copy-progress').style.display='none';
 }
@@ -1149,6 +1150,7 @@ async function genCounseling(){
     G.keyword=kw;
     const menuNote=(document.getElementById('cs-menu').value||'').trim();
     document.getElementById('loading-counseling').classList.add('active');
+    startWait('counseling-loading-text','AIが9ステップ台本を執筆中です',60);
     document.getElementById('counseling-results').innerHTML='';
     document.getElementById('btn-to-roleplay').style.display='none';
     try{
@@ -1181,6 +1183,7 @@ async function genCounseling(){
             document.getElementById('btn-to-roleplay').style.display='block';
         }
     }catch(err){alert('エラー: '+err.message);}
+    stopWait('counseling-loading-text');
     document.getElementById('loading-counseling').classList.remove('active');
 }
 function csClip(btn){const t=btn.parentElement.querySelector('.cs-script').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 セリフをコピー';},2000);});}
@@ -1294,6 +1297,7 @@ async function genLine(){
     G.keyword=kw;
     const menuNote=(document.getElementById('ln-menu').value||'').trim();
     document.getElementById('loading-line').classList.add('active');
+    startWait('line-loading-text','AIが6通のLINE配信文を執筆中です',90);
     document.getElementById('line-results').innerHTML='';
     document.getElementById('btn-to-copy').style.display='none';
     try{
@@ -1317,9 +1321,25 @@ async function genLine(){
             document.getElementById('btn-to-copy').style.display='block';
         }
     }catch(err){alert('エラー: '+err.message);}
+    stopWait('line-loading-text');
     document.getElementById('loading-line').classList.remove('active');
 }
 function lnClip(btn){const t=btn.closest('.line-msg-card').querySelector('.line-msg-body').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 本文をコピー';},2000);});}
+
+// ========== 生成待ちの経過表示 ==========
+let waitTimers={};
+function startWait(textId, label, estSec){
+    const el=document.getElementById(textId);if(!el)return;
+    let sec=0;
+    stopWait(textId);
+    el.textContent=`🤖 ${label}（目安 約${estSec}秒 / 経過 0秒）`;
+    waitTimers[textId]=setInterval(()=>{
+        sec++;
+        const note=sec>estSec?' もう少しです、閉じずにお待ちください！':'';
+        el.textContent=`🤖 ${label}（目安 約${estSec}秒 / 経過 ${sec}秒）${note}`;
+    },1000);
+}
+function stopWait(textId){if(waitTimers[textId]){clearInterval(waitTimers[textId]);delete waitTimers[textId];}}
 
 // ========== 印刷・一括コピー ==========
 function printResults(containerId, title){
