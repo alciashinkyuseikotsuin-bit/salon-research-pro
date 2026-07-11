@@ -312,11 +312,13 @@ def api_copywrite():
 
         print(f"[copy] キーワード: {keyword}, ペルソナ: {len(personas)}人")
 
+        salon_profile = (data.get('salon_profile') or '').strip() if data else ''
         copies = generate_catchcopy_ai(
             keyword=keyword,
             target_symptom=target_symptom,
             personas=personas,
             products=products,
+            salon_profile=salon_profile,
         )
 
         print(f"[copy] 生成完了: {len(copies)}個のキャッチコピー")
@@ -345,6 +347,7 @@ def api_counseling():
         personas = data.get('personas', []) if data else []
         products = data.get('products', None) if data else None
         menu_note = (data.get('menu_note') or '').strip() if data else ''
+        salon_profile = (data.get('salon_profile') or '').strip() if data else ''
 
         if not keyword:
             return jsonify({'error': 'キーワードを入力してください'}), 400
@@ -357,6 +360,7 @@ def api_counseling():
             personas=personas,
             products=products,
             menu_note=menu_note,
+            salon_profile=salon_profile,
         )
 
         return jsonify(script)
@@ -379,6 +383,7 @@ def api_line_scenario():
         personas = data.get('personas', []) if data else []
         products = data.get('products', None) if data else None
         menu_note = (data.get('menu_note') or '').strip() if data else ''
+        salon_profile = (data.get('salon_profile') or '').strip() if data else ''
 
         if not keyword:
             return jsonify({'error': 'キーワードを入力してください'}), 400
@@ -391,6 +396,7 @@ def api_line_scenario():
             personas=personas,
             products=products,
             menu_note=menu_note,
+            salon_profile=salon_profile,
         )
 
         return jsonify(scenario)

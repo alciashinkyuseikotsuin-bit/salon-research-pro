@@ -45,6 +45,7 @@ def generate_line_scenario(
     personas=None,
     products=None,
     menu_note='',
+    salon_profile='',
 ):
     """
     5日間のLINEステップ配信シナリオ（登録直後+5日=6通）を生成する。
@@ -88,6 +89,9 @@ def generate_line_scenario(
 
     user_prompt = f"""以下の情報をもとに、「{symptom}」に悩む方が登録する公式LINEの
 5日間ステップ配信シナリオ（登録直後の挨拶 + 1日目〜5日目 = 計6通）を作成してください。
+
+【自店情報】
+{salon_profile if salon_profile else '（未登録）'}
 
 【キーワード】{keyword}
 【対象症状】{symptom}

@@ -276,6 +276,20 @@
             <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="resetState()">🗑 全部消して最初から</button>
         </div>
 
+        <div class="card" style="margin-bottom:16px">
+            <h3 style="font-size:1rem">🏪 自店プロフィール（1回登録すれば、台本・LINE・コピー全部に反映されます）</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px">
+                <div class="form-group" style="margin-bottom:0"><label>業種</label><select class="form-input" id="pf-type"><option value="">未選択</option><option>整体院</option><option>接骨院・整骨院</option><option>鍼灸院</option><option>エステサロン</option><option>美容サロン</option><option>その他</option></select></div>
+                <div class="form-group" style="margin-bottom:0"><label>店名</label><input type="text" class="form-input" id="pf-name" placeholder="例: ほり整体院"></div>
+                <div class="form-group" style="margin-bottom:0"><label>地域</label><input type="text" class="form-input" id="pf-area" placeholder="例: 大阪市北区・梅田駅3分"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+                <div class="form-group" style="margin-bottom:0"><label>強み・特徴</label><input type="text" class="form-input" id="pf-strength" placeholder="例: 検査してから整える／完全個室／子連れOK"></div>
+                <div class="form-group" style="margin-bottom:0"><label>実績の数字</label><input type="text" class="form-input" id="pf-record" placeholder="例: 延べ1万人施術／開業12年／リピート率85%"></div>
+            </div>
+            <p style="font-size:.72rem;color:var(--text-light);margin-top:8px">入力は自動保存されます。固有名詞と数字が入るほど、生成物が「あなたの店だけの言葉」になります。</p>
+        </div>
+
         <div class="home-flow-banner" onclick="goStep(1)">
             <h3>🚀 はじめての方はこちら：ゼロから一気通貫で作る</h3>
             <p>悩みリサーチ → お客様像 → 単価 → メニュー → 台本 → 接客練習 → LINE → コピーの順に進むと、前の結果を次の作業が自動で引き継ぎます。講座の第1章〜第6章と同じ流れです。</p>
@@ -1131,7 +1145,7 @@ async function genCopy(){
     G.keyword=kw;
     document.getElementById('loading-copy').classList.add('active');startWait('copy-loading-text','15本生成→審査員が採点中です',150);document.getElementById('copy-results').innerHTML='';
     startCopyProg();
-    try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products})});const d=await r.json();
+    try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,salon_profile:getProfile()})});const d=await r.json();
         if(d.copies?.length>0){stopCopyProg();G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
         d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span>${cp.score?'<span class="copy-tag" style="background:#fef3c7;color:var(--gold);font-weight:700">🏆 '+cp.score+'点</span>':''}${cp.lf8?'<span class="copy-tag" style="background:#f5f3ff;color:var(--purple)">🎯 '+esc(cp.lf8)+'</span>':''}</div><div class="copy-effect">✨ ${esc(cp.effect)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button></div>`;});
         c.innerHTML+='<button class="btn btn-outline" style="margin-top:4px" onclick="cpAll()">📋 10本まとめてコピー</button>';
@@ -1154,7 +1168,7 @@ async function genCounseling(){
     document.getElementById('counseling-results').innerHTML='';
     document.getElementById('btn-to-roleplay').style.display='none';
     try{
-        const r=await fetch('/api/counseling',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,menu_note:menuNote})});
+        const r=await fetch('/api/counseling',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,menu_note:menuNote,salon_profile:getProfile()})});
         const d=await r.json();
         if(d.error){alert(d.error);}
         else{
@@ -1301,7 +1315,7 @@ async function genLine(){
     document.getElementById('line-results').innerHTML='';
     document.getElementById('btn-to-copy').style.display='none';
     try{
-        const r=await fetch('/api/line-scenario',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,menu_note:menuNote})});
+        const r=await fetch('/api/line-scenario',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,menu_note:menuNote,salon_profile:getProfile()})});
         const d=await r.json();
         if(d.error){alert(d.error);}
         else{
@@ -1325,6 +1339,18 @@ async function genLine(){
     document.getElementById('loading-line').classList.remove('active');
 }
 function lnClip(btn){const t=btn.closest('.line-msg-card').querySelector('.line-msg-body').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 本文をコピー';},2000);});}
+
+// ========== 自店プロフィール ==========
+function getProfile(){
+    const v=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+    const parts=[];
+    if(v('pf-type'))parts.push('業種: '+v('pf-type'));
+    if(v('pf-name'))parts.push('店名: '+v('pf-name'));
+    if(v('pf-area'))parts.push('地域: '+v('pf-area'));
+    if(v('pf-strength'))parts.push('強み: '+v('pf-strength'));
+    if(v('pf-record'))parts.push('実績: '+v('pf-record'));
+    return parts.join(' / ');
+}
 
 // ========== 生成待ちの経過表示 ==========
 let waitTimers={};

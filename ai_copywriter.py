@@ -78,7 +78,7 @@ COPY_TYPES = [
 ]
 
 
-def generate_catchcopy_ai(keyword, target_symptom='', personas=None, products=None):
+def generate_catchcopy_ai(keyword, target_symptom='', personas=None, products=None, salon_profile=''):
     """
     Claude APIを使ってキャッチコピーを生成する。
     エラー時はルールベース版にフォールバック。
@@ -109,6 +109,9 @@ def generate_catchcopy_ai(keyword, target_symptom='', personas=None, products=No
 
         # ========== パス1: 刺さる言葉メソッドで15本生成 ==========
         user_prompt = f"""以下の情報をもとに、「{keyword}」専門サロンの集客用キャッチコピーを15本生成してください。
+
+【自店情報（固有名詞・数字はコピーの素材に使う）】
+{salon_profile if salon_profile else '（未登録）'}
 
 【キーワード】{keyword}
 【対象症状】{target_symptom or keyword}

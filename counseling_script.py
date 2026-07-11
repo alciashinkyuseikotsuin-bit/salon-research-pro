@@ -39,6 +39,7 @@ def generate_counseling_script(
     personas=None,
     products=None,
     menu_note='',
+    salon_profile='',
 ):
     """
     9ステップのカウンセリング台本を生成する。
@@ -86,6 +87,9 @@ def generate_counseling_script(
         product_summary += f"- メニュー情報（オーナー入力）: {menu_note}\n"
 
     user_prompt = f"""以下の情報をもとに、「{symptom}」に悩むお客様への新規カウンセリング台本を9ステップで作成してください。
+
+【自店情報】
+{salon_profile if salon_profile else '（未登録）'}
 
 【キーワード】{keyword}
 【対象症状】{symptom}
