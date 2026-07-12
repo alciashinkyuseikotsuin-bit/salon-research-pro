@@ -1610,6 +1610,50 @@ function adPickDest(el){
     document.getElementById('ad-num-wrap').style.display='block';
 }
 function updateAdForm(){} // 旧互換
+// ===== 広告診断の履歴と前回比較 =====
+const AD_HIST_KEY='ai_staffroom_ad_history';
+function adGetHist(){try{return JSON.parse(localStorage.getItem(AD_HIST_KEY)||'[]');}catch(e){return[];}}
+function adDerive(n){
+    const d={};
+    const spend=+n.spend||0,imp=+n.impressions||0,clicks=+n.clicks||0;
+    const cv=(+n.line_adds||0)+(+n.reservations||0)+(+n.follows||0);
+    d['消化金額']={v:spend,dir:0,unit:'円'};
+    if(clicks)d['クリック数']={v:clicks,dir:1,unit:''};
+    if(imp&&clicks)d['CTR']={v:+(clicks/imp*100).toFixed(2),dir:1,unit:'%'};
+    if(spend&&clicks)d['CPC']={v:Math.round(spend/clicks),dir:-1,unit:'円'};
+    if(spend&&imp)d['CPM']={v:Math.round(spend/imp*1000),dir:-1,unit:'円'};
+    if(cv)d['成果数（LINE・予約・フォロー）']={v:cv,dir:1,unit:'件'};
+    if(spend&&cv)d['成果単価']={v:Math.round(spend/cv),dir:-1,unit:'円'};
+    return d;
+}
+function adCompareHtml(rec,prev){
+    if(!prev)return '';
+    const cur=adDerive(rec.numbers),old=adDerive(prev.numbers);
+    let rows='';
+    for(const[k,c]of Object.entries(cur)){
+        const p=old[k];if(!p||!p.v)continue;
+        const diff=c.v-p.v;
+        const pct=p.v?Math.round(Math.abs(diff)/p.v*100):0;
+        let mark='→',color='var(--text-light)',word='変化なし';
+        if(Math.abs(diff)>0.001){
+            const better=c.dir===0?null:(diff>0)===(c.dir>0);
+            mark=diff>0?'▲':'▼';
+            if(better===true){color='#65a30d';word=`${pct}% 良くなった`;}
+            else if(better===false){color='#dc2626';word=`${pct}% 悪くなった`;}
+            else{color='var(--text-light)';word=diff>0?'増加':'減少';}
+        }
+        rows+=`<tr><td style="padding:6px 10px;font-size:.85rem">${k}</td><td style="padding:6px 10px;text-align:right;color:var(--text-light)">${p.v.toLocaleString()}${p.unit}</td><td style="padding:6px 10px;text-align:right;font-weight:700">${c.v.toLocaleString()}${c.unit}</td><td style="padding:6px 10px;font-weight:700;color:${color}">${mark} ${word}</td></tr>`;
+    }
+    if(!rows)return '';
+    const scoreLine=(rec.score!=null&&prev.score!=null)?`<p style="font-size:.9rem;margin-bottom:8px">総合スコア: 前回 <strong>${prev.score}点（${esc(prev.verdict)}）</strong> → 今回 <strong style="color:${rec.score>=prev.score?'#65a30d':'#dc2626'}">${rec.score}点（${esc(rec.verdict)}）</strong></p>`:'';
+    return `<div class="card"><h3>📈 前回の診断との比較 <span style="font-size:.75rem;color:var(--text-light)">（前回: ${esc(prev.date)}・${esc(prev.dest)}）</span></h3>${scoreLine}
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr style="border-bottom:1px solid var(--border);font-size:.75rem;color:var(--text-light)"><th style="text-align:left;padding:6px 10px">指標</th><th style="text-align:right">前回</th><th style="text-align:right">今回</th><th style="text-align:left;padding-left:10px">変化</th></tr>${rows}</table></div></div>`;
+}
+function adHistHtml(hist){
+    if(!hist.length)return '';
+    return `<details class="prev-block" style="margin-top:12px"><summary style="cursor:pointer;font-size:.85rem;color:var(--text-light);padding:8px;background:#f8f4f2;border-radius:8px">🗂 これまでの診断履歴（${hist.length}件）</summary>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:.85rem">${hist.map(h=>`<tr style="border-bottom:1px dashed var(--border)"><td style="padding:6px 8px;color:var(--text-light)">${esc(h.date)}</td><td style="padding:6px 8px">${esc(h.platform)}→${esc(h.dest)}</td><td style="padding:6px 8px;font-weight:700">${esc(h.verdict)}</td><td style="padding:6px 8px">${h.score!=null?h.score+'点':'—'}</td></tr>`).join('')}</table></div></details>`;
+}
 let AD_IMAGES=[];
 function handleAdFiles(input){
     AD_IMAGES=[];
@@ -1677,6 +1721,16 @@ async function genAdCheck(){
                 html+='</div>';
             }
             if(d.next_action)html+=`<div class="tips-box"><p>👉 <strong>明日やること:</strong> ${esc(d.next_action)}</p></div>`;
+            // 前回比較と履歴（数値入力がある時だけ記録）
+            if(hasNum){
+                const hist=adGetHist();
+                const rec={date:new Date().toLocaleDateString('ja-JP'),platform:AD_STATE.platform,dest:AD_STATE.dest,numbers:numbers,verdict:d.verdict||'',score:d.score};
+                const prev=hist.find(h=>h.platform===rec.platform&&h.dest===rec.dest)||hist[0];
+                html+=adCompareHtml(rec,prev);
+                hist.unshift(rec);
+                try{localStorage.setItem(AD_HIST_KEY,JSON.stringify(hist.slice(0,10)));}catch(e){}
+                html+=adHistHtml(hist.slice(0,10));
+            }
             document.getElementById('adcheck-results').innerHTML=html+renderPrev('adcheck-results');
             markDone(10);
         }
