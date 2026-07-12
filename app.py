@@ -33,6 +33,7 @@ from counseling_script import generate_counseling_script
 from line_scenario import generate_line_scenario
 from roleplay import generate_customer_reply, generate_feedback
 from checkup import run_checkup
+from ad_checker import run_ad_check
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, static_folder=os.path.join(BASE_DIR, 'static'))
@@ -515,6 +516,29 @@ def api_checkup():
         import traceback
         traceback.print_exc()
         return jsonify({'error': '診断に失敗しました。もう一度お試しください'}), 500
+
+
+# ========== API: 広告診断 ==========
+
+@app.route('/api/ad-check', methods=['POST'])
+def api_ad_check():
+    """広告診断API（テキスト・スクショ画像対応）"""
+    try:
+        data = request.get_json() or {}
+        text = (data.get('text') or '').strip()
+        images = data.get('images') or []
+        salon_profile = (data.get('salon_profile') or '').strip()
+
+        if not text and not images:
+            return jsonify({'error': '広告データ（テキストかスクショ）を入れてください'}), 400
+
+        result = run_ad_check(text=text, images=images, salon_profile=salon_profile)
+        return jsonify(result)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': '広告診断に失敗しました。もう一度お試しください'}), 500
 
 
 # ========== 起動 ==========
