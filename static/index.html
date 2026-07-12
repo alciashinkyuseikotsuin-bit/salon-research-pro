@@ -1724,20 +1724,22 @@ async function genCheckup(){
 
 // ========== 自動保存・復元（閉じても続きから再開できる） ==========
 const SAVE_KEY='ai_staffroom_save_v1';
+const UI_VERSION='v3'; // 画面構造を変えたら上げる（古い保存HTMLの復元を防ぐ）
 function saveState(){
     try{
         const fields={};
         document.querySelectorAll('input[id],textarea[id],select[id]').forEach(el=>{if(el.type==='checkbox')return;if(el.value)fields[el.id]=el.value;});
         const steps={};
         for(let i=1;i<=10;i++){const el=document.getElementById('step-'+i);if(el)steps[i]=el.innerHTML;}
-        localStorage.setItem(SAVE_KEY,JSON.stringify({g:{...G,done:[...G.done]},fields,steps,at:Date.now()}));
+        localStorage.setItem(SAVE_KEY,JSON.stringify({ui:UI_VERSION,g:{...G,done:[...G.done]},fields,steps,at:Date.now()}));
     }catch(e){console.warn('[save] 保存失敗',e);}
 }
 function restoreState(){
     try{
         const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;
         const s=JSON.parse(raw);
-        if(s.steps)for(const[i,html]of Object.entries(s.steps)){const el=document.getElementById('step-'+i);if(el)el.innerHTML=html;}
+        // UIバージョンが同じ時だけ画面HTMLを復元（違えば新UIを優先しデータのみ引き継ぐ）
+        if(s.ui===UI_VERSION&&s.steps)for(const[i,html]of Object.entries(s.steps)){const el=document.getElementById('step-'+i);if(el)el.innerHTML=html;}
         if(s.g)G={...G,...s.g,done:new Set(s.g.done||[])};
         if(s.fields)for(const[id,v]of Object.entries(s.fields)){const el=document.getElementById(id);if(el)el.value=v;}
         // 読み込み中表示が残っていたら消す
