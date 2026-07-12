@@ -28,6 +28,7 @@ from ai_copywriter import generate_catchcopy_ai
 from ai_search_patterns import generate_search_patterns_ai
 from komachi_scraper import search_komachi
 from aramakijake_scraper import fetch_search_volume
+from google_suggest import fetch_google_suggest
 from counseling_script import generate_counseling_script
 from line_scenario import generate_line_scenario
 from roleplay import generate_customer_reply, generate_feedback
@@ -95,6 +96,7 @@ def api_search():
 
         chiebukuro_results = []
         komachi_results = []
+        suggestions = []
 
         def _fetch_chiebukuro():
             return search_and_fetch(
@@ -106,9 +108,10 @@ def api_search():
         def _fetch_komachi():
             return search_komachi(keyword, max_results=15)
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=3) as executor:
             future_chiebukuro = executor.submit(_fetch_chiebukuro)
             future_komachi = executor.submit(_fetch_komachi)
+            future_suggest = executor.submit(fetch_google_suggest, keyword)
 
             try:
                 chiebukuro_results = future_chiebukuro.result(timeout=50)
@@ -119,6 +122,11 @@ def api_search():
                 komachi_results = future_komachi.result(timeout=50)
             except Exception as e:
                 print(f"[search] 発言小町取得エラー: {e}")
+
+            try:
+                suggestions = future_suggest.result(timeout=10)
+            except Exception as e:
+                print(f"[search] サジェスト取得エラー: {e}")
 
         elapsed = _time.time() - start
         print(f"[search] 知恵袋{len(chiebukuro_results)}件 + 発言小町{len(komachi_results)}件 ({elapsed:.1f}秒)")
@@ -143,6 +151,7 @@ def api_search():
                 'chiebukuro': len(chiebukuro_results),
                 'komachi': len(komachi_results),
             },
+            'suggestions': suggestions,
         })
 
     except Exception as e:
