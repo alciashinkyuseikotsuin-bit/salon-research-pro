@@ -9,13 +9,15 @@ import json
 import os
 import re
 
-from config import AD_BENCHMARKS, MODEL_ID, THINKING_OFF, YAKKIHOU_GUARD, extract_text
+from config import AD_BENCHMARKS, AD_CASES, MODEL_ID, THINKING_OFF, YAKKIHOU_GUARD, extract_text
 
 SYSTEM_PROMPT = f"""
 あなたは店舗サロン向けのMeta/Instagram広告運用のプロ分析者です。
 渡された広告データ（テキスト・スクショ画像・表）を読み取り、以下の判断基準で厳密にジャッジします。
 
 {AD_BENCHMARKS}
+
+{AD_CASES}
 
 {YAKKIHOU_GUARD}
 
