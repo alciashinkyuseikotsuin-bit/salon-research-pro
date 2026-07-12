@@ -276,6 +276,11 @@
             <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="resetState()">🗑 全部消して最初から</button>
         </div>
 
+                <div class="home-flow-banner" onclick="goStep(1)">
+            <h3>🚀 はじめての方はこちら：ゼロから一気通貫で作る</h3>
+            <p>悩みリサーチ → お客様像 → 単価 → メニュー → 台本 → 接客練習 → LINE → コピーの順に進むと、前の結果を次の作業が自動で引き継ぎます。講座の第1章〜第6章と同じ流れです。</p>
+        </div>
+
         <div class="card" style="margin-bottom:16px">
             <h3 style="font-size:1rem">🏪 自店プロフィール（1回登録すれば、台本・LINE・コピー全部に反映されます）</h3>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px">
@@ -288,11 +293,6 @@
                 <div class="form-group" style="margin-bottom:0"><label>実績の数字</label><input type="text" class="form-input" id="pf-record" placeholder="例: 延べ1万人施術／開業12年／リピート率85%"></div>
             </div>
             <p style="font-size:.72rem;color:var(--text-light);margin-top:8px">入力は自動保存されます。固有名詞と数字が入るほど、生成物が「あなたの店だけの言葉」になります。</p>
-        </div>
-
-        <div class="home-flow-banner" onclick="goStep(1)">
-            <h3>🚀 はじめての方はこちら：ゼロから一気通貫で作る</h3>
-            <p>悩みリサーチ → お客様像 → 単価 → メニュー → 台本 → 接客練習 → LINE → コピーの順に進むと、前の結果を次の作業が自動で引き継ぎます。講座の第1章〜第6章と同じ流れです。</p>
         </div>
 
         <div class="home-section-label">🧰 やりたい作業だけやる（単体利用OK）</div>
@@ -1530,7 +1530,7 @@ if(!restoreState()){
     const b=document.getElementById('restore-banner');
     b.style.display='block';
     b.style.background='#f0f4ff';b.style.borderColor='#c7d2fe';
-    b.innerHTML='👋 <strong>はじめまして！</strong> まずは上の紫のバナーから「一気通貫」で試すのがおすすめです。キーワード（例: 肩こり）を入れるだけで、リサーチからコピーまで全部体験できます。<br><span style="font-size:.78rem;color:var(--text-light)">🏪 先に自店プロフィールを入れておくと、生成物があなたの店専用になります。入力や結果は自動保存されるので、途中で閉じても大丈夫です。</span>';
+    b.innerHTML='👋 <strong>はじめまして！</strong> まずはすぐ下の紫のバナーから「一気通貫」で試すのがおすすめです。キーワード（例: 肩こり）を入れるだけで、リサーチからコピーまで全部体験できます。<br><span style="font-size:.78rem;color:var(--text-light)">🏪 先に自店プロフィールを入れておくと、生成物があなたの店専用になります。入力や結果は自動保存されるので、途中で閉じても大丈夫です。</span>';
 }
 goHome();
 </script>
