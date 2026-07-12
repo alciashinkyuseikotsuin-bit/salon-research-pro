@@ -313,12 +313,14 @@ def api_copywrite():
         print(f"[copy] キーワード: {keyword}, ペルソナ: {len(personas)}人")
 
         salon_profile = (data.get('salon_profile') or '').strip() if data else ''
+        win_swipes = data.get('win_swipes') or [] if data else []
         copies = generate_catchcopy_ai(
             keyword=keyword,
             target_symptom=target_symptom,
             personas=personas,
             products=products,
             salon_profile=salon_profile,
+            win_swipes=win_swipes,
         )
 
         print(f"[copy] 生成完了: {len(copies)}個のキャッチコピー")
@@ -361,6 +363,7 @@ def api_counseling():
             products=products,
             menu_note=menu_note,
             salon_profile=salon_profile,
+            win_swipes=win_swipes,
         )
 
         return jsonify(script)
@@ -397,6 +400,7 @@ def api_line_scenario():
             products=products,
             menu_note=menu_note,
             salon_profile=salon_profile,
+            win_swipes=win_swipes,
         )
 
         return jsonify(scenario)

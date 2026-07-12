@@ -78,7 +78,7 @@ COPY_TYPES = [
 ]
 
 
-def generate_catchcopy_ai(keyword, target_symptom='', personas=None, products=None, salon_profile=''):
+def generate_catchcopy_ai(keyword, target_symptom='', personas=None, products=None, salon_profile='', win_swipes=None):
     """
     Claude APIを使ってキャッチコピーを生成する。
     エラー時はルールベース版にフォールバック。
@@ -121,6 +121,9 @@ def generate_catchcopy_ai(keyword, target_symptom='', personas=None, products=No
 
 【商品情報】
 {product_summary if product_summary else '（商品情報なし）'}
+
+【このサロンで実際に反応が良かった「勝ちコピー」（最重要の参考資料。文体・切り口・温度感を引き継ぐこと。ただし勝ちコピーそのものやほぼ同じ文は出力しない——新しいコピーを作る）】
+{chr(10).join('- '+w for w in (win_swipes or [])[:15]) if win_swipes else '（まだ登録なし）'}
 
 生成ルール:
 - 必ず「事実 × 視点ずらし」で作る。LF8のどの欲求に向けるかを1本ごとに変え、3つの切り口（文脈の変更・物語の付加・解決策の提示）を使い分ける
