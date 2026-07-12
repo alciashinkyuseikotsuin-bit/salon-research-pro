@@ -219,6 +219,17 @@
         .line-msg-body { padding: 14px; background: #f7fdf9; font-size: .92rem; white-space: pre-wrap; }
         .line-msg-aim { padding: 8px 14px; font-size: .8rem; color: var(--text-light); border-top: 1px dashed var(--border); }
 
+        /* ===== 広告診断: タップ選択UI ===== */
+        .sel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .sel-card { border: 2px solid var(--border); border-radius: 14px; padding: 14px 12px; text-align: center; cursor: pointer; background: #fff; transition: all .15s; }
+        .sel-card:hover { border-color: var(--primary); }
+        .sel-card.on { border-color: var(--primary); background: #fdf2f4; box-shadow: 0 3px 10px rgba(176,86,109,.15); }
+        .sel-card .se { font-size: 1.6rem; }
+        .sel-card .sn { font-weight: 700; font-size: .92rem; margin-top: 4px; }
+        .sel-card .sd { font-size: .72rem; color: var(--text-light); margin-top: 2px; line-height: 1.4; }
+        .ad-step-label { font-weight: 800; font-size: .95rem; margin: 16px 0 8px; }
+        .ad-step-label .num { display:inline-block; background: var(--primary); color:#fff; border-radius: 50%; width: 22px; height: 22px; text-align:center; line-height:22px; font-size:.8rem; margin-right:6px; }
+
         /* ===== ビジュアルリフレッシュ（サロン調・スマホ前提） ===== */
         :root {
             --primary: #b0566d;
@@ -582,17 +593,20 @@
         <div class="card"><h3>広告の結果を診断する <span class="ai-badge">🤖 AI診断</span></h3>
             <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">3ステップで入力すると、媒体と目的に合ったプロ基準で「当たり／改善余地あり／外れ」をジャッジします。</p>
 
-            <div class="form-group"><label>STEP1: どの広告ですか？</label>
-                <select class="form-input" id="ad-platform" onchange="updateAdForm()">
-                    <option value="Instagram広告（アプリから投稿を宣伝）">Instagram広告（アプリから「投稿を宣伝」）</option>
-                    <option value="Meta広告（広告マネージャから出稿）">Meta広告（広告マネージャから出稿）</option>
-                </select>
-            </div>
-            <div class="form-group"><label>STEP2: 広告の目的は？</label>
-                <select class="form-input" id="ad-objective" onchange="updateAdForm()"></select>
+            <div class="ad-step-label"><span class="num">1</span>どの広告ですか？（タップで選択）</div>
+            <div class="sel-grid" id="ad-platform-grid">
+                <div class="sel-card" data-v="Instagram広告" onclick="adPickPlatform(this)"><div class="se">📱</div><div class="sn">Instagram広告</div><div class="sd">スマホのInstagramアプリから「投稿を宣伝」した</div></div>
+                <div class="sel-card" data-v="Meta広告" onclick="adPickPlatform(this)"><div class="se">📘</div><div class="sn">Meta広告</div><div class="sd">広告マネージャ（パソコン）から出稿した</div></div>
             </div>
 
-            <div class="form-group"><label>STEP3: 数字を入力（わかるところだけでOK）</label>
+            <div id="ad-dest-wrap" style="display:none">
+                <div class="ad-step-label"><span class="num">2</span>広告からどこに誘導していますか？</div>
+                <div class="sel-grid" id="ad-dest-grid"></div>
+            </div>
+
+            <div id="ad-num-wrap" style="display:none">
+            <div class="ad-step-label"><span class="num">3</span>数字を入れてください（わかるところだけでOK）</div>
+                <div class="form-group">
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px" id="ad-num-grid">
                     <div class="form-group ad-f" style="margin-bottom:0" data-f="all"><label>消化金額（円）</label><input type="number" class="form-input" id="adn-spend" placeholder="例: 21000"></div>
                     <div class="form-group ad-f" style="margin-bottom:0" data-f="all"><label>インプレッション</label><input type="number" class="form-input" id="adn-impressions" placeholder="例: 45000"></div>
@@ -603,6 +617,8 @@
                     <div class="form-group ad-f" style="margin-bottom:0" data-f="profile"><label>プロフィールアクセス数</label><input type="number" class="form-input" id="adn-profile_visits" placeholder="例: 850"></div>
                     <div class="form-group ad-f" style="margin-bottom:0" data-f="profile"><label>フォロー数</label><input type="number" class="form-input" id="adn-follows" placeholder="例: 40"></div>
                 </div>
+            </div>
+
             </div>
 
             <details style="margin:10px 0">
@@ -1552,32 +1568,48 @@ function cpAll(){
 }
 
 // ========== 広告診断 ==========
-const AD_OBJECTIVES={
-    'Instagram広告（アプリから投稿を宣伝）':[
-        {v:'プロフィールへの誘導（フォロー・認知目的）',f:['profile']},
-        {v:'外部リンクへの誘導（LINE登録）',f:['lp','line']},
-        {v:'外部リンクへの誘導（予約・問い合わせ）',f:['lp','reserve']},
+const AD_DESTS={
+    'Instagram広告':[
+        {v:'プロフィール',e:'👤',d:'自分のInstagramプロフィールに誘導',f:['profile']},
+        {v:'LINE登録',e:'💬',d:'公式LINEに登録してもらう',f:['lp','line']},
+        {v:'LP（ランディングページ）',e:'📄',d:'1枚の紹介ページに誘導',f:['lp','reserve']},
+        {v:'ホームページ',e:'🏠',d:'お店のHPに誘導',f:['lp','reserve']},
+        {v:'予約サイト',e:'📅',d:'ホットペッパー等に誘導',f:['lp','reserve']},
     ],
-    'Meta広告（広告マネージャから出稿）':[
-        {v:'LPに飛ばしてLINE登録してもらう',f:['lp','line']},
-        {v:'LPに飛ばして予約・問い合わせしてもらう',f:['lp','reserve']},
-        {v:'トラフィック（クリックを集める）',f:['lp']},
-        {v:'リード獲得（フォーム入力）',f:['lp','reserve']},
+    'Meta広告':[
+        {v:'LINE登録',e:'💬',d:'LP経由で公式LINEに登録',f:['lp','line']},
+        {v:'LP（ランディングページ）',e:'📄',d:'LPで予約・問い合わせ獲得',f:['lp','reserve']},
+        {v:'ホームページ',e:'🏠',d:'お店のHPに誘導',f:['lp','reserve']},
+        {v:'予約サイト',e:'📅',d:'ホットペッパー等に誘導',f:['lp','reserve']},
+        {v:'リード獲得フォーム',e:'📝',d:'Meta内のフォームで連絡先獲得',f:['reserve']},
     ],
 };
-function updateAdForm(){
-    const p=document.getElementById('ad-platform').value;
-    const objSel=document.getElementById('ad-objective');
-    const objs=AD_OBJECTIVES[p]||[];
-    const cur=objSel.value;
-    objSel.innerHTML=objs.map(o=>`<option value="${o.v}">${o.v}</option>`).join('');
-    if(objs.some(o=>o.v===cur))objSel.value=cur;
-    const active=(objs.find(o=>o.v===objSel.value)||objs[0]||{f:[]}).f;
-    document.querySelectorAll('.ad-f').forEach(el=>{
-        const f=el.dataset.f;
-        el.style.display=(f==='all'||active.includes(f))?'block':'none';
-    });
+let AD_STATE={platform:'',dest:'',fields:[]};
+function adPickPlatform(el){
+    AD_STATE.platform=el.dataset.v;AD_STATE.dest='';
+    document.querySelectorAll('#ad-platform-grid .sel-card').forEach(c=>c.classList.toggle('on',c===el));
+    const grid=document.getElementById('ad-dest-grid');
+    grid.innerHTML=(AD_DESTS[AD_STATE.platform]||[]).map(o=>`<div class="sel-card" data-v="${o.v}" onclick="adPickDest(this)"><div class="se">${o.e}</div><div class="sn">${o.v}</div><div class="sd">${o.d}</div></div>`).join('');
+    document.getElementById('ad-dest-wrap').style.display='block';
+    document.getElementById('ad-num-wrap').style.display='none';
 }
+function adPickDest(el){
+    AD_STATE.dest=el.dataset.v;
+    document.querySelectorAll('#ad-dest-grid .sel-card').forEach(c=>c.classList.toggle('on',c===el));
+    const o=(AD_DESTS[AD_STATE.platform]||[]).find(x=>x.v===AD_STATE.dest)||{f:[]};
+    AD_STATE.fields=o.f;
+    document.querySelectorAll('.ad-f').forEach(fEl=>{
+        const f=fEl.dataset.f;
+        fEl.style.display=(f==='all'||o.f.includes(f))?'block':'none';
+    });
+    // 誘導先に合わせてラベルを変える
+    const lp=document.querySelector('.ad-f[data-f="lp"] label');
+    if(lp)lp.textContent=AD_STATE.dest==='LINE登録'?'LP・ページの表示数（任意）':AD_STATE.dest+'の表示数（任意）';
+    const rs=document.querySelector('.ad-f[data-f="reserve"] label');
+    if(rs)rs.textContent=AD_STATE.dest==='リード獲得フォーム'?'獲得リード数':'予約・問い合わせ数';
+    document.getElementById('ad-num-wrap').style.display='block';
+}
+function updateAdForm(){} // 旧互換
 let AD_IMAGES=[];
 function handleAdFiles(input){
     AD_IMAGES=[];
@@ -1611,13 +1643,14 @@ async function genAdCheck(){
         const el=document.getElementById('adn-'+k);
         if(el&&el.value){numbers[k]=el.value;hasNum=true;}
     });
+    if(!AD_STATE.platform||!AD_STATE.dest){showError('adcheck-results','STEP1とSTEP2をタップして選んでください',genAdCheck);return;}
     if(!hasNum&&!text&&!AD_IMAGES.length){showError('adcheck-results','数字を入力するか、スクショ・テキストを添付してください',genAdCheck);return;}
     document.getElementById('loading-adcheck').classList.add('active');
     startWait('adcheck-loading-text','プロ基準で広告をジャッジ中です',45);
     stashPrev('adcheck-results');
     document.getElementById('adcheck-results').innerHTML='';
     try{
-        const r=await fetch('/api/ad-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:document.getElementById('ad-platform').value,objective:document.getElementById('ad-objective').value,numbers:numbers,text:text,images:AD_IMAGES,salon_profile:getProfile()})});
+        const r=await fetch('/api/ad-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:AD_STATE.platform,objective:'誘導先: '+AD_STATE.dest,numbers:numbers,text:text,images:AD_IMAGES,salon_profile:getProfile()})});
         const d=await r.json();
         if(d.error){showError('adcheck-results',d.error,genAdCheck);}
         else{
