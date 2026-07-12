@@ -580,12 +580,40 @@
     <!-- Step 10: 広告診断 -->
     <div class="step-content" id="step-10">
         <div class="card"><h3>広告の結果を診断する <span class="ai-badge">🤖 AI診断</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">Meta/Instagram広告の結果を貼ってください。<strong>広告管理画面のスクショでも、数字のコピペでも、スプレッドシートの貼り付けでもOK</strong>。プロの判断基準（CPC・CTR・CPM・LINE追加単価など）で「当たり／改善余地あり／外れ」をジャッジします。</p>
-            <div class="form-group"><label>広告データ（テキスト・表の貼り付け）</label><textarea class="form-input" id="ad-text" rows="5" placeholder="例:&#10;消化金額 30,000円 / インプレッション 45,000 / リンククリック 210&#10;CTR 0.47% / CPC 142円 / LINE追加 18件&#10;（Metaの表をそのままコピペでもOK）"></textarea></div>
-            <div class="form-group"><label>広告管理画面のスクショ（最大4枚・任意）</label>
-                <input type="file" class="form-input" id="ad-files" accept="image/*" multiple onchange="handleAdFiles(this)">
-                <div id="ad-previews" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">3ステップで入力すると、媒体と目的に合ったプロ基準で「当たり／改善余地あり／外れ」をジャッジします。</p>
+
+            <div class="form-group"><label>STEP1: どの広告ですか？</label>
+                <select class="form-input" id="ad-platform" onchange="updateAdForm()">
+                    <option value="Instagram広告（アプリから投稿を宣伝）">Instagram広告（アプリから「投稿を宣伝」）</option>
+                    <option value="Meta広告（広告マネージャから出稿）">Meta広告（広告マネージャから出稿）</option>
+                </select>
             </div>
+            <div class="form-group"><label>STEP2: 広告の目的は？</label>
+                <select class="form-input" id="ad-objective" onchange="updateAdForm()"></select>
+            </div>
+
+            <div class="form-group"><label>STEP3: 数字を入力（わかるところだけでOK）</label>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px" id="ad-num-grid">
+                    <div class="form-group ad-f" style="margin-bottom:0" data-f="all"><label>消化金額（円）</label><input type="number" class="form-input" id="adn-spend" placeholder="例: 21000"></div>
+                    <div class="form-group ad-f" style="margin-bottom:0" data-f="all"><label>インプレッション</label><input type="number" class="form-input" id="adn-impressions" placeholder="例: 45000"></div>
+                    <div class="form-group ad-f" style="margin-bottom:0" data-f="all"><label>リンククリック数</label><input type="number" class="form-input" id="adn-clicks" placeholder="例: 320"></div>
+                    <div class="form-group ad-f" style="margin-bottom:0" data-f="lp"><label>LP表示数（任意）</label><input type="number" class="form-input" id="adn-lp_views" placeholder="例: 280"></div>
+                    <div class="form-group ad-f" style="margin-bottom:0" data-f="line"><label>LINE追加数</label><input type="number" class="form-input" id="adn-line_adds" placeholder="例: 12"></div>
+                    <div class="form-group ad-f" style="margin-bottom:0" data-f="reserve"><label>予約・問い合わせ数</label><input type="number" class="form-input" id="adn-reservations" placeholder="例: 5"></div>
+                    <div class="form-group ad-f" style="margin-bottom:0" data-f="profile"><label>プロフィールアクセス数</label><input type="number" class="form-input" id="adn-profile_visits" placeholder="例: 850"></div>
+                    <div class="form-group ad-f" style="margin-bottom:0" data-f="profile"><label>フォロー数</label><input type="number" class="form-input" id="adn-follows" placeholder="例: 40"></div>
+                </div>
+            </div>
+
+            <details style="margin:10px 0">
+                <summary style="cursor:pointer;font-size:.85rem;color:var(--text-light)">📎 スクショや表を添付する（任意・数字入力の代わりにもなります）</summary>
+                <div class="form-group" style="margin-top:10px"><label>広告データの貼り付け（テキスト・表）</label><textarea class="form-input" id="ad-text" rows="4" placeholder="Metaの表をそのままコピペでもOK"></textarea></div>
+                <div class="form-group"><label>管理画面のスクショ（最大4枚）</label>
+                    <input type="file" class="form-input" id="ad-files" accept="image/*" multiple onchange="handleAdFiles(this)">
+                    <div id="ad-previews" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+                </div>
+            </details>
+
             <button class="btn" onclick="genAdCheck()">AIに広告を診断してもらう</button>
         </div>
         <div class="loading" id="loading-adcheck"><div class="spinner"></div><p id="adcheck-loading-text">🤖 診断中...</p></div>
@@ -628,6 +656,8 @@ function goStep(n) {
     }
     // Step 6 (ロープレ道場): ペルソナ選択肢を更新
     if(n===6) rpPopulatePersonas();
+    // Step 10 (広告診断): 目的フォームを初期化
+    if(n===10) updateAdForm();
     // Step 5〜8: クイック入力欄にキーワードをプリセット
     const kwFields={5:'cs-keyword',6:'rp-keyword',7:'ln-keyword',8:'cp-keyword'};
     if(kwFields[n]&&G.keyword){const el=document.getElementById(kwFields[n]);if(el&&!el.value)el.value=G.keyword;}
@@ -1522,6 +1552,32 @@ function cpAll(){
 }
 
 // ========== 広告診断 ==========
+const AD_OBJECTIVES={
+    'Instagram広告（アプリから投稿を宣伝）':[
+        {v:'プロフィールへの誘導（フォロー・認知目的）',f:['profile']},
+        {v:'外部リンクへの誘導（LINE登録）',f:['lp','line']},
+        {v:'外部リンクへの誘導（予約・問い合わせ）',f:['lp','reserve']},
+    ],
+    'Meta広告（広告マネージャから出稿）':[
+        {v:'LPに飛ばしてLINE登録してもらう',f:['lp','line']},
+        {v:'LPに飛ばして予約・問い合わせしてもらう',f:['lp','reserve']},
+        {v:'トラフィック（クリックを集める）',f:['lp']},
+        {v:'リード獲得（フォーム入力）',f:['lp','reserve']},
+    ],
+};
+function updateAdForm(){
+    const p=document.getElementById('ad-platform').value;
+    const objSel=document.getElementById('ad-objective');
+    const objs=AD_OBJECTIVES[p]||[];
+    const cur=objSel.value;
+    objSel.innerHTML=objs.map(o=>`<option value="${o.v}">${o.v}</option>`).join('');
+    if(objs.some(o=>o.v===cur))objSel.value=cur;
+    const active=(objs.find(o=>o.v===objSel.value)||objs[0]||{f:[]}).f;
+    document.querySelectorAll('.ad-f').forEach(el=>{
+        const f=el.dataset.f;
+        el.style.display=(f==='all'||active.includes(f))?'block':'none';
+    });
+}
 let AD_IMAGES=[];
 function handleAdFiles(input){
     AD_IMAGES=[];
@@ -1550,13 +1606,18 @@ function handleAdFiles(input){
 }
 async function genAdCheck(){
     const text=document.getElementById('ad-text').value.trim();
-    if(!text&&!AD_IMAGES.length){showError('adcheck-results','広告データ（テキストかスクショ）を入れてください',genAdCheck);return;}
+    const numbers={};let hasNum=false;
+    ['spend','impressions','clicks','lp_views','line_adds','reservations','profile_visits','follows'].forEach(k=>{
+        const el=document.getElementById('adn-'+k);
+        if(el&&el.value){numbers[k]=el.value;hasNum=true;}
+    });
+    if(!hasNum&&!text&&!AD_IMAGES.length){showError('adcheck-results','数字を入力するか、スクショ・テキストを添付してください',genAdCheck);return;}
     document.getElementById('loading-adcheck').classList.add('active');
     startWait('adcheck-loading-text','プロ基準で広告をジャッジ中です',45);
     stashPrev('adcheck-results');
     document.getElementById('adcheck-results').innerHTML='';
     try{
-        const r=await fetch('/api/ad-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,images:AD_IMAGES,salon_profile:getProfile()})});
+        const r=await fetch('/api/ad-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:document.getElementById('ad-platform').value,objective:document.getElementById('ad-objective').value,numbers:numbers,text:text,images:AD_IMAGES,salon_profile:getProfile()})});
         const d=await r.json();
         if(d.error){showError('adcheck-results',d.error,genAdCheck);}
         else{

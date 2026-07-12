@@ -528,11 +528,27 @@ def api_ad_check():
         text = (data.get('text') or '').strip()
         images = data.get('images') or []
         salon_profile = (data.get('salon_profile') or '').strip()
+        platform = (data.get('platform') or '').strip()
+        objective = (data.get('objective') or '').strip()
 
-        if not text and not images:
-            return jsonify({'error': '広告データ（テキストかスクショ）を入れてください'}), 400
+        def num(key):
+            try:
+                v = data.get('numbers', {}).get(key)
+                return int(float(v)) if v not in (None, '') else 0
+            except (TypeError, ValueError):
+                return 0
 
-        result = run_ad_check(text=text, images=images, salon_profile=salon_profile)
+        numbers = {k: num(k) for k in
+                   ('spend', 'impressions', 'clicks', 'lp_views', 'line_adds',
+                    'reservations', 'profile_visits', 'follows')}
+        has_numbers = any(numbers.values())
+
+        if not has_numbers and not text and not images:
+            return jsonify({'error': '数字を入力するか、スクショ・テキストを入れてください'}), 400
+
+        result = run_ad_check(platform=platform, objective=objective,
+                              numbers=numbers if has_numbers else None,
+                              text=text, images=images, salon_profile=salon_profile)
         return jsonify(result)
 
     except Exception as e:
