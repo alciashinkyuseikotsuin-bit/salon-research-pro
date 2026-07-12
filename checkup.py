@@ -38,7 +38,7 @@ SYSTEM_PROMPT = f"""
 """
 
 
-def run_checkup(monthly_target, revenue, new_clients, contracts, avg_price, ad_cost=0, salon_profile=''):
+def run_checkup(monthly_target, revenue, new_clients, contracts, avg_price, ad_cost=0, salon_profile='', use_ai=True):
     """月次数字を診断する。計算はルールベース、診断・打ち手はAI。"""
     achievement = round(revenue / monthly_target * 100) if monthly_target else 0
     contract_rate = round(contracts / new_clients * 100) if new_clients else 0
@@ -68,6 +68,42 @@ def run_checkup(monthly_target, revenue, new_clients, contracts, avg_price, ad_c
         f"新規{new_clients}人 → コース成約{contracts}人（成約率{contract_rate}%）\n"
         f"平均単価{avg_price:,}円 / 広告費{ad_cost:,}円" + (f"（CPA {cpa:,}円）" if cpa else '')
     )
+
+    # === ルールベース診断（AIなし・無料・即時） ===
+    if not use_ai:
+        if contract_rate < 50 and new_clients > 0:
+            bn, tool = '成約率', [
+                {'title': 'カウンセリング台本を作り直す', 'detail': f'成約率{contract_rate}%は講座基準50%未満。9ステップ台本で「急にセールスされた感」をなくすのが最優先です。', 'tool_step': 5},
+                {'title': '接客の練習をする', 'detail': '台本ができたらロープレで断り文句への切り返しを特訓しましょう。', 'tool_step': 6},
+                {'title': 'コースメニューを見直す', 'detail': '梅の料金逆転など「選びやすい松竹梅」になっているか確認を。', 'tool_step': 4},
+            ]
+        elif new_clients < 10:
+            bn, tool = '新規客数', [
+                {'title': 'お客様の悩みを調べ直す', 'detail': f'新規{new_clients}人は月10人の目安未満。刺さる言葉の素材集めからやり直しましょう。', 'tool_step': 1},
+                {'title': 'キャッチコピーを作り直す', 'detail': '集客の入口（広告・SNS・HPB）の言葉を勝ちコピーに差し替えます。', 'tool_step': 8},
+                {'title': 'LINEの配信文を整える', 'detail': '登録済みのお客様を予約に変える5日間配信を仕込みましょう。', 'tool_step': 7},
+            ]
+        elif achievement < 100:
+            bn, tool = '客単価・メニュー構成', [
+                {'title': '価格設定を見直す', 'detail': f'あと{max(gap,0):,}円。単価{avg_price:,}円が最低ラインを下回っていないか確認を。', 'tool_step': 3},
+                {'title': 'コースメニューを再設計する', 'detail': '都度払い→高単価コースへの切り替えが単価改善の王道です。', 'tool_step': 4},
+                {'title': 'カウンセリング台本を磨く', 'detail': 'コース提案の⑦⑨を重点的に。', 'tool_step': 5},
+            ]
+        else:
+            bn, tool = 'なし（目標達成！）', [
+                {'title': '勝ちパターンの横展開', 'detail': '当たったコピー・広告を⭐登録して再現性を作りましょう。', 'tool_step': 8},
+                {'title': '広告の結果も診断する', 'detail': '伸びている今こそ広告の健康チェックを。', 'tool_step': 10},
+                {'title': '来月の目標を上げる', 'detail': '目標月商を上げて再計算を。', 'tool_step': 9},
+            ]
+        return {
+            'praise': f'今月は月商{revenue:,}円（達成率{achievement}%）。まず数字と向き合ったこと自体が経営者の第一歩です。',
+            'bottleneck': bn,
+            'diagnosis': f'講座基準で一番効くレバーは「{bn}」です。下の3手を上から順に。さらに詳しい分析が欲しい時は「AI講師の詳しい診断」を押してください。',
+            'actions': tool,
+            'cheer': '全部やろうとせず、最優先の1つだけで大丈夫です。',
+            'metrics': metrics,
+            'rule_based': True,
+        }
 
     api_key = os.environ.get('ANTHROPIC_API_KEY', '')
     if not api_key:

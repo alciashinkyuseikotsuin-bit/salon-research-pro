@@ -509,6 +509,7 @@ def api_checkup():
             monthly_target=monthly_target, revenue=revenue,
             new_clients=new_clients, contracts=contracts,
             avg_price=avg_price, ad_cost=ad_cost, salon_profile=salon_profile,
+            use_ai=bool(data.get('use_ai')),
         )
         return jsonify(result)
 

@@ -1744,12 +1744,13 @@ async function genCheckup(){
     const v=id=>document.getElementById(id).value;
     if(!v('ck-revenue')&&!v('ck-new')){showError('checkup-results','今月の数字を入力してください',genCheckup);return;}
     document.getElementById('loading-checkup').classList.add('active');
-    startWait('checkup-loading-text','講座基準で数字を診断中です',30);
+    startWait('checkup-loading-text',window._ckUseAI?'AI講師が詳しく診断中です':'講座基準で判定中です',window._ckUseAI?30:2);
     document.getElementById('checkup-results').innerHTML='';
     try{
         const r=await fetch('/api/checkup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
             monthly_target:v('ck-target'),revenue:v('ck-revenue'),new_clients:v('ck-new'),
             contracts:v('ck-contracts'),avg_price:v('ck-price'),ad_cost:v('ck-adcost'),
+            use_ai:window._ckUseAI||false,
             salon_profile:getProfile()})});
         const d=await r.json();
         if(d.error){showError('checkup-results',d.error,genCheckup);}
@@ -1768,6 +1769,7 @@ async function genCheckup(){
                 html+='</div>';
             }
             if(d.cheer)html+=`<div class="tips-box"><p>💪 ${esc(d.cheer)}</p></div>`;
+            if(d.rule_based)html+=`<div style="text-align:center;margin-top:10px"><button class="btn btn-outline" onclick="window._ckUseAI=true;genCheckup();window._ckUseAI=false;">🤖 AI講師の詳しい診断を見る（あなたの店の文脈込み・約30秒）</button></div>`;
             document.getElementById('checkup-results').innerHTML=html;
             markDone(9);
         }
