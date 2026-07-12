@@ -498,10 +498,12 @@
                     <div class="rp-trust-bar"><div class="rp-trust-fill" id="rp-trust-fill"></div></div>
                     <span id="rp-trust-num">30</span>
                     <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="rp-show-inner" checked> 心の声を表示</label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="rp-voice-out"> 🔊 声で聞く</label>
                 </div>
                 <div class="rp-chat" id="rp-chat"></div>
                 <div class="rp-input-row">
                     <textarea id="rp-input" placeholder="お客様への声かけを入力...（例: 今日はどのようなお悩みでいらっしゃいましたか？）"></textarea>
+                    <button class="btn btn-outline" id="rp-mic-btn" onclick="rpMic()" title="声で話す">🎤</button>
                     <button class="btn" id="rp-send-btn" onclick="rpSend()">送信</button>
                 </div>
                 <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
@@ -1289,6 +1291,7 @@ async function rpSend(){
             RP.history.push({role:'owner',text:msg});
             RP.history.push({role:'customer',text:d.reply,trust:d.trust});
             rpAppend('customer',d.reply,d.inner_voice);
+            rpSpeak(d.reply);
             rpSetTrust(d.trust);
         }
     }catch(err){alert('エラー: '+err.message);}
@@ -1360,6 +1363,39 @@ async function genLine(){
     document.getElementById('loading-line').classList.remove('active');
 }
 function lnClip(btn){const t=btn.closest('.line-msg-card').querySelector('.line-msg-body').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 本文をコピー';},2000);});}
+
+// ========== ロープレ音声（話す・聞く） ==========
+let rpRec=null;
+function rpMic(){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){alert('このブラウザは音声入力に対応していません。ChromeかSafariでお試しください');return;}
+    const btn=document.getElementById('rp-mic-btn');
+    if(rpRec){rpRec.stop();return;}
+    rpRec=new SR();rpRec.lang='ja-JP';rpRec.interimResults=true;rpRec.continuous=true;
+    const input=document.getElementById('rp-input');
+    const base=input.value.trim();
+    rpRec.onresult=e=>{
+        let text='';
+        for(const r of e.results)text+=r[0].transcript;
+        input.value=(base?base+' ':'')+text;
+    };
+    rpRec.onend=()=>{rpRec=null;btn.textContent='🎤';btn.style.background='';};
+    rpRec.onerror=()=>{rpRec=null;btn.textContent='🎤';btn.style.background='';};
+    rpRec.start();
+    btn.textContent='⏹ 話し終わったら押す';btn.style.background='#fee2e2';
+}
+function rpSpeak(text){
+    const chk=document.getElementById('rp-voice-out');
+    if(!chk||!chk.checked||!window.speechSynthesis)return;
+    try{
+        speechSynthesis.cancel();
+        const u=new SpeechSynthesisUtterance(String(text).replace(/（[^）]*）/g,''));
+        u.lang='ja-JP';u.rate=1.05;u.pitch=1.15;
+        const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('ja'));
+        if(v)u.voice=v;
+        speechSynthesis.speak(u);
+    }catch(e){}
+}
 
 // ========== 勝ちスワイプ（当たりコピーの学習） ==========
 const WINS_KEY='ai_staffroom_wins';
