@@ -32,6 +32,7 @@ from google_suggest import fetch_google_suggest
 from counseling_script import generate_counseling_script
 from line_scenario import generate_line_scenario
 from roleplay import generate_customer_reply, generate_feedback
+from checkup import run_checkup
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, static_folder=os.path.join(BASE_DIR, 'static'))
@@ -474,6 +475,46 @@ def api_roleplay_feedback():
         import traceback
         traceback.print_exc()
         return jsonify({'error': '採点に失敗しました。もう一度お試しください'}), 500
+
+
+# ========== API: 月次数字の健康診断 ==========
+
+@app.route('/api/checkup', methods=['POST'])
+def api_checkup():
+    """月次数字の健康診断API（Claude API連携）"""
+    try:
+        data = request.get_json() or {}
+
+        def num(key, default=0):
+            try:
+                return int(float(data.get(key) or default))
+            except (TypeError, ValueError):
+                return default
+
+        monthly_target = num('monthly_target', 1000000)
+        revenue = num('revenue')
+        new_clients = num('new_clients')
+        contracts = num('contracts')
+        avg_price = num('avg_price')
+        ad_cost = num('ad_cost')
+        salon_profile = (data.get('salon_profile') or '').strip()
+
+        if not revenue and not new_clients:
+            return jsonify({'error': '今月の数字を入力してください'}), 400
+        if contracts > new_clients:
+            return jsonify({'error': '成約数が新規数を超えています。入力を確認してください'}), 400
+
+        result = run_checkup(
+            monthly_target=monthly_target, revenue=revenue,
+            new_clients=new_clients, contracts=contracts,
+            avg_price=avg_price, ad_cost=ad_cost, salon_profile=salon_profile,
+        )
+        return jsonify(result)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': '診断に失敗しました。もう一度お試しください'}), 500
 
 
 # ========== 起動 ==========

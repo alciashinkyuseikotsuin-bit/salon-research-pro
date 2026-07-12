@@ -266,6 +266,7 @@
         <div class="step-item" onclick="goStep(6)">🥊 接客練習<span class="ai-tag">AI</span></div>
         <div class="step-item" onclick="goStep(7)">💬 LINE配信文<span class="ai-tag">AI</span></div>
         <div class="step-item" onclick="goStep(8)">✒️ キャッチコピー<span class="ai-tag">AI</span></div>
+        <div class="step-item" onclick="goStep(9)">📊 数字診断<span class="ai-tag">AI</span></div>
     </div>
 
     <!-- ホーム: AIスタッフルーム -->
@@ -305,6 +306,7 @@
             <div class="tool-card" data-step="6" onclick="goStep(6)"><span class="tc-badge">単体OK</span><div class="tc-emoji">🥊</div><div class="tc-name">接客の練習をする</div><div class="tc-desc">AIがお客様役になってロープレ。断り文句の切り返しを何度でも練習</div><div class="tc-done">✓ 実行済み</div></div>
             <div class="tool-card" data-step="7" onclick="goStep(7)"><span class="tc-badge">単体OK</span><div class="tc-emoji">💬</div><div class="tc-name">LINEの配信文をつくる</div><div class="tc-desc">登録直後〜5日目までのステップ配信をコピペできる完成形で作成</div><div class="tc-done">✓ 実行済み</div></div>
             <div class="tool-card" data-step="8" onclick="goStep(8)"><span class="tc-badge">単体OK</span><div class="tc-emoji">✒️</div><div class="tc-name">キャッチコピーをつくる</div><div class="tc-desc">15本作って審査員AIが採点、90点以上の上位10本だけをお届け</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="9" onclick="goStep(9)"><span class="tc-badge">単体OK</span><div class="tc-emoji">📊</div><div class="tc-name">今月の数字を診断する</div><div class="tc-desc">月商・新規数・成約数を入れると、ボトルネックと「今月やるべき3手」がわかる</div><div class="tc-done">✓ 実行済み</div></div>
         </div>
         <p style="font-size:.75rem;color:var(--text-light);margin-top:14px">💡 「コースメニューをつくる」は、先に💰単価計算をしておくとスムーズです。入力や生成結果は自動でこのブラウザに保存されます（閉じても消えません）。</p>
     </div>
@@ -553,6 +555,24 @@
             </div>
         </div>
         <div id="copy-results"></div>
+    </div>
+
+    <!-- Step 9: 数字診断 -->
+    <div class="step-content" id="step-9">
+        <div class="card"><h3>今月の数字の健康診断 <span class="ai-badge">🤖 AI診断</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">今月の数字を入れるだけで、講座基準（成約率80%・売上の方程式）でボトルネックを特定し、「今月やるべき3手」と対策ツールを提案します。毎月末にどうぞ。</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+                <div class="form-group" style="margin-bottom:0"><label>目標月商（円）</label><input type="number" class="form-input" id="ck-target" value="1000000"></div>
+                <div class="form-group" style="margin-bottom:0"><label>今月の月商（円）</label><input type="number" class="form-input" id="ck-revenue" placeholder="例: 620000"></div>
+                <div class="form-group" style="margin-bottom:0"><label>新規のお客様数</label><input type="number" class="form-input" id="ck-new" placeholder="例: 8"></div>
+                <div class="form-group" style="margin-bottom:0"><label>うちコース成約数</label><input type="number" class="form-input" id="ck-contracts" placeholder="例: 3"></div>
+                <div class="form-group" style="margin-bottom:0"><label>平均単価（円）</label><input type="number" class="form-input" id="ck-price" placeholder="例: 8000"></div>
+                <div class="form-group" style="margin-bottom:0"><label>広告費（円・任意）</label><input type="number" class="form-input" id="ck-adcost" placeholder="例: 30000"></div>
+            </div>
+            <button class="btn" style="margin-top:12px" onclick="genCheckup()">AIに診断してもらう</button>
+        </div>
+        <div class="loading" id="loading-checkup"><div class="spinner"></div><p id="checkup-loading-text">🤖 診断中...</p></div>
+        <div id="checkup-results"></div>
     </div>
 </div>
 
@@ -1484,6 +1504,43 @@ function cpAll(){
     navigator.clipboard.writeText(t).then(()=>alert(G.copies.length+'本まとめてコピーしました'));
 }
 
+// ========== 数字診断 ==========
+async function genCheckup(){
+    const v=id=>document.getElementById(id).value;
+    if(!v('ck-revenue')&&!v('ck-new')){showError('checkup-results','今月の数字を入力してください',genCheckup);return;}
+    document.getElementById('loading-checkup').classList.add('active');
+    startWait('checkup-loading-text','講座基準で数字を診断中です',30);
+    document.getElementById('checkup-results').innerHTML='';
+    try{
+        const r=await fetch('/api/checkup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+            monthly_target:v('ck-target'),revenue:v('ck-revenue'),new_clients:v('ck-new'),
+            contracts:v('ck-contracts'),avg_price:v('ck-price'),ad_cost:v('ck-adcost'),
+            salon_profile:getProfile()})});
+        const d=await r.json();
+        if(d.error){showError('checkup-results',d.error,genCheckup);}
+        else{
+            const stColor={good:'#dcfce7;color:#65a30d',warn:'#fef3c7;color:#b8860b',bad:'#fee2e2;color:#dc2626',info:'#f0f4ff;color:#6366f1'};
+            const stLabel={good:'良い',warn:'注意',bad:'要改善',info:'確認'};
+            let html='<div class="card"><h3>📊 診断結果</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px">';
+            (d.metrics||[]).forEach(m=>{html+=`<div style="border:1px solid var(--border);border-radius:12px;padding:12px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.8rem;color:var(--text-light)">${esc(m.label)}</span><span style="font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:700;background:${stColor[m.status]||stColor.info}">${stLabel[m.status]||''}</span></div><div style="font-size:1.5rem;font-weight:800;margin:4px 0">${esc(m.value)}</div><div style="font-size:.75rem;color:var(--text-light)">${esc(m.note)}</div></div>`;});
+            html+='</div>';
+            if(d.praise)html+=`<div style="margin-top:14px;padding:12px;background:#f0fdf4;border-radius:10px">🌟 ${esc(d.praise)}</div>`;
+            if(d.bottleneck)html+=`<div style="margin-top:10px;padding:14px;background:#fef2f2;border-radius:10px"><strong>🎯 一番のボトルネック: ${esc(d.bottleneck)}</strong><p style="font-size:.9rem;margin-top:6px">${esc(d.diagnosis||'')}</p></div>`;
+            html+='</div>';
+            if(d.actions&&d.actions.length){
+                html+='<div class="card"><h3>✅ 今月やるべき3手</h3>';
+                d.actions.forEach((a,i)=>{html+=`<div class="fb-step"><span class="fb-badge ${i===0?'bad':'partial'}">${i+1}${i===0?'（最優先）':''}</span><div><strong>${esc(a.title)}</strong> — ${esc(a.detail)}${a.tool_step?` <button class="copy-btn" style="margin-left:6px" onclick="goStep(${parseInt(a.tool_step)||1})">→ このツールで対策</button>`:''}</div></div>`;});
+                html+='</div>';
+            }
+            if(d.cheer)html+=`<div class="tips-box"><p>💪 ${esc(d.cheer)}</p></div>`;
+            document.getElementById('checkup-results').innerHTML=html;
+            markDone(9);
+        }
+    }catch(err){showError('checkup-results','診断に失敗しました',genCheckup);}
+    stopWait('checkup-loading-text');
+    document.getElementById('loading-checkup').classList.remove('active');
+}
+
 // ========== 自動保存・復元（閉じても続きから再開できる） ==========
 const SAVE_KEY='ai_staffroom_save_v1';
 function saveState(){
@@ -1491,7 +1548,7 @@ function saveState(){
         const fields={};
         document.querySelectorAll('input[id],textarea[id],select[id]').forEach(el=>{if(el.type==='checkbox')return;if(el.value)fields[el.id]=el.value;});
         const steps={};
-        for(let i=1;i<=8;i++){const el=document.getElementById('step-'+i);if(el)steps[i]=el.innerHTML;}
+        for(let i=1;i<=9;i++){const el=document.getElementById('step-'+i);if(el)steps[i]=el.innerHTML;}
         localStorage.setItem(SAVE_KEY,JSON.stringify({g:{...G,done:[...G.done]},fields,steps,at:Date.now()}));
     }catch(e){console.warn('[save] 保存失敗',e);}
 }
