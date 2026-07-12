@@ -1143,12 +1143,12 @@ async function genCopy(){
     const kw=(document.getElementById('cp-keyword').value||'').trim()||G.keyword;
     if(!kw){alert('お客様の悩みキーワードを入力してください');return;}
     G.keyword=kw;
-    document.getElementById('loading-copy').classList.add('active');startWait('copy-loading-text','15本生成→審査員が採点中です',150);document.getElementById('copy-results').innerHTML='';
+    document.getElementById('loading-copy').classList.add('active');startWait('copy-loading-text','15本生成→審査員が採点中です',150);stashPrev('copy-results');document.getElementById('copy-results').innerHTML='';
     startCopyProg();
     try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,salon_profile:getProfile()})});const d=await r.json();
         if(d.copies?.length>0){stopCopyProg();G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
         d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span>${cp.score?'<span class="copy-tag" style="background:#fef3c7;color:var(--gold);font-weight:700">🏆 '+cp.score+'点</span>':''}${cp.lf8?'<span class="copy-tag" style="background:#f5f3ff;color:var(--purple)">🎯 '+esc(cp.lf8)+'</span>':''}</div><div class="copy-effect">✨ ${esc(cp.effect)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button></div>`;});
-        c.innerHTML+='<button class="btn btn-outline" style="margin-top:4px" onclick="cpAll()">📋 10本まとめてコピー</button>';
+        c.innerHTML+='<button class="btn btn-outline" style="margin-top:4px" onclick="cpAll()">📋 10本まとめてコピー</button>'+renderPrev('copy-results');
         markDone(8);}else if(d.error){stopCopyProg();showError('copy-results',d.error,genCopy);}
     }catch(err){stopCopyProg();showError('copy-results','コピーの生成に失敗しました',genCopy);}
     stopWait('copy-loading-text');
@@ -1165,6 +1165,7 @@ async function genCounseling(){
     const menuNote=(document.getElementById('cs-menu').value||'').trim();
     document.getElementById('loading-counseling').classList.add('active');
     startWait('counseling-loading-text','AIが9ステップ台本を執筆中です',60);
+    stashPrev('counseling-results');
     document.getElementById('counseling-results').innerHTML='';
     document.getElementById('btn-to-roleplay').style.display='none';
     try{
@@ -1192,7 +1193,7 @@ async function genCounseling(){
             </div>`).join('')}</div>`;
             if(d.silence_rule||d.mindset) html+=`<div class="tips-box"><h4>🤫 沈黙の鉄則 と 心構え</h4><p>${esc(d.silence_rule||'')}</p><p style="margin-top:6px">${esc(d.mindset||'')}</p></div>`;
             html+='<button class="btn btn-outline" style="margin-top:4px" onclick="printResults(\'counseling-results\',\'カウンセリング台本\')">🖨 印刷・PDFで保存（カウンセリングシートの横に）</button>';
-            c.innerHTML=html;
+            c.innerHTML=html+renderPrev('counseling-results');
             markDone(5);
             document.getElementById('btn-to-roleplay').style.display='block';
         }
@@ -1312,6 +1313,7 @@ async function genLine(){
     const menuNote=(document.getElementById('ln-menu').value||'').trim();
     document.getElementById('loading-line').classList.add('active');
     startWait('line-loading-text','AIが6通のLINE配信文を執筆中です',90);
+    stashPrev('line-results');
     document.getElementById('line-results').innerHTML='';
     document.getElementById('btn-to-copy').style.display='none';
     try{
@@ -1330,7 +1332,7 @@ async function genLine(){
             </div>`).join('');
             if(d.operation_tips) html+=`<div class="card"><h3>⚙️ 運用のコツ</h3><ul class="product-features">${d.operation_tips.map(t=>'<li>'+esc(t)+'</li>').join('')}</ul></div>`;
             html+='<button class="btn btn-outline" style="margin-top:4px" onclick="printResults(\'line-results\',\'LINE 5日間ステップ配信\')">🖨 印刷・PDFで保存</button>';
-            c.innerHTML=html;
+            c.innerHTML=html+renderPrev('line-results');
             markDone(7);
             document.getElementById('btn-to-copy').style.display='block';
         }
@@ -1339,6 +1341,24 @@ async function genLine(){
     document.getElementById('loading-line').classList.remove('active');
 }
 function lnClip(btn){const t=btn.closest('.line-msg-card').querySelector('.line-msg-body').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 本文をコピー';},2000);});}
+
+// ========== 世代比較（前回の結果を残す） ==========
+let PREV={};
+function stashPrev(containerId){
+    const el=document.getElementById(containerId);
+    if(!el||!el.innerHTML.trim())return;
+    const clone=el.cloneNode(true);
+    clone.querySelectorAll('.prev-block').forEach(d=>d.remove());
+    if(!clone.innerHTML.trim())return;
+    PREV[containerId]=PREV[containerId]||[];
+    PREV[containerId].unshift(clone.innerHTML);
+    PREV[containerId]=PREV[containerId].slice(0,3);
+}
+function renderPrev(containerId){
+    const list=PREV[containerId]||[];
+    if(!list.length)return '';
+    return '<details class="prev-block" style="margin-top:16px"><summary style="cursor:pointer;font-size:.85rem;color:var(--text-light);padding:8px;background:#f8f4f2;border-radius:8px">🕐 前回までの生成結果を見比べる（'+list.length+'件）</summary>'+list.map((h,i)=>'<div style="opacity:.9;border-top:2px dashed var(--border);margin-top:12px;padding-top:12px"><div style="font-size:.78rem;font-weight:700;color:var(--text-light)">── '+(i+1)+'回前の結果 ──</div>'+h+'</div>').join('')+'</details>';
+}
 
 // ========== 画面内エラー表示 ==========
 function showError(containerId, msg, retryFn){
