@@ -314,9 +314,9 @@
             <div class="tool-card" data-step="2" onclick="goStep(2)"><span class="tc-badge">単体OK</span><div class="tc-emoji">👥</div><div class="tc-name">お客様像をつくる</div><div class="tc-desc">悩みキーワードを入れると「狙うべきお客様像」を5人自動生成</div><div class="tc-done">✓ 実行済み</div></div>
             <div class="tool-card" data-step="3" onclick="goStep(3)"><span class="tc-badge">単体OK</span><div class="tc-emoji">💰</div><div class="tc-name">価格設定を決める</div><div class="tc-desc">目標月商を入れると「1回あたりの最低ライン料金」を講座式で逆算</div><div class="tc-done">✓ 実行済み</div></div>
             <div class="tool-card" data-step="4" onclick="goStep(4)"><div class="tc-emoji">📦</div><div class="tc-name">コースメニューをつくる</div><div class="tc-desc">松竹梅の3段メニューを講座ルール（梅の料金逆転など）で自動設計</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="5" onclick="goStep(5)"><span class="tc-badge">単体OK</span><div class="tc-emoji">📜</div><div class="tc-name">カウンセリング台本をつくる</div><div class="tc-desc">読み上げるだけで提案できる「9ステップのセリフ台本」を作成</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="6" onclick="goStep(6)"><span class="tc-badge">単体OK</span><div class="tc-emoji">🥊</div><div class="tc-name">接客の練習をする</div><div class="tc-desc">AIがお客様役になってロープレ。断り文句の切り返しを何度でも練習</div><div class="tc-done">✓ 実行済み</div></div>
-            <div class="tool-card" data-step="7" onclick="goStep(7)"><span class="tc-badge">単体OK</span><div class="tc-emoji">💬</div><div class="tc-name">LINEの配信文をつくる</div><div class="tc-desc">登録直後〜5日目までのステップ配信をコピペできる完成形で作成</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="5" onclick="goStep(5)"><span class="tc-badge">単体OK</span><div class="tc-emoji">📜</div><div class="tc-name">カウンセリング台本をつくる</div><div class="tc-desc">専用GPTが9ステップのセリフ台本を作成（無料・何度でも）</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="6" onclick="goStep(6)"><span class="tc-badge">単体OK</span><div class="tc-emoji">🥊</div><div class="tc-name">接客の練習をする</div><div class="tc-desc">専用GPTがお客様役に。断り文句の切り返しを何度でも練習（無料）</div><div class="tc-done">✓ 実行済み</div></div>
+            <div class="tool-card" data-step="7" onclick="goStep(7)"><span class="tc-badge">単体OK</span><div class="tc-emoji">💬</div><div class="tc-name">LINEの配信文をつくる</div><div class="tc-desc">専用GPTが5日間の配信文をコピペ完成形で作成（無料・何度でも）</div><div class="tc-done">✓ 実行済み</div></div>
             <div class="tool-card" data-step="8" onclick="goStep(8)"><span class="tc-badge">単体OK</span><div class="tc-emoji">✒️</div><div class="tc-name">キャッチコピーをつくる</div><div class="tc-desc">15本作って審査員AIが採点、90点以上の上位10本だけをお届け</div><div class="tc-done">✓ 実行済み</div></div>
             <div class="tool-card" data-step="9" onclick="goStep(9)"><span class="tc-badge">単体OK</span><div class="tc-emoji">📊</div><div class="tc-name">今月の数字を診断する</div><div class="tc-desc">月商・新規数・成約数を入れると、ボトルネックと「今月やるべき3手」がわかる</div><div class="tc-done">✓ 実行済み</div></div>
             <div class="tool-card" data-step="10" onclick="goStep(10)"><span class="tc-badge">単体OK</span><div class="tc-emoji">📣</div><div class="tc-name">広告の結果を診断する</div><div class="tc-desc">広告管理画面のスクショや数字を貼るだけで「当たりか外れか」をプロ基準でジャッジ</div><div class="tc-done">✓ 実行済み</div></div>
@@ -476,78 +476,59 @@
 
     <!-- Step 5: カウンセリング台本 -->
     <div class="step-content" id="step-5">
-        <div class="card"><h3>カウンセリング9ステップ台本 <span class="ai-badge">🤖 AI生成</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">講座メソッド「売れるカウンセリング9ステップ」に沿ったあなた専用の台本を生成します。①〜④を通していればその情報を自動で使います。<strong>このステップだけ単体で使ってもOK</strong>——下に直接入力してください。</p>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:10px">
-                <div class="form-group" style="margin-bottom:0"><label>お客様の悩みキーワード（必須）</label><input type="text" class="form-input" id="cs-keyword" placeholder="例: 頭痛、小顔、抜け毛"></div>
-                <div class="form-group" style="margin-bottom:0"><label>メニュー情報（任意・自由記述）</label><input type="text" class="form-input" id="cs-menu" placeholder="例: 12回コース156,000円、お試し3回46,800円"></div>
+        <div class="card"><h3>📜 カウンセリング台本をつくる <span class="ai-badge" style="background:#10a37f">GPTで作る（API代0円）</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">講座メソッド「売れるカウンセリング9ステップ」を仕込んだ専用GPTが、読み上げるだけの台本を作ります。無料で何度でも作り直せます。</p>
+            <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:14px;margin-bottom:12px">
+                <strong>使い方（2タップ）</strong>
+                <ol style="margin:8px 0 0 20px;font-size:.9rem;line-height:1.9">
+                    <li>下のボタンで<strong>あなたの店の情報をコピー</strong>（自店プロフィール・キーワード・お客様像・メニューを自動でまとめます）</li>
+                    <li><strong>専用GPTを開いて貼り付け</strong>るだけ。すぐ作成が始まります</li>
+                </ol>
             </div>
-            <p style="font-size:.75rem;color:var(--text-light);margin-bottom:10px">※ ④で商品設計済みならメニュー欄は空欄でOK（設計内容を自動で使います）</p>
-            <button class="btn" onclick="genCounseling()">AIで台本を作成</button>
-            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genCounseling()">再生成</button>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn" onclick="copyBrief('script',this)">📋 ①店の情報をコピー</button>
+                <button class="btn" style="background:#10a37f" onclick="openGpt('script')">🚀 ②専用GPTを開く</button>
+            </div>
+            <p style="font-size:.75rem;color:var(--text-light);margin-top:10px">💡 ChatGPT無料プランでも使えます。台本ができたら印刷して、カウンセリングシートの横に置いてください。</p>
         </div>
-        <div class="loading" id="loading-counseling"><div class="spinner"></div><p id="counseling-loading-text">🤖 AIが9ステップ台本を作成中...（30秒ほどかかります）</p></div>
-        <div id="counseling-results"></div>
-        <button class="btn btn-next" id="btn-to-roleplay" style="display:none" onclick="goStep(6)">→ ロープレ道場で特訓する</button>
     </div>
 
-    <!-- Step 6: ロープレ道場 -->
     <div class="step-content" id="step-6">
-        <div class="card"><h3>反論処理・ロープレ道場 <span class="ai-badge">🤖 対話AI</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">ペルソナをAIが「新規のお客様」として演じます。カウンセリング9ステップを24時間いつでも特訓。最後に「採点する」で講師AIのフィードバックがもらえます。<strong>単体で使う場合</strong>はキーワードを入れて「ペルソナを作って開始」を押すだけ。</p>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-                <div class="form-group" style="flex:1;min-width:220px;margin-bottom:0"><label>練習相手のお客様（ペルソナ）</label><select class="form-input" id="rp-persona-select"></select></div>
-                <button class="btn" onclick="rpStart()">この方で練習開始</button>
+        <div class="card"><h3>🥊 接客の練習をする <span class="ai-badge" style="background:#10a37f">GPTで作る（API代0円）</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">専用GPTがあなたのお客様役になってロープレ。断り文句への切り返しを何度でも練習でき、「採点して」と送ると講師モードで9ステップ採点してくれます。</p>
+            <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:14px;margin-bottom:12px">
+                <strong>使い方（2タップ）</strong>
+                <ol style="margin:8px 0 0 20px;font-size:.9rem;line-height:1.9">
+                    <li>下のボタンで<strong>あなたの店の情報をコピー</strong>（自店プロフィール・キーワード・お客様像・メニューを自動でまとめます）</li>
+                    <li><strong>専用GPTを開いて貼り付け</strong>るだけ。すぐ作成が始まります</li>
+                </ol>
             </div>
-            <div id="rp-quick" style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)">
-                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-                    <div class="form-group" style="flex:1;min-width:220px;margin-bottom:0"><label>ペルソナがまだない方：悩みキーワードから自動生成</label><input type="text" class="form-input" id="rp-keyword" placeholder="例: 頭痛、小顔、抜け毛"></div>
-                    <button class="btn btn-outline" id="rp-quick-btn" onclick="rpQuickStart()">🤖 ペルソナを作って開始</button>
-                </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn" onclick="copyBrief('roleplay',this)">📋 ①店の情報をコピー</button>
+                <button class="btn" style="background:#10a37f" onclick="openGpt('roleplay')">🚀 ②専用GPTを開く</button>
             </div>
-        </div>
-        <div id="rp-arena" style="display:none">
-            <div class="card">
-                <div class="rp-status">
-                    <span>お客様の信頼度</span>
-                    <div class="rp-trust-bar"><div class="rp-trust-fill" id="rp-trust-fill"></div></div>
-                    <span id="rp-trust-num">30</span>
-                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="rp-show-inner" checked> 心の声を表示</label>
-                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="rp-voice-out"> 🔊 声で聞く</label>
-                </div>
-                <div class="rp-chat" id="rp-chat"></div>
-                <div class="rp-input-row">
-                    <textarea id="rp-input" placeholder="お客様への声かけを入力...（例: 今日はどのようなお悩みでいらっしゃいましたか？）"></textarea>
-                    <button class="btn btn-outline" id="rp-mic-btn" onclick="rpMic()" title="声で話す">🎤</button>
-                    <button class="btn" id="rp-send-btn" onclick="rpSend()">送信</button>
-                </div>
-                <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-                    <button class="btn btn-outline btn-sm" onclick="rpFeedback()">📝 採点する（講師AIのフィードバック）</button>
-                    <button class="btn btn-outline btn-sm" onclick="rpStart()">🔄 最初からやり直す</button>
-                </div>
-            </div>
-            <div class="loading" id="loading-feedback"><div class="spinner"></div><p>🤖 講師AIが採点中...</p></div>
-            <div id="rp-feedback"></div>
+            <p style="font-size:.75rem;color:var(--text-light);margin-top:10px">💡 音声入力（スマホのマイクボタン）を使うと、実際の接客に近い練習になります。</p>
         </div>
     </div>
 
-    <!-- Step 7: LINEステップ配信 -->
     <div class="step-content" id="step-7">
-        <div class="card"><h3>公式LINE 5日間シナリオ <span class="ai-badge">🤖 AI生成</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">教育6ステップ×カウンセリング9ステップの心理を組み込んだ、登録直後〜5日目までのステップ配信（計6通）を一括生成。そのままLINE管理画面にコピペできます。<strong>このステップだけ単体で使ってもOK</strong>です。</p>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:10px">
-                <div class="form-group" style="margin-bottom:0"><label>お客様の悩みキーワード（必須）</label><input type="text" class="form-input" id="ln-keyword" placeholder="例: 頭痛、小顔、抜け毛"></div>
-                <div class="form-group" style="margin-bottom:0"><label>オファーするメニュー（任意・自由記述）</label><input type="text" class="form-input" id="ln-menu" placeholder="例: 初回体験3,980円、12回コース156,000円"></div>
+        <div class="card"><h3>💬 LINEの配信文をつくる <span class="ai-badge" style="background:#10a37f">GPTで作る（API代0円）</span></h3>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">教育6ステップを仕込んだ専用GPTが、登録直後〜5日目までの6通をコピペ完成形で作ります。無料で何度でも作り直せます。</p>
+            <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:14px;margin-bottom:12px">
+                <strong>使い方（2タップ）</strong>
+                <ol style="margin:8px 0 0 20px;font-size:.9rem;line-height:1.9">
+                    <li>下のボタンで<strong>あなたの店の情報をコピー</strong>（自店プロフィール・キーワード・お客様像・メニューを自動でまとめます）</li>
+                    <li><strong>専用GPTを開いて貼り付け</strong>るだけ。すぐ作成が始まります</li>
+                </ol>
             </div>
-            <button class="btn" onclick="genLine()">AIで5日間シナリオを生成</button>
-            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genLine()">再生成</button>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn" onclick="copyBrief('line',this)">📋 ①店の情報をコピー</button>
+                <button class="btn" style="background:#10a37f" onclick="openGpt('line')">🚀 ②専用GPTを開く</button>
+            </div>
+            <p style="font-size:.75rem;color:var(--text-light);margin-top:10px">💡 できた配信文はLINE公式アカウントの「ステップ配信」にそのまま貼り付けてください。</p>
         </div>
-        <div class="loading" id="loading-line"><div class="spinner"></div><p id="line-loading-text">🤖 AIが6通のシナリオを執筆中...（40秒ほどかかります）</p></div>
-        <div id="line-results"></div>
-        <button class="btn btn-next" id="btn-to-copy" style="display:none" onclick="goStep(8)">→ AIコピー生成へ</button>
     </div>
 
-    <!-- Step 8: AIコピー -->
     <div class="step-content" id="step-8">
         <div class="card"><h3>キャッチコピー自動生成 <span class="ai-badge">🤖 AI生成</span></h3>
             <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">ペルソナと商品情報をもとに、10種類の心理テクニックでコピーを自動生成します。<strong>単体で使う場合</strong>はキーワードだけ入れてください。</p>
@@ -1311,6 +1292,7 @@ function csClip(btn){const t=btn.parentElement.querySelector('.cs-script').textC
 let RP={persona:null,history:[],trust:30,busy:false};
 function rpPopulatePersonas(){
     const sel=document.getElementById('rp-persona-select');
+    if(!sel)return; // GPT方式に移行済みのため要素なし
     if(!G.personas||G.personas.length===0){sel.innerHTML='<option value="">②でペルソナを生成してください</option>';return;}
     sel.innerHTML=G.personas.map((p,i)=>`<option value="${i}">${esc(p.name)}（${esc(p.type_label)} / ${esc(p.age)}）</option>`).join('');
 }
@@ -1567,6 +1549,40 @@ function cpAll(){
     navigator.clipboard.writeText(t).then(()=>alert(G.copies.length+'本まとめてコピーしました'));
 }
 
+// ========== GPTs連携（台本・ロープレ・LINE） ==========
+const GPTS_URLS={
+    script:'',   // カウンセリング台本GPTのURL（設定してください）
+    roleplay:'', // 接客ロープレGPTのURL
+    line:'',     // LINE 5日間シナリオGPTのURL
+};
+function openGpt(kind){
+    const url=GPTS_URLS[kind];
+    if(!url){alert('専用GPTのURLがまだ設定されていません。先に「①店の情報をコピー」して、お使いのChatGPTやGeminiに貼り付けても同じように作れます。');return;}
+    window.open(url,'_blank');
+}
+function copyBrief(kind,btn){
+    const kindName={script:'カウンセリング台本',roleplay:'接客ロープレ',line:'LINEの5日間ステップ配信'}[kind];
+    let t=`【依頼】${kindName}を作ってください。以下が私の店の情報です。\n\n`;
+    const prof=getProfile();
+    t+='■ 自店情報\n'+(prof||'（未登録）')+'\n\n';
+    if(G.keyword)t+='■ お客様の悩みキーワード\n'+G.keyword+'\n\n';
+    if(G.personas&&G.personas.length){
+        t+='■ お客様像（ペルソナ）\n';
+        G.personas.slice(0,3).forEach(p=>{t+=`- ${p.name}（${p.type_label}/${p.age}/${p.occupation}）: ${p.inner_voice}\n`;});
+        t+='\n';
+    }
+    if(G.products){
+        t+='■ メニュー\n';
+        ['pine','bamboo','plum'].forEach(k=>{const m=G.products[k];if(m)t+=`- ${m.rank}: ${m.name} ${m.raw_price_display}/${m.sessions_display}/${m.duration||''}\n`;});
+        t+='\n';
+    }
+    if(kind==='roleplay')t+='あなたはこのお客様像の新規客役になってください。私がカウンセリング役です。最初の来店シーンから始めてください。\n';
+    navigator.clipboard.writeText(t).then(()=>{
+        btn.textContent='✓ コピーしました！次に②を押してGPTに貼り付け';
+        setTimeout(()=>{btn.textContent='📋 ①店の情報をコピー';},4000);
+    });
+}
+
 // ========== 広告診断 ==========
 const AD_DESTS={
     'Instagram広告':[
@@ -1780,7 +1796,7 @@ async function genCheckup(){
 
 // ========== 自動保存・復元（閉じても続きから再開できる） ==========
 const SAVE_KEY='ai_staffroom_save_v1';
-const UI_VERSION='v3'; // 画面構造を変えたら上げる（古い保存HTMLの復元を防ぐ）
+const UI_VERSION='v4'; // 画面構造を変えたら上げる（古い保存HTMLの復元を防ぐ）
 function saveState(){
     try{
         const fields={};
