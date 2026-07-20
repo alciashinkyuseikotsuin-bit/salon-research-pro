@@ -286,7 +286,7 @@
         <p style="text-align:center;color:var(--text-light);font-size:.9rem;margin:4px 0 14px">やりたいことを選んでください。<strong>どれも単体で使えます。</strong></p>
         <div id="restore-banner" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.85rem;display:none">
             💾 前回のデータを復元しました（<span id="restore-info"></span>）
-            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="resetState()">🗑 全部消して最初から</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="resetState()">🗑 すべての入力・結果を消す</button>
         </div>
 
                 <div class="home-flow-banner" onclick="goStep(1)">
@@ -1407,10 +1407,17 @@ function adCompareHtml(rec,prev){
     return `<div class="card"><h3>📈 前回の診断との比較 <span style="font-size:.75rem;color:var(--text-light)">（前回: ${esc(prev.date)}・${esc(prev.dest)}）</span></h3>${scoreLine}
     <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr style="border-bottom:1px solid var(--border);font-size:.75rem;color:var(--text-light)"><th style="text-align:left;padding:6px 10px">指標</th><th style="text-align:right">前回</th><th style="text-align:right">今回</th><th style="text-align:left;padding-left:10px">変化</th></tr>${rows}</table></div></div>`;
 }
+function adResetHist(){
+    if(!confirm('広告診断の履歴をすべて消します。よろしいですか？'))return;
+    localStorage.removeItem(AD_HIST_KEY);
+    alert('履歴を消しました。次の診断から新しく記録を始めます');
+    document.querySelectorAll('#adcheck-results .prev-block').forEach(el=>el.remove());
+}
 function adHistHtml(hist){
     if(!hist.length)return '';
     return `<details class="prev-block" style="margin-top:12px"><summary style="cursor:pointer;font-size:.85rem;color:var(--text-light);padding:8px;background:#f8f4f2;border-radius:8px">🗂 これまでの診断履歴（${hist.length}件）</summary>
-    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:.85rem">${hist.map(h=>`<tr style="border-bottom:1px dashed var(--border)"><td style="padding:6px 8px;color:var(--text-light)">${esc(h.date)}</td><td style="padding:6px 8px">${esc(h.platform)}→${esc(h.dest)}</td><td style="padding:6px 8px;font-weight:700">${esc(h.verdict)}</td><td style="padding:6px 8px">${h.score!=null?h.score+'点':'—'}</td></tr>`).join('')}</table></div></details>`;
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:.85rem">${hist.map(h=>`<tr style="border-bottom:1px dashed var(--border)"><td style="padding:6px 8px;color:var(--text-light)">${esc(h.date)}</td><td style="padding:6px 8px">${esc(h.platform)}→${esc(h.dest)}</td><td style="padding:6px 8px;font-weight:700">${esc(h.verdict)}</td><td style="padding:6px 8px">${h.score!=null?h.score+'点':'—'}</td></tr>`).join('')}</table></div>
+    <div style="text-align:right;margin-top:8px"><button class="btn btn-outline btn-sm" onclick="adResetHist()">🗑 この履歴を全部消す</button></div></details>`;
 }
 let AD_IMAGES=[];
 function handleAdFiles(input){
@@ -1534,11 +1541,18 @@ function ckCompareHtml(rec,prev){
     <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr style="border-bottom:1px solid var(--border);font-size:.75rem;color:var(--text-light)"><th style="text-align:left;padding:6px 10px">項目</th><th style="text-align:right">前回</th><th style="text-align:right">今回</th><th style="text-align:left;padding-left:10px">変化</th></tr>${rows}</table></div>
     <p style="font-size:.78rem;color:var(--text-light);margin-top:8px">💡 毎月末に診断すると、月ごとの推移が積み上がっていきます。</p></div>`;
 }
+function ckResetHist(){
+    if(!confirm('数字診断の履歴（月ごとの推移）をすべて消します。よろしいですか？'))return;
+    localStorage.removeItem(CK_HIST_KEY);
+    alert('履歴を消しました。次の診断から新しく記録を始めます');
+    document.querySelectorAll('#checkup-results .prev-block').forEach(el=>el.remove());
+}
 function ckHistHtml(hist){
     if(hist.length<2)return '';
     return `<details class="prev-block" style="margin-top:12px"><summary style="cursor:pointer;font-size:.85rem;color:var(--text-light);padding:8px;background:#f8f4f2;border-radius:8px">🗂 これまでの月次推移（${hist.length}件）</summary>
     <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:.85rem"><tr style="border-bottom:1px solid var(--border);font-size:.72rem;color:var(--text-light)"><th style="text-align:left;padding:6px 8px">日付</th><th style="text-align:right">月商</th><th style="text-align:right">利益</th><th style="text-align:right">成約率</th><th style="text-align:left;padding-left:8px">課題</th></tr>
-    ${hist.map(h=>{const d=ckDerive(h.numbers);return `<tr style="border-bottom:1px dashed var(--border)"><td style="padding:6px 8px;color:var(--text-light)">${esc(h.date)}</td><td style="padding:6px 8px;text-align:right">${(d['月商']?.v||0).toLocaleString()}円</td><td style="padding:6px 8px;text-align:right">${d['利益']?d['利益'].v.toLocaleString()+'円':'—'}</td><td style="padding:6px 8px;text-align:right">${d['成約率']?d['成約率'].v+'%':'—'}</td><td style="padding:6px 8px">${esc(h.bottleneck||'')}</td></tr>`;}).join('')}</table></div></details>`;
+    ${hist.map(h=>{const d=ckDerive(h.numbers);return `<tr style="border-bottom:1px dashed var(--border)"><td style="padding:6px 8px;color:var(--text-light)">${esc(h.date)}</td><td style="padding:6px 8px;text-align:right">${(d['月商']?.v||0).toLocaleString()}円</td><td style="padding:6px 8px;text-align:right">${d['利益']?d['利益'].v.toLocaleString()+'円':'—'}</td><td style="padding:6px 8px;text-align:right">${d['成約率']?d['成約率'].v+'%':'—'}</td><td style="padding:6px 8px">${esc(h.bottleneck||'')}</td></tr>`;}).join('')}</table></div>
+    <div style="text-align:right;margin-top:8px"><button class="btn btn-outline btn-sm" onclick="ckResetHist()">🗑 この履歴を全部消す</button></div></details>`;
 }
 
 // ========== 数字診断 ==========
