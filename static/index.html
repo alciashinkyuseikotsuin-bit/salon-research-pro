@@ -1447,11 +1447,11 @@ async function genAdCheck(){
     if(!AD_STATE.platform||!AD_STATE.dest){showError('adcheck-results','STEP1とSTEP2をタップして選んでください',genAdCheck);return;}
     if(!hasNum&&!text&&!AD_IMAGES.length){showError('adcheck-results','数字を入力するか、スクショ・テキストを添付してください',genAdCheck);return;}
     document.getElementById('loading-adcheck').classList.add('active');
-    startWait('adcheck-loading-text','プロ基準で広告をジャッジ中です',45);
+    startWait('adcheck-loading-text',window._adUseAI?'AIが詳しく分析中です':'プロ基準で判定中です',window._adUseAI?45:2);
     stashPrev('adcheck-results');
     document.getElementById('adcheck-results').innerHTML='';
     try{
-        const r=await fetch('/api/ad-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:AD_STATE.platform,objective:'誘導先: '+AD_STATE.dest,numbers:numbers,text:text,images:AD_IMAGES,salon_profile:getProfile()})});
+        const r=await fetch('/api/ad-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:AD_STATE.platform,objective:'誘導先: '+AD_STATE.dest,numbers:numbers,text:text,images:AD_IMAGES,salon_profile:getProfile(),use_ai:window._adUseAI||false})});
         const d=await r.json();
         if(d.error){showError('adcheck-results',d.error,genAdCheck);}
         else{
@@ -1478,6 +1478,7 @@ async function genAdCheck(){
                 html+='</div>';
             }
             if(d.next_action)html+=`<div class="tips-box"><p>👉 <strong>明日やること:</strong> ${esc(d.next_action)}</p></div>`;
+            if(d.rule_based)html+=`<div style="text-align:center;margin-top:10px"><button class="btn btn-outline" onclick="window._adUseAI=true;genAdCheck();window._adUseAI=false;">🤖 AIにもっと詳しく分析してもらう（あなたの店の文脈込み・約45秒）</button></div>`;
             // 前回比較と履歴（数値入力がある時だけ記録）
             if(hasNum){
                 const hist=adGetHist();

@@ -551,9 +551,12 @@ def api_ad_check():
         if not has_numbers and not text and not images:
             return jsonify({'error': '数字を入力するか、スクショ・テキストを入れてください'}), 400
 
+        # 数値のみの診断はルールベース（0円・即時）。画像/テキスト読取やAI講評は明示指定時のみ
+        use_ai = bool(data.get('use_ai')) or bool(images) or bool(text)
         result = run_ad_check(platform=platform, objective=objective,
                               numbers=numbers if has_numbers else None,
-                              text=text, images=images, salon_profile=salon_profile)
+                              text=text, images=images, salon_profile=salon_profile,
+                              use_ai=use_ai)
         return jsonify(result)
 
     except Exception as e:
