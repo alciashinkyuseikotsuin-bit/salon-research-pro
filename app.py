@@ -350,6 +350,7 @@ def api_copywrite():
 
 # ========== API: カウンセリング台本生成 ==========
 
+# 【未使用】カウンセリング台本はGPTs方式へ移行済み（互換のため残置）
 @app.route('/api/counseling', methods=['POST'])
 def api_counseling():
     """カウンセリング9ステップ台本生成API（Claude API連携）"""
@@ -387,6 +388,7 @@ def api_counseling():
 
 # ========== API: LINE 5日間シナリオ生成 ==========
 
+# 【未使用】LINEシナリオはGPTs方式へ移行済み（互換のため残置）
 @app.route('/api/line-scenario', methods=['POST'])
 def api_line_scenario():
     """公式LINEステップ配信シナリオ生成API（Claude API連携）"""
@@ -424,6 +426,7 @@ def api_line_scenario():
 
 # ========== API: ロープレ道場 ==========
 
+# 【未使用】ロープレはGPTs方式へ移行済み（互換のため残置）
 @app.route('/api/roleplay', methods=['POST'])
 def api_roleplay():
     """お客様AIとのロールプレイAPI（Claude API連携）"""
@@ -452,6 +455,7 @@ def api_roleplay():
         return jsonify({'error': 'お客様AIの応答に失敗しました。もう一度お試しください'}), 500
 
 
+# 【未使用】ロープレ採点はGPTs方式へ移行済み（互換のため残置）
 @app.route('/api/roleplay/feedback', methods=['POST'])
 def api_roleplay_feedback():
     """ロープレの採点・フィードバックAPI（Claude API連携）"""

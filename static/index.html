@@ -376,13 +376,13 @@
                 </div>
             </div>
             <div id="results-list"></div>
-            <button class="btn btn-next" onclick="goStep(2)">→ AIペルソナ生成へ</button>
+            <button class="btn btn-next" onclick="goStep(2)">👥 次へ：お客様像をつくる</button>
         </div>
     </div>
 
     <!-- Step 2: AIペルソナ -->
     <div class="step-content" id="step-2">
-        <div class="card"><h3>ペルソナ自動生成 <span class="ai-badge">🤖 AI生成</span></h3>
+        <div class="card"><h3>お客様像をつくる <span class="ai-badge">🤖 AI生成</span></h3>
             <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">リサーチの高優先度結果をもとに、プロのマーケター目線でClaude AIが5人のターゲットペルソナを自動生成します。</p>
             <div class="form-group"><label>ターゲットの悩み</label><input type="text" class="form-input" id="persona-keyword" placeholder="例: 腰痛"></div>
             <button class="btn" onclick="genPersona()">AIでペルソナを生成</button>
@@ -400,7 +400,7 @@
             </div>
         </div>
         <div id="persona-results"></div>
-        <button class="btn btn-next" id="btn-to-pricing" style="display:none" onclick="goStep(3)">→ 単価シミュレーションへ</button>
+        <button class="btn btn-next" id="btn-to-pricing" style="display:none" onclick="goStep(3)">💰 次へ：価格設定を決める</button>
     </div>
 
     <!-- Step 3: 単価シミュレーション -->
@@ -411,7 +411,7 @@
             <p style="color:var(--text-light);font-size:.8rem;margin-bottom:10px">このペルソナたちに合った価格帯を検討しましょう</p>
             <div id="pricing-persona-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
         </div>
-        <div class="card"><h3>単価シミュレーション</h3>
+        <div class="card"><h3>価格設定を決める</h3>
             <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">目標売上から「1回あたりの理想単価」を逆算します。上で表示したペルソナを参考に、ターゲットに合った価格帯を検討してください。</p>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                 <div class="form-group"><label>月の目標売上（円）</label><input type="number" class="form-input" id="sim-target" value="1000000" step="100000"></div>
@@ -432,7 +432,7 @@
             </div>
         </div>
         <div id="pricing-results"></div>
-        <button class="btn btn-next" id="btn-to-product" style="display:none" onclick="goStep(4)">→ 商品設計へ進む</button>
+        <button class="btn btn-next" id="btn-to-product" style="display:none" onclick="goStep(4)">📦 次へ：コースメニューをつくる</button>
     </div>
 
     <!-- Step 4: 松竹梅商品設計 -->
@@ -443,7 +443,7 @@
             <p style="color:var(--text-light);font-size:.8rem;margin-bottom:10px">ペルソナの悩みや状況に合わせた商品設計を行いましょう</p>
             <div id="product-persona-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
         </div>
-        <div class="card"><h3>松竹梅 商品設計</h3>
+        <div class="card"><h3>コースメニューをつくる（松竹梅の3段構成）</h3>
             <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">③で算出した単価をもとに、竹コース（メイン商品）の回数・期間を設定して松竹梅の商品を自動設計します。ペルソナに合わせた商品設計を行いましょう。</p>
             <div class="sim-grid" id="unit-price-display" style="margin-bottom:14px;display:none">
                 <div class="sim-card" style="background:#eef2ff">
@@ -471,7 +471,7 @@
             </div>
         </div>
         <div id="product-results"></div>
-        <button class="btn btn-next" id="btn-to-counseling" style="display:none" onclick="goStep(5)">→ カウンセリング台本へ</button>
+        <button class="btn btn-next" id="btn-to-counseling" style="display:none" onclick="goStep(5)">📜 次へ：カウンセリング台本をつくる</button>
     </div>
 
     <!-- Step 5: カウンセリング台本 -->
@@ -489,6 +489,8 @@
                 <button class="btn" onclick="copyBrief('script',this)">📋 ①店の情報をコピー</button>
                 <button class="btn" style="background:#10a37f" onclick="openGpt('script')">🚀 ②専用GPTを開く</button>
             </div>
+            <div id="gpt-fallback-script" style="display:none;margin-top:10px"></div>
+            <button class="btn btn-next" style="margin-top:12px" onclick="goStep(6)">🥊 次へ：接客の練習をする</button>
             <p style="font-size:.75rem;color:var(--text-light);margin-top:10px">💡 ChatGPT無料プランでも使えます。台本ができたら印刷して、カウンセリングシートの横に置いてください。</p>
         </div>
     </div>
@@ -507,6 +509,8 @@
                 <button class="btn" onclick="copyBrief('roleplay',this)">📋 ①店の情報をコピー</button>
                 <button class="btn" style="background:#10a37f" onclick="openGpt('roleplay')">🚀 ②専用GPTを開く</button>
             </div>
+            <div id="gpt-fallback-roleplay" style="display:none;margin-top:10px"></div>
+            <button class="btn btn-next" style="margin-top:12px" onclick="goStep(7)">💬 次へ：LINEの配信文をつくる</button>
             <p style="font-size:.75rem;color:var(--text-light);margin-top:10px">💡 困ったら「ヒント」と送ると、今の場面で使える模範セリフを教えてくれます。練習が終わったら「採点して」で講師の採点。音声入力（スマホのマイクボタン）を使うと実際の接客に近づきます。</p>
         </div>
     </div>
@@ -525,13 +529,15 @@
                 <button class="btn" onclick="copyBrief('line',this)">📋 ①店の情報をコピー</button>
                 <button class="btn" style="background:#10a37f" onclick="openGpt('line')">🚀 ②専用GPTを開く</button>
             </div>
+            <div id="gpt-fallback-line" style="display:none;margin-top:10px"></div>
+            <button class="btn btn-next" style="margin-top:12px" onclick="goStep(8)">✒️ 次へ：キャッチコピーをつくる</button>
             <p style="font-size:.75rem;color:var(--text-light);margin-top:10px">💡 できた配信文はLINE公式アカウントの「ステップ配信」にそのまま貼り付けてください。</p>
         </div>
     </div>
 
     <div class="step-content" id="step-8">
         <div class="card"><h3>キャッチコピー自動生成 <span class="ai-badge">🤖 AI生成</span></h3>
-            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">ペルソナと商品情報をもとに、10種類の心理テクニックでコピーを自動生成します。<strong>単体で使う場合</strong>はキーワードだけ入れてください。</p>
+            <p style="color:var(--text-light);font-size:.9rem;margin-bottom:14px">15本つくって審査員AIが5つの基準で採点し、90点以上の上位10本だけをお届けします。<strong>単体で使う場合</strong>はキーワードだけ入れてください。</p>
             <div class="form-group" style="max-width:360px"><label>お客様の悩みキーワード（必須）</label><input type="text" class="form-input" id="cp-keyword" placeholder="例: 頭痛、小顔、抜け毛"></div>
             <button class="btn" onclick="genCopy()">AIでコピーを生成</button>
             <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="genCopy()">再生成</button>
@@ -651,13 +657,9 @@ function goStep(n) {
         }
         renderPersonaSummary('product-persona-summary', 'product-persona-list');
     }
-    // Step 6 (ロープレ道場): ペルソナ選択肢を更新
-    if(n===6) rpPopulatePersonas();
-    // Step 10 (広告診断): 目的フォームを初期化
-    if(n===10) updateAdForm();
     // Step 5〜8: クイック入力欄にキーワードをプリセット
-    const kwFields={5:'cs-keyword',6:'rp-keyword',7:'ln-keyword',8:'cp-keyword'};
-    if(kwFields[n]&&G.keyword){const el=document.getElementById(kwFields[n]);if(el&&!el.value)el.value=G.keyword;}
+    // ⑧コピーのキーワード欄だけプリセット
+    if(n===8&&G.keyword){const el=document.getElementById('cp-keyword');if(el&&!el.value)el.value=G.keyword;}
 }
 function markDone(n) { G.done.add(n); }
 function esc(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
@@ -1012,11 +1014,12 @@ async function genPersona(){
     const highPriority = G.results.filter(r => r.analysis && r.analysis.total_score >= 6);
     const resultsToSend = highPriority.length > 0 ? highPriority.slice(0, 20) : G.results.slice(0, 10);
     try{const r=await fetch('/api/persona',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,search_results:resultsToSend})});const d=await r.json();
-        if(d.personas?.length>0){G.personas=d.personas;const c=document.getElementById('persona-results');c.innerHTML='';const colors=['#6366f1','#dc2626','#8b5cf6','#ea580c','#65a30d'];
+        if(!d.personas||d.personas.length===0){showError('persona-results',d.error||'お客様像を作れませんでした',genPersona);}
+        else if(d.personas?.length>0){G.personas=d.personas;const c=document.getElementById('persona-results');c.innerHTML='';const colors=['#6366f1','#dc2626','#8b5cf6','#ea580c','#65a30d'];
         d.personas.forEach(p=>{c.innerHTML+=`<div class="persona-card" style="border-top-color:${colors[(p.id-1)%5]}"><div class="persona-header"><span class="persona-name">${esc(p.name)}</span><span class="persona-type-badge" style="background:${colors[(p.id-1)%5]}">${esc(p.type_label)}</span></div><div class="persona-info"><span class="persona-tag">${esc(p.age)}</span><span class="persona-tag">${esc(p.gender)}</span><span class="persona-tag">${esc(p.occupation)}</span><span class="persona-tag">${esc(p.family)}</span></div><div class="persona-detail"><strong>日常:</strong> ${esc(p.daily_pattern)}</div><div class="persona-detail"><strong>試したこと:</strong> ${esc(p.tried_solution)}</div><div class="persona-voice">${esc(p.inner_voice)}</div></div>`;});
         stopPersonaProg();
         markDone(2);document.getElementById('btn-to-pricing').style.display='block';}
-    }catch(err){stopPersonaProg();alert('エラー: '+err.message);}
+    }catch(err){stopPersonaProg();showError('persona-results','お客様像の生成に失敗しました',genPersona);}
     document.getElementById('loading-persona').classList.remove('active');
     document.getElementById('persona-progress').style.display='none';
 }
@@ -1040,7 +1043,7 @@ async function genPricing(){
             stopPricingProg();
             document.getElementById('loading-pricing').classList.remove('active');
             document.getElementById('pricing-progress').style.display='none';
-            alert(d.error); return;
+            showError('pricing-results',d.error,genPricing); return;
         }
         stopPricingProg();
         G.pricing=d;
@@ -1076,7 +1079,7 @@ async function genPricing(){
             </div>`;
         markDone(3);
         document.getElementById('btn-to-product').style.display='block';
-    }catch(err){stopPricingProg();alert('エラー: '+err.message);}
+    }catch(err){stopPricingProg();showError('pricing-results','計算に失敗しました',genPricing);}
     document.getElementById('loading-pricing').classList.remove('active');
     document.getElementById('pricing-progress').style.display='none';
 }
@@ -1146,7 +1149,7 @@ async function genProduct(){
         if(d.error){
             document.getElementById('loading-product').classList.remove('active');
             document.getElementById('product-progress').style.display='none';
-            alert(d.error); return;
+            showError('product-results',d.error,genProduct); return;
         }
         G.products=d;
 
@@ -1216,9 +1219,10 @@ async function genProduct(){
             </ul>
             ${d.sales_tips.today_bonus?'<p style="margin-top:10px;padding:10px;background:#fef3c7;border-radius:8px"><strong>🎁 当日特典:</strong> '+esc(d.sales_tips.today_bonus)+'</p>':''}
         </div>`;
+        c.innerHTML+='<button class="btn btn-outline" style="margin-top:8px" onclick="printResults(\'product-results\',\'コースメニュー（松竹梅）\')">🖨 印刷・PDFで保存</button>';
         markDone(4);
         document.getElementById('btn-to-counseling').style.display='block';
-    }catch(err){stopProductProg();alert('エラー: '+err.message);}
+    }catch(err){stopProductProg();showError('product-results','メニュー設計に失敗しました',genProduct);}
     document.getElementById('loading-product').classList.remove('active');
     document.getElementById('product-progress').style.display='none';
 }
@@ -1233,236 +1237,29 @@ async function genCopy(){
     try{const r=await fetch('/api/copywrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,salon_profile:getProfile(),win_swipes:getWins()})});const d=await r.json();
         if(d.copies?.length>0){stopCopyProg();G.copies=d.copies;const c=document.getElementById('copy-results');c.innerHTML='';
         d.copies.forEach(cp=>{c.innerHTML+=`<div class="copy-card"><div class="copy-text">${esc(cp.copy)}</div><div class="copy-meta"><span class="copy-tag type">${esc(cp.label)}</span>${cp.score?'<span class="copy-tag" style="background:#fef3c7;color:var(--gold);font-weight:700">🏆 '+cp.score+'点</span>':''}${cp.lf8?'<span class="copy-tag" style="background:#f5f3ff;color:var(--purple)">🎯 '+esc(cp.lf8)+'</span>':''}</div><div class="copy-effect">✨ ${esc(cp.effect)}</div><div class="copy-usage">📍 ${esc(cp.usage)}</div><button class="copy-btn" onclick="cpClip(this)">📋 コピー</button><button class="copy-btn" style="margin-left:6px" onclick="markWin(this)">⭐ 当たり登録</button></div>`;});
-        c.innerHTML+='<button class="btn btn-outline" style="margin-top:4px" onclick="cpAll()">📋 10本まとめてコピー</button>'+renderPrev('copy-results');
+        c.innerHTML+='<button class="btn btn-outline" style="margin-top:4px" onclick="cpAll()">📋 全部まとめてコピー</button>'+renderPrev('copy-results');
         markDone(8);}else if(d.error){stopCopyProg();showError('copy-results',d.error,genCopy);}
     }catch(err){stopCopyProg();showError('copy-results','コピーの生成に失敗しました',genCopy);}
     stopWait('copy-loading-text');
     document.getElementById('loading-copy').classList.remove('active');
     document.getElementById('copy-progress').style.display='none';
 }
-function cpClip(btn){const t=btn.parentElement.querySelector('.copy-text').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 コピー';},2000);});}
+function cpClip(btn){const t=btn.parentElement.querySelector('.copy-text').textContent;safeCopy(t,()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 コピー';},2000);});}
 
-// ========== Step 5: カウンセリング台本 ==========
-async function genCounseling(){
-    const kw=(document.getElementById('cs-keyword').value||'').trim()||G.keyword;
-    if(!kw){alert('お客様の悩みキーワードを入力してください');return;}
-    G.keyword=kw;
-    const menuNote=(document.getElementById('cs-menu').value||'').trim();
-    document.getElementById('loading-counseling').classList.add('active');
-    startWait('counseling-loading-text','AIが9ステップ台本を執筆中です',60);
-    stashPrev('counseling-results');
-    document.getElementById('counseling-results').innerHTML='';
-    document.getElementById('btn-to-roleplay').style.display='none';
-    try{
-        const r=await fetch('/api/counseling',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,menu_note:menuNote,salon_profile:getProfile()})});
-        const d=await r.json();
-        if(d.error){showError('counseling-results',d.error,genCounseling);}
-        else{
-            G.counseling=d;
-            const c=document.getElementById('counseling-results');
-            let html='';
-            if(d.preparation) html+=`<div class="card"><h3>🪑 ${esc(d.preparation.title||'施術前の準備')}</h3><ul class="product-features">${(d.preparation.actions||[]).map(a=>'<li>'+esc(a)+'</li>').join('')}</ul></div>`;
-            if(d.mind_flow) html+=`<div class="card"><h3>🧠 3段階の心の動き</h3>${d.mind_flow.map(m=>`<div class="fb-step"><span class="fb-badge done">${m.order}. ${esc(m.state)}</span><div>${esc(m.description)}</div></div>`).join('')}</div>`;
-            html+=(d.steps||[]).map(s=>`<div class="cs-step-card">
-                <div><span class="cs-step-num">${s.step}</span><strong>${esc(s.name)}</strong> <span style="font-size:.8rem;color:var(--text-light)">— ${esc(s.goal||'')}</span></div>
-                <div class="cs-script">${esc(s.script||'')}</div>
-                <div class="cs-point">✔ ${esc(s.point||'')}</div>
-                <div class="cs-ng">✖ NG: ${esc(s.ng||'')}</div>
-                <button class="copy-btn" style="margin-top:6px" onclick="csClip(this)">📋 セリフをコピー</button>
-            </div>`).join('');
-            if(d.objections) html+=`<div class="card"><h3>🛡 断り文句への「魔法の質問」</h3>${d.objections.map(o=>`<div class="cs-objection">
-                <strong>💬「${esc(o.trigger)}」</strong>
-                <div style="font-size:.9rem;margin-top:6px"><strong>受け止め:</strong> ${esc(o.receive||'')}</div>
-                <div style="font-size:.95rem;margin-top:4px;color:var(--primary);font-weight:700">魔法の質問: ${esc(o.magic_question||'')}</div>
-                <div style="font-size:.9rem;margin-top:4px"><strong>その後:</strong> ${esc(o.follow||'')}</div>
-            </div>`).join('')}</div>`;
-            if(d.silence_rule||d.mindset) html+=`<div class="tips-box"><h4>🤫 沈黙の鉄則 と 心構え</h4><p>${esc(d.silence_rule||'')}</p><p style="margin-top:6px">${esc(d.mindset||'')}</p></div>`;
-            html+='<button class="btn btn-outline" style="margin-top:4px" onclick="printResults(\'counseling-results\',\'カウンセリング台本\')">🖨 印刷・PDFで保存（カウンセリングシートの横に）</button>';
-            c.innerHTML=html+renderPrev('counseling-results');
-            markDone(5);
-            document.getElementById('btn-to-roleplay').style.display='block';
-        }
-    }catch(err){showError('counseling-results','台本の生成に失敗しました',genCounseling);}
-    stopWait('counseling-loading-text');
-    document.getElementById('loading-counseling').classList.remove('active');
+// ========== 印刷・一括コピー ==========
+function printResults(containerId, title){
+    const el=document.getElementById(containerId);
+    if(!el||!el.innerHTML.trim()){alert('先に生成してください');return;}
+    const w=window.open('','_blank');
+    w.document.write('<html><head><title>'+title+'</title><style>body{font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;line-height:1.8;padding:28px;color:#1e293b}h3,h4{margin:16px 0 6px}button{display:none}div{page-break-inside:avoid}</style></head><body><h2>'+title+'</h2>'+el.innerHTML+'</body></html>');
+    w.document.close();setTimeout(()=>w.print(),300);
 }
-function csClip(btn){const t=btn.parentElement.querySelector('.cs-script').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 セリフをコピー';},2000);});}
-
-// ========== Step 6: ロープレ道場 ==========
-let RP={persona:null,history:[],trust:30,busy:false};
-function rpPopulatePersonas(){
-    const sel=document.getElementById('rp-persona-select');
-    if(!sel)return; // GPT方式に移行済みのため要素なし
-    if(!G.personas||G.personas.length===0){sel.innerHTML='<option value="">②でペルソナを生成してください</option>';return;}
-    sel.innerHTML=G.personas.map((p,i)=>`<option value="${i}">${esc(p.name)}（${esc(p.type_label)} / ${esc(p.age)}）</option>`).join('');
-}
-async function rpQuickStart(){
-    const kw=(document.getElementById('rp-keyword').value||'').trim();
-    if(!kw){alert('悩みキーワードを入力してください');return;}
-    G.keyword=G.keyword||kw;
-    const btn=document.getElementById('rp-quick-btn');
-    btn.disabled=true;btn.textContent='🤖 ペルソナ生成中...（20秒ほど）';
-    try{
-        const r=await fetch('/api/persona',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,search_results:[]})});
-        const d=await r.json();
-        if(d.personas?.length>0){
-            G.personas=d.personas;
-            rpPopulatePersonas();
-            rpStart();
-        }else{alert(d.error||'ペルソナ生成に失敗しました');}
-    }catch(err){alert('エラー: '+err.message);}
-    btn.disabled=false;btn.textContent='🤖 ペルソナを作って開始';
-}
-function rpStart(){
-    if(!G.personas||G.personas.length===0){alert('ペルソナがありません。下の「ペルソナを作って開始」を使うか、②で生成してください');return;}
-    const idx=parseInt(document.getElementById('rp-persona-select').value)||0;
-    RP={persona:G.personas[idx],history:[],trust:30,busy:false};
-    document.getElementById('rp-arena').style.display='block';
-    document.getElementById('rp-feedback').innerHTML='';
-    document.getElementById('rp-chat').innerHTML='';
-    rpSetTrust(30);
-    rpAppend('customer',`（${RP.persona.name}さんが来店し、カウンセリングシートを書き終えて席に着きました。メニュー表をチラッと見ていたようです）`,'');
-}
-function rpSetTrust(t){RP.trust=t;document.getElementById('rp-trust-fill').style.width=t+'%';document.getElementById('rp-trust-num').textContent=t;}
-function rpAppend(role,text,inner){
-    const chat=document.getElementById('rp-chat');
-    const div=document.createElement('div');
-    div.className='rp-msg '+role;
-    div.textContent=text;
-    chat.appendChild(div);
-    if(role==='customer'&&inner&&document.getElementById('rp-show-inner').checked){
-        const iv=document.createElement('div');
-        iv.className='rp-inner';
-        iv.textContent='💭 心の声: '+inner;
-        chat.appendChild(iv);
-    }
-    chat.scrollTop=chat.scrollHeight;
-}
-async function rpSend(){
-    if(RP.busy)return;
-    const input=document.getElementById('rp-input');
-    const msg=input.value.trim();
-    if(!msg)return;
-    if(!RP.persona){alert('「この方で練習開始」を押してください');return;}
-    RP.busy=true;
-    document.getElementById('rp-send-btn').textContent='...';
-    rpAppend('owner',msg,'');
-    input.value='';
-    try{
-        const r=await fetch('/api/roleplay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({persona:RP.persona,products:G.products,history:RP.history,owner_message:msg})});
-        const d=await r.json();
-        if(d.error){alert(d.error);}
-        else{
-            RP.history.push({role:'owner',text:msg});
-            RP.history.push({role:'customer',text:d.reply,trust:d.trust});
-            rpAppend('customer',d.reply,d.inner_voice);
-            rpSpeak(d.reply);
-            rpSetTrust(d.trust);
-        }
-    }catch(err){alert('エラー: '+err.message);}
-    RP.busy=false;
-    document.getElementById('rp-send-btn').textContent='送信';
-}
-document.addEventListener('keydown',e=>{
-    if(e.target&&e.target.id==='rp-input'&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();rpSend();}
-});
-async function rpFeedback(){
-    if(!RP.history||RP.history.length===0){alert('まずはお客様と会話してみましょう');return;}
-    document.getElementById('loading-feedback').classList.add('active');
-    document.getElementById('rp-feedback').innerHTML='';
-    try{
-        const r=await fetch('/api/roleplay/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({persona:RP.persona,products:G.products,history:RP.history})});
-        const d=await r.json();
-        if(d.error){alert(d.error);}
-        else{
-            const stMap={done:'できた',partial:'惜しい',missed:'未達'};
-            if(Array.isArray(d.advice))d.advice=d.advice.join('\n');
-            document.getElementById('rp-feedback').innerHTML=`<div class="card">
-                <div class="fb-score-circle"><div class="num">${d.total_score}<span style="font-size:1rem;color:var(--text-light)">点</span></div><div style="font-weight:700;color:var(--gold)">評価: ${esc(d.grade||'')}</div></div>
-                <h3>9ステップ採点</h3>
-                ${(d.step_scores||[]).map(s=>`<div class="fb-step"><span class="fb-badge ${s.status}">${s.step}. ${stMap[s.status]||s.status}</span><div><strong>${esc(s.name)}</strong> — ${esc(s.comment)}</div></div>`).join('')}
-                <div style="margin-top:14px;padding:12px;background:#f0fdf4;border-radius:10px"><strong>🌟 一番良かった場面:</strong><br>${esc(d.best_moment||'')}</div>
-                <div style="margin-top:10px;padding:12px;background:#fef2f2;border-radius:10px"><strong>🛡 反論処理の講評:</strong><br>${esc(d.objection_review||'')}</div>
-                <div style="margin-top:10px;padding:12px;background:#f0f4ff;border-radius:10px"><strong>📝 次はこう言う:</strong><br>${esc(d.advice||'')}</div>
-                <div style="margin-top:10px;font-size:.9rem;color:var(--text-light)"><strong>次の練習テーマ:</strong> ${esc(d.next_practice||'')}</div>
-            </div>`;
-            markDone(6);
-        }
-    }catch(err){alert('エラー: '+err.message);}
-    document.getElementById('loading-feedback').classList.remove('active');
+function cpAll(){
+    if(!G.copies||!G.copies.length){alert('先に生成してください');return;}
+    const t=G.copies.map((c,i)=>(i+1)+'. '+c.copy).join('\n');
+    safeCopy(t,()=>alert(G.copies.length+'本まとめてコピーしました'));
 }
 
-// ========== Step 7: LINE 5日間シナリオ ==========
-async function genLine(){
-    const kw=(document.getElementById('ln-keyword').value||'').trim()||G.keyword;
-    if(!kw){alert('お客様の悩みキーワードを入力してください');return;}
-    G.keyword=kw;
-    const menuNote=(document.getElementById('ln-menu').value||'').trim();
-    document.getElementById('loading-line').classList.add('active');
-    startWait('line-loading-text','AIが6通のLINE配信文を執筆中です',90);
-    stashPrev('line-results');
-    document.getElementById('line-results').innerHTML='';
-    document.getElementById('btn-to-copy').style.display='none';
-    try{
-        const r=await fetch('/api/line-scenario',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw,target_symptom:kw,personas:G.personas,products:G.products,menu_note:menuNote,salon_profile:getProfile()})});
-        const d=await r.json();
-        if(d.error){showError('line-results',d.error,genLine);}
-        else{
-            G.lineScenario=d;
-            const c=document.getElementById('line-results');
-            let html='';
-            if(d.strategy) html+=`<div class="tips-box"><h4>🗺 5日間の戦略</h4><p>${esc(d.strategy)}</p></div>`;
-            html+=(d.messages||[]).map(m=>`<div class="line-msg-card">
-                <div class="line-msg-head"><span>📅 ${esc(m.day)}（${esc(m.timing||'')}）｜${esc(m.title||'')}</span><span style="background:rgba(255,255,255,.25);padding:1px 8px;border-radius:8px;font-size:.72rem">${esc(m.education_step||'')}</span></div>
-                <div class="line-msg-body">${esc(m.body||'')}</div>
-                <div class="line-msg-aim">🎯 ねらい: ${esc(m.aim||'')} <button class="copy-btn" style="float:right" onclick="lnClip(this)">📋 本文をコピー</button></div>
-            </div>`).join('');
-            if(d.operation_tips) html+=`<div class="card"><h3>⚙️ 運用のコツ</h3><ul class="product-features">${d.operation_tips.map(t=>'<li>'+esc(t)+'</li>').join('')}</ul></div>`;
-            html+='<button class="btn btn-outline" style="margin-top:4px" onclick="printResults(\'line-results\',\'LINE 5日間ステップ配信\')">🖨 印刷・PDFで保存</button>';
-            c.innerHTML=html+renderPrev('line-results');
-            markDone(7);
-            document.getElementById('btn-to-copy').style.display='block';
-        }
-    }catch(err){showError('line-results','シナリオの生成に失敗しました',genLine);}
-    stopWait('line-loading-text');
-    document.getElementById('loading-line').classList.remove('active');
-}
-function lnClip(btn){const t=btn.closest('.line-msg-card').querySelector('.line-msg-body').textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓ コピーしました';setTimeout(()=>{btn.textContent='📋 本文をコピー';},2000);});}
-
-// ========== ロープレ音声（話す・聞く） ==========
-let rpRec=null;
-function rpMic(){
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){alert('このブラウザは音声入力に対応していません。ChromeかSafariでお試しください');return;}
-    const btn=document.getElementById('rp-mic-btn');
-    if(rpRec){rpRec.stop();return;}
-    rpRec=new SR();rpRec.lang='ja-JP';rpRec.interimResults=true;rpRec.continuous=true;
-    const input=document.getElementById('rp-input');
-    const base=input.value.trim();
-    rpRec.onresult=e=>{
-        let text='';
-        for(const r of e.results)text+=r[0].transcript;
-        input.value=(base?base+' ':'')+text;
-    };
-    rpRec.onend=()=>{rpRec=null;btn.textContent='🎤';btn.style.background='';};
-    rpRec.onerror=()=>{rpRec=null;btn.textContent='🎤';btn.style.background='';};
-    rpRec.start();
-    btn.textContent='⏹ 話し終わったら押す';btn.style.background='#fee2e2';
-}
-function rpSpeak(text){
-    const chk=document.getElementById('rp-voice-out');
-    if(!chk||!chk.checked||!window.speechSynthesis)return;
-    try{
-        speechSynthesis.cancel();
-        const u=new SpeechSynthesisUtterance(String(text).replace(/（[^）]*）/g,''));
-        u.lang='ja-JP';u.rate=1.05;u.pitch=1.15;
-        const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('ja'));
-        if(v)u.voice=v;
-        speechSynthesis.speak(u);
-    }catch(e){}
-}
-
-// ========== 勝ちスワイプ（当たりコピーの学習） ==========
 const WINS_KEY='ai_staffroom_wins';
 function getWins(){try{return JSON.parse(localStorage.getItem(WINS_KEY)||'[]');}catch(e){return[];}}
 function markWin(btn){
@@ -1478,75 +1275,18 @@ function markWin(btn){
     localStorage.setItem(WINS_KEY,JSON.stringify(wins));
 }
 
-// ========== 世代比較（前回の結果を残す） ==========
-let PREV={};
-function stashPrev(containerId){
-    const el=document.getElementById(containerId);
-    if(!el||!el.innerHTML.trim())return;
-    const clone=el.cloneNode(true);
-    clone.querySelectorAll('.prev-block').forEach(d=>d.remove());
-    if(!clone.innerHTML.trim())return;
-    PREV[containerId]=PREV[containerId]||[];
-    PREV[containerId].unshift(clone.innerHTML);
-    PREV[containerId]=PREV[containerId].slice(0,3);
-}
-function renderPrev(containerId){
-    const list=PREV[containerId]||[];
-    if(!list.length)return '';
-    return '<details class="prev-block" style="margin-top:16px"><summary style="cursor:pointer;font-size:.85rem;color:var(--text-light);padding:8px;background:#f8f4f2;border-radius:8px">🕐 前回までの生成結果を見比べる（'+list.length+'件）</summary>'+list.map((h,i)=>'<div style="opacity:.9;border-top:2px dashed var(--border);margin-top:12px;padding-top:12px"><div style="font-size:.78rem;font-weight:700;color:var(--text-light)">── '+(i+1)+'回前の結果 ──</div>'+h+'</div>').join('')+'</details>';
-}
-
-// ========== 画面内エラー表示 ==========
-function showError(containerId, msg, retryFn){
-    const el=document.getElementById(containerId);
-    if(!el){alert(msg);return;}
-    window['_retry_'+containerId]=retryFn;
-    el.innerHTML=`<div class="card" style="border-color:#fecaca;background:#fef2f2">
-        <p style="font-weight:700;color:var(--red)">⚠️ ${msg}</p>
-        <p style="font-size:.85rem;color:var(--text-light);margin:6px 0 10px">通信が混み合っていた可能性があります。もう一度お試しください。</p>
-        <button class="btn" onclick="window['_retry_${containerId}']()">🔄 もう一度試す</button>
-    </div>`;
-}
-
-// ========== 自店プロフィール ==========
-function getProfile(){
-    const v=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
-    const parts=[];
-    if(v('pf-type'))parts.push('業種: '+v('pf-type'));
-    if(v('pf-name'))parts.push('店名: '+v('pf-name'));
-    if(v('pf-area'))parts.push('地域: '+v('pf-area'));
-    if(v('pf-strength'))parts.push('強み: '+v('pf-strength'));
-    if(v('pf-record'))parts.push('実績: '+v('pf-record'));
-    return parts.join(' / ');
-}
-
-// ========== 生成待ちの経過表示 ==========
-let waitTimers={};
-function startWait(textId, label, estSec){
-    const el=document.getElementById(textId);if(!el)return;
-    let sec=0;
-    stopWait(textId);
-    el.textContent=`🤖 ${label}（目安 約${estSec}秒 / 経過 0秒）`;
-    waitTimers[textId]=setInterval(()=>{
-        sec++;
-        const note=sec>estSec?' もう少しです、閉じずにお待ちください！':'';
-        el.textContent=`🤖 ${label}（目安 約${estSec}秒 / 経過 ${sec}秒）${note}`;
-    },1000);
-}
-function stopWait(textId){if(waitTimers[textId]){clearInterval(waitTimers[textId]);delete waitTimers[textId];}}
-
-// ========== 印刷・一括コピー ==========
-function printResults(containerId, title){
-    const el=document.getElementById(containerId);
-    if(!el||!el.innerHTML.trim()){alert('先に生成してください');return;}
-    const w=window.open('','_blank');
-    w.document.write('<html><head><title>'+title+'</title><style>body{font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;line-height:1.8;padding:28px;color:#1e293b}h3,h4{margin:16px 0 6px}button{display:none}div{page-break-inside:avoid}</style></head><body><h2>'+title+'</h2>'+el.innerHTML+'</body></html>');
-    w.document.close();setTimeout(()=>w.print(),300);
-}
-function cpAll(){
-    if(!G.copies||!G.copies.length){alert('先に生成してください');return;}
-    const t=G.copies.map((c,i)=>(i+1)+'. '+c.copy).join('\n');
-    navigator.clipboard.writeText(t).then(()=>alert(G.copies.length+'本まとめてコピーしました'));
+// ========== コピー共通処理（失敗時は手動コピー用に表示） ==========
+function safeCopy(text, onSuccess, containerId){
+    const fallback=()=>{
+        const box=document.getElementById(containerId||'copy-fallback');
+        const html=`<div class="card" style="border-color:#fbbf24"><p style="font-weight:700">📋 自動コピーができませんでした</p>
+        <p style="font-size:.85rem;color:var(--text-light);margin:6px 0">下の枠を長押し（PCは選択）してコピーしてください。</p>
+        <textarea class="form-input" rows="8" onclick="this.select()">${esc(text)}</textarea></div>`;
+        if(box){box.innerHTML=html;box.style.display='block';}
+        else{alert('自動コピーができませんでした。画面の枠から手動でコピーしてください');}
+    };
+    if(!navigator.clipboard){fallback();return;}
+    navigator.clipboard.writeText(text).then(onSuccess).catch(fallback);
 }
 
 // ========== GPTs連携（台本・ロープレ・LINE） ==========
@@ -1556,6 +1296,8 @@ const GPTS_URLS={
     line:'https://chatgpt.com/g/g-6a279bd865448191ae1314b5c3c4e885-gong-shi-linesutetuhupei-xin-zuo-rukun',
 };
 function openGpt(kind){
+    const stepOf={script:5,roleplay:6,line:7};
+    if(stepOf[kind]){markDone(stepOf[kind]);}
     const url=GPTS_URLS[kind];
     if(!url){alert('専用GPTのURLがまだ設定されていません。先に「①店の情報をコピー」して、お使いのChatGPTやGeminiに貼り付けても同じように作れます。');return;}
     window.open(url,'_blank');
@@ -1577,10 +1319,10 @@ function copyBrief(kind,btn){
         t+='\n';
     }
     if(kind==='roleplay')t+='あなたはこのお客様像の新規客役になってください。私がカウンセリング役です。最初の来店シーンから始めてください。\n';
-    navigator.clipboard.writeText(t).then(()=>{
-        btn.textContent='✓ コピーしました！次に②を押してGPTに貼り付け';
-        setTimeout(()=>{btn.textContent='📋 ①店の情報をコピー';},4000);
-    });
+    safeCopy(t,()=>{
+        btn.textContent=prof?'✓ コピーしました！次に②を押してGPTに貼り付け':'✓ コピーしました（🏪自店プロフィールを入れると精度が上がります）';
+        setTimeout(()=>{btn.textContent='📋 ①店の情報をコピー';},5000);
+    },'gpt-fallback-'+kind);
 }
 
 // ========== 広告診断 ==========
@@ -1625,7 +1367,6 @@ function adPickDest(el){
     if(rs)rs.textContent=AD_STATE.dest==='リード獲得フォーム'?'獲得リード数':'予約・問い合わせ数';
     document.getElementById('ad-num-wrap').style.display='block';
 }
-function updateAdForm(){} // 旧互換
 // ===== 広告診断の履歴と前回比較 =====
 const AD_HIST_KEY='ai_staffroom_ad_history';
 function adGetHist(){try{return JSON.parse(localStorage.getItem(AD_HIST_KEY)||'[]');}catch(e){return[];}}
@@ -1747,6 +1488,7 @@ async function genAdCheck(){
                 try{localStorage.setItem(AD_HIST_KEY,JSON.stringify(hist.slice(0,10)));}catch(e){}
                 html+=adHistHtml(hist.slice(0,10));
             }
+            html+='<div style="text-align:center;margin-top:8px"><button class="btn btn-outline" onclick="printResults(\'adcheck-results\',\'広告の診断結果\')">🖨 印刷・PDFで保存</button></div>';
             document.getElementById('adcheck-results').innerHTML=html+renderPrev('adcheck-results');
             markDone(10);
         }
@@ -1786,6 +1528,7 @@ async function genCheckup(){
             }
             if(d.cheer)html+=`<div class="tips-box"><p>💪 ${esc(d.cheer)}</p></div>`;
             if(d.rule_based)html+=`<div style="text-align:center;margin-top:10px"><button class="btn btn-outline" onclick="window._ckUseAI=true;genCheckup();window._ckUseAI=false;">🤖 AI講師の詳しい診断を見る（あなたの店の文脈込み・約30秒）</button></div>`;
+            html+='<div style="text-align:center;margin-top:8px"><button class="btn btn-outline" onclick="printResults(\'checkup-results\',\'今月の数字診断\')">🖨 印刷・PDFで保存</button></div>';
             document.getElementById('checkup-results').innerHTML=html;
             markDone(9);
         }
@@ -1796,15 +1539,24 @@ async function genCheckup(){
 
 // ========== 自動保存・復元（閉じても続きから再開できる） ==========
 const SAVE_KEY='ai_staffroom_save_v1';
-const UI_VERSION='v4'; // 画面構造を変えたら上げる（古い保存HTMLの復元を防ぐ）
+const UI_VERSION='v5'; // 画面構造を変えたら上げる（古い保存HTMLの復元を防ぐ）
 function saveState(){
     try{
         const fields={};
         document.querySelectorAll('input[id],textarea[id],select[id]').forEach(el=>{if(el.type==='checkbox')return;if(el.value)fields[el.id]=el.value;});
         const steps={};
-        for(let i=1;i<=10;i++){const el=document.getElementById('step-'+i);if(el)steps[i]=el.innerHTML;}
+        for(let i=1;i<=10;i++){
+            const el=document.getElementById('step-'+i);
+            if(!el)continue;
+            const clone=el.cloneNode(true);
+            clone.querySelectorAll('img,textarea').forEach(n=>n.remove()); // 画像base64は保存しない（容量超過防止）
+            steps[i]=clone.innerHTML;
+        }
         localStorage.setItem(SAVE_KEY,JSON.stringify({ui:UI_VERSION,g:{...G,done:[...G.done]},fields,steps,at:Date.now()}));
-    }catch(e){console.warn('[save] 保存失敗',e);}
+    }catch(e){
+        console.warn('[save] 保存失敗',e);
+        try{localStorage.removeItem(SAVE_KEY);}catch(e2){}
+    }
 }
 function restoreState(){
     try{
