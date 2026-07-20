@@ -38,7 +38,7 @@ SYSTEM_PROMPT = f"""
 """
 
 
-def run_checkup(monthly_target, revenue, new_clients, contracts, avg_price, ad_cost=0, salon_profile='', use_ai=True):
+def run_checkup(monthly_target, revenue, new_clients, contracts, avg_price, ad_cost=0, cost=0, salon_profile='', use_ai=True):
     """月次数字を診断する。計算はルールベース、診断・打ち手はAI。"""
     achievement = round(revenue / monthly_target * 100) if monthly_target else 0
     contract_rate = round(contracts / new_clients * 100) if new_clients else 0
@@ -47,6 +47,10 @@ def run_checkup(monthly_target, revenue, new_clients, contracts, avg_price, ad_c
 
     def status_of(val, good, warn):
         return 'good' if val >= good else ('warn' if val >= warn else 'bad')
+
+    # 利益（固定費+広告費を引いた残り）
+    profit = revenue - cost - ad_cost if cost else None
+    profit_rate = round(profit / revenue * 100) if (profit is not None and revenue) else None
 
     metrics = [
         {'label': '目標達成率', 'value': f'{achievement}%', 'status': status_of(achievement, 100, 70),
@@ -58,6 +62,10 @@ def run_checkup(monthly_target, revenue, new_clients, contracts, avg_price, ad_c
         {'label': '平均単価', 'value': f'{avg_price:,}円', 'status': 'info',
          'note': '安売りしていないか？③価格設定と比べてください'},
     ]
+    if profit is not None:
+        metrics.insert(1, {'label': '手元に残るお金（利益）', 'value': f'{profit:,}円',
+                           'status': 'good' if profit_rate and profit_rate >= 30 else ('warn' if profit_rate and profit_rate >= 10 else 'bad'),
+                           'note': f'売上{revenue:,}円 −（かかったお金{cost:,}円＋広告費{ad_cost:,}円）＝利益率{profit_rate}%（30%以上が目安）'})
     if cpa:
         metrics.append({'label': '新規1人あたりの広告費', 'value': f'{cpa:,}円',
                         'status': 'good' if cpa <= 10000 else ('warn' if cpa <= 20000 else 'bad'),
@@ -67,6 +75,7 @@ def run_checkup(monthly_target, revenue, new_clients, contracts, avg_price, ad_c
         f"目標月商{monthly_target:,}円 / 実績{revenue:,}円（達成率{achievement}%・不足{max(gap,0):,}円）\n"
         f"新規{new_clients}人 → コース成約{contracts}人（成約率{contract_rate}%）\n"
         f"平均単価{avg_price:,}円 / 広告費{ad_cost:,}円" + (f"（CPA {cpa:,}円）" if cpa else '')
+        + (f"\n利益{profit:,}円（利益率{profit_rate}%）" if profit is not None else '')
     )
 
     # === ルールベース診断（AIなし・無料・即時） ===

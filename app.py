@@ -502,6 +502,7 @@ def api_checkup():
         contracts = num('contracts')
         avg_price = num('avg_price')
         ad_cost = num('ad_cost')
+        cost = num('cost')
         salon_profile = (data.get('salon_profile') or '').strip()
 
         if not revenue and not new_clients:
@@ -512,7 +513,7 @@ def api_checkup():
         result = run_checkup(
             monthly_target=monthly_target, revenue=revenue,
             new_clients=new_clients, contracts=contracts,
-            avg_price=avg_price, ad_cost=ad_cost, salon_profile=salon_profile,
+            avg_price=avg_price, ad_cost=ad_cost, cost=cost, salon_profile=salon_profile,
             use_ai=bool(data.get('use_ai')),
         )
         return jsonify(result)

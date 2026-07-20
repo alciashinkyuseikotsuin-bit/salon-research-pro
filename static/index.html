@@ -568,6 +568,7 @@
                 <div class="form-group" style="margin-bottom:0"><label>うちコース成約数</label><input type="number" class="form-input" id="ck-contracts" placeholder="例: 3"></div>
                 <div class="form-group" style="margin-bottom:0"><label>平均単価（円）</label><input type="number" class="form-input" id="ck-price" placeholder="例: 8000"></div>
                 <div class="form-group" style="margin-bottom:0"><label>広告費（円・任意）</label><input type="number" class="form-input" id="ck-adcost" placeholder="例: 30000"></div>
+                <div class="form-group" style="margin-bottom:0"><label>かかったお金（家賃・材料費など・任意）</label><input type="number" class="form-input" id="ck-cost" placeholder="例: 250000"></div>
             </div>
             <button class="btn" style="margin-top:12px" onclick="genCheckup()">AIに診断してもらう</button>
         </div>
@@ -1498,6 +1499,48 @@ async function genAdCheck(){
     document.getElementById('loading-adcheck').classList.remove('active');
 }
 
+// ========== 数字診断の履歴・前月比較 ==========
+const CK_HIST_KEY='ai_staffroom_checkup_history';
+function ckGetHist(){try{return JSON.parse(localStorage.getItem(CK_HIST_KEY)||'[]');}catch(e){return[];}}
+function ckDerive(n){
+    const rev=+n.revenue||0,newc=+n.new_clients||0,ct=+n.contracts||0,price=+n.avg_price||0,ad=+n.ad_cost||0,cost=+n.cost||0;
+    const d={};
+    d['月商']={v:rev,dir:1,unit:'円'};
+    if(cost)d['利益']={v:rev-cost-ad,dir:1,unit:'円'};
+    if(newc)d['新規のお客様']={v:newc,dir:1,unit:'人'};
+    if(newc&&ct)d['成約率']={v:Math.round(ct/newc*100),dir:1,unit:'%'};
+    if(price)d['平均単価']={v:price,dir:1,unit:'円'};
+    if(ad&&newc)d['新規1人あたり広告費']={v:Math.round(ad/newc),dir:-1,unit:'円'};
+    return d;
+}
+function ckCompareHtml(rec,prev){
+    if(!prev)return '';
+    const cur=ckDerive(rec.numbers),old=ckDerive(prev.numbers);
+    let rows='';
+    for(const[k,c]of Object.entries(cur)){
+        const p=old[k];if(!p||!p.v)continue;
+        const diff=c.v-p.v,pct=p.v?Math.round(Math.abs(diff)/Math.abs(p.v)*100):0;
+        let mark='→',color='var(--text-light)',word='変化なし';
+        if(Math.abs(diff)>0.001){
+            const better=(diff>0)===(c.dir>0);
+            mark=diff>0?'▲':'▼';
+            color=better?'#65a30d':'#dc2626';
+            word=`${pct}% ${better?'良くなった':'悪くなった'}`;
+        }
+        rows+=`<tr><td style="padding:6px 10px;font-size:.85rem">${k}</td><td style="padding:6px 10px;text-align:right;color:var(--text-light)">${p.v.toLocaleString()}${p.unit}</td><td style="padding:6px 10px;text-align:right;font-weight:700">${c.v.toLocaleString()}${c.unit}</td><td style="padding:6px 10px;font-weight:700;color:${color}">${mark} ${word}</td></tr>`;
+    }
+    if(!rows)return '';
+    return `<div class="card"><h3>📈 前回の診断との比較 <span style="font-size:.75rem;color:var(--text-light)">（前回: ${esc(prev.date)}）</span></h3>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr style="border-bottom:1px solid var(--border);font-size:.75rem;color:var(--text-light)"><th style="text-align:left;padding:6px 10px">項目</th><th style="text-align:right">前回</th><th style="text-align:right">今回</th><th style="text-align:left;padding-left:10px">変化</th></tr>${rows}</table></div>
+    <p style="font-size:.78rem;color:var(--text-light);margin-top:8px">💡 毎月末に診断すると、月ごとの推移が積み上がっていきます。</p></div>`;
+}
+function ckHistHtml(hist){
+    if(hist.length<2)return '';
+    return `<details class="prev-block" style="margin-top:12px"><summary style="cursor:pointer;font-size:.85rem;color:var(--text-light);padding:8px;background:#f8f4f2;border-radius:8px">🗂 これまでの月次推移（${hist.length}件）</summary>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:.85rem"><tr style="border-bottom:1px solid var(--border);font-size:.72rem;color:var(--text-light)"><th style="text-align:left;padding:6px 8px">日付</th><th style="text-align:right">月商</th><th style="text-align:right">利益</th><th style="text-align:right">成約率</th><th style="text-align:left;padding-left:8px">課題</th></tr>
+    ${hist.map(h=>{const d=ckDerive(h.numbers);return `<tr style="border-bottom:1px dashed var(--border)"><td style="padding:6px 8px;color:var(--text-light)">${esc(h.date)}</td><td style="padding:6px 8px;text-align:right">${(d['月商']?.v||0).toLocaleString()}円</td><td style="padding:6px 8px;text-align:right">${d['利益']?d['利益'].v.toLocaleString()+'円':'—'}</td><td style="padding:6px 8px;text-align:right">${d['成約率']?d['成約率'].v+'%':'—'}</td><td style="padding:6px 8px">${esc(h.bottleneck||'')}</td></tr>`;}).join('')}</table></div></details>`;
+}
+
 // ========== 数字診断 ==========
 async function genCheckup(){
     const v=id=>document.getElementById(id).value;
@@ -1508,7 +1551,7 @@ async function genCheckup(){
     try{
         const r=await fetch('/api/checkup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
             monthly_target:v('ck-target'),revenue:v('ck-revenue'),new_clients:v('ck-new'),
-            contracts:v('ck-contracts'),avg_price:v('ck-price'),ad_cost:v('ck-adcost'),
+            contracts:v('ck-contracts'),avg_price:v('ck-price'),ad_cost:v('ck-adcost'),cost:v('ck-cost'),
             use_ai:window._ckUseAI||false,
             salon_profile:getProfile()})});
         const d=await r.json();
@@ -1529,6 +1572,13 @@ async function genCheckup(){
             }
             if(d.cheer)html+=`<div class="tips-box"><p>💪 ${esc(d.cheer)}</p></div>`;
             if(d.rule_based)html+=`<div style="text-align:center;margin-top:10px"><button class="btn btn-outline" onclick="window._ckUseAI=true;genCheckup();window._ckUseAI=false;">🤖 AI講師の詳しい診断を見る（あなたの店の文脈込み・約30秒）</button></div>`;
+            // 月次履歴に記録して前回と比較
+            const ckNums={revenue:v('ck-revenue'),new_clients:v('ck-new'),contracts:v('ck-contracts'),avg_price:v('ck-price'),ad_cost:v('ck-adcost'),cost:v('ck-cost')};
+            const ckHist=ckGetHist();
+            const ckRec={date:new Date().toLocaleDateString('ja-JP'),numbers:ckNums,bottleneck:d.bottleneck||''};
+            html+=ckCompareHtml(ckRec,ckHist[0]);
+            if(!window._ckUseAI){ckHist.unshift(ckRec);try{localStorage.setItem(CK_HIST_KEY,JSON.stringify(ckHist.slice(0,24)));}catch(e){}}
+            html+=ckHistHtml(ckGetHist());
             html+='<div style="text-align:center;margin-top:8px"><button class="btn btn-outline" onclick="printResults(\'checkup-results\',\'今月の数字診断\')">🖨 印刷・PDFで保存</button></div>';
             document.getElementById('checkup-results').innerHTML=html;
             markDone(9);
